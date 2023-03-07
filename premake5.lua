@@ -4,6 +4,7 @@ output = "%{cfg.buildcfg}-%{cfg.system}-%{cfg.architecture}";
 
 -- includes directories
 includes = {};
+includes.glad = "NextEngine/vendor/glad/include"
 
 -- workspace
 workspace "NEXT"
@@ -15,6 +16,10 @@ workspace "NEXT"
         "Release",
         "Dist"
     }
+
+    group "Vendors"
+        include "NextEngine/vendor/glad"
+    group ""
 
     -- ENGINE PROJECT
     project "NextEngine"
@@ -34,6 +39,13 @@ workspace "NEXT"
 
         includedirs {
             "%{prj.name}/src",
+            "%{includes.glad}",
+        }
+
+        links {
+            "glad",
+            
+            "opengl32.lib",
         }
 
         filter "system:windows"
@@ -76,6 +88,7 @@ workspace "NEXT"
     
         includedirs {
             "NextEngine/src",
+            "%{includes.glad}",
         };
     
         filter "configurations:Debug"

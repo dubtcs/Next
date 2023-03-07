@@ -3,6 +3,8 @@
 
 #ifdef NXT_PLATFORM_WINDOWS
 
+#include <glad/glad.h>
+
 constexpr const wchar_t* GWindowClassName{ L"NxtWindowClass" };
 constexpr const wchar_t* GWindowDescription{ L"WINDOW HEHE" };
 
@@ -19,9 +21,9 @@ namespace nxt
 		Init();
 	}
 
-	Window::Window(std::function<bool(events::Event& ev)> func)
+	Window::Window(std::function<bool(events::Event& ev)> func) :
+		mCallback{ func }
 	{
-		SetEventCallback(func);
 		Init();
 	}
 
@@ -49,34 +51,65 @@ namespace nxt
 
 		fClass.lpfnWndProc = WindowProcedure;
 
-		std::cout << 1;
+		// All window classes that an application registers are unregistered when it terminates.
 		if (!RegisterClassEx(&fClass))
 		{
 			return false;
 		}
 
-		std::cout << 2;
-		mHWND = CreateWindowEx(WS_EX_OVERLAPPEDWINDOW, GWindowClassName, GWindowDescription, WS_OVERLAPPEDWINDOW, CW_USEDEFAULT, CW_USEDEFAULT, GWidth, GHeight, NULL, NULL, NULL, this);
-		if (!mHWND)
+		mWindowHandle = CreateWindowEx(WS_EX_OVERLAPPEDWINDOW, GWindowClassName, GWindowDescription, WS_OVERLAPPEDWINDOW, CW_USEDEFAULT, CW_USEDEFAULT, GWidth, GHeight, NULL, NULL, NULL, this);
+		if (!mWindowHandle)
 		{
 			return false;
 		}
 
-		std::cout << 3;
-		ShowWindow(mHWND, SW_SHOW);
-		UpdateWindow(mHWND);
+		ShowWindow(mWindowHandle, SW_SHOW);
+		UpdateWindow(mWindowHandle);
+
+		// GL Context
+		PIXELFORMATDESCRIPTOR pixelFormatDesc{
+			sizeof(PIXELFORMATDESCRIPTOR),  //  size of this pfd  
+			1,                     // version number  
+			PFD_DRAW_TO_WINDOW |   // support window  
+			PFD_SUPPORT_OPENGL |   // support OpenGL  
+			PFD_DOUBLEBUFFER,      // double buffered  
+			PFD_TYPE_RGBA,         // RGBA type  
+			24,                    // 24-bit color depth  
+			0, 0, 0, 0, 0, 0,      // color bits ignored  
+			0,                     // no alpha buffer  
+			0,                     // shift bit ignored  
+			0,                     // no accumulation buffer  
+			0, 0, 0, 0,            // accum bits ignored  
+			32,                    // 32-bit z-buffer      
+			0,                     // no stencil buffer  
+			0,                     // no auxiliary buffer  
+			PFD_MAIN_PLANE,        // main layer  
+			0,                     // reserved  
+			0, 0, 0                // layer masks ignored  
+		};
+
+		mDeviceContext = GetDC(mWindowHandle);
+		int pixelFormat{ ChoosePixelFormat(mDeviceContext, &pixelFormatDesc) };
+		SetPixelFormat(mDeviceContext, pixelFormat, &pixelFormatDesc);
+		mRenderingContext = wglCreateContext(mDeviceContext);
+		wglMakeCurrent(mDeviceContext, mRenderingContext);
+		gladLoadGL();
+		glViewport(0, 0, GWidth, GHeight);
 
 		return true;
 	}
 
 	bool Window::OnCreate()
 	{
-
 		return true;
 	}
 
 	bool Window::OnUpdate(float dt)
 	{
+		glClearColor(0.2f, 0.2f, 0.2f, 1.0f);
+		glClear(GL_COLOR_BUFFER_BIT);
+		SwapBuffers(mDeviceContext);
+
 		return true;
 	}
 
@@ -90,11 +123,8 @@ namespace nxt
 	bool Window::OnResize(uint32_t x, uint32_t y)
 	{
 		// first WM_SIZE is called before the callback is set
-		//if (mCallback)
-		//{
 		events::WindowResized ev{ x, y };
 		mCallback(ev);
-		//}
 		return true;
 	}
 
@@ -105,9 +135,11 @@ namespace nxt
 
 	bool Window::Release()
 	{
-		if (mHWND)
+		ReleaseDC(mWindowHandle, mDeviceContext);
+		wglDeleteContext(mRenderingContext);
+		if (mWindowHandle)
 		{
-			if (!DestroyWindow(mHWND))
+			if (!DestroyWindow(mWindowHandle))
 			{
 				return false;
 			}

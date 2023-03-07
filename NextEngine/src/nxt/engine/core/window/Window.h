@@ -27,8 +27,12 @@ namespace nxt
 		Window(const Window&) = delete;
 		Window& operator=(const Window&) = delete;
 	protected:
-		HWND mHWND;
+		HWND mWindowHandle;
 		HINSTANCE mHinstance;
+
+		// rendering contexts
+		HDC mDeviceContext;
+		HGLRC mRenderingContext;
 
 		std::function<bool(events::Event&)> mCallback;
 	};
