@@ -3,6 +3,7 @@
 #include <nxt/engine/EngineCore.h>
 
 #include "nxt/engine/core/events/Event.h"
+#include "nxt/engine/render/device/GLRender.h"
 #include <functional>
 
 #ifdef NXT_PLATFORM_WINDOWS
@@ -31,8 +32,8 @@ namespace nxt
 		HINSTANCE mHinstance;
 
 		// rendering contexts
-		HDC mDeviceContext;
-		HGLRC mRenderingContext;
+		/*HDC mDeviceContext;
+		HGLRC mRenderingContext;*/
 
 		std::function<bool(events::Event&)> mCallback;
 	};

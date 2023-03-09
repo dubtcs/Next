@@ -1,6 +1,8 @@
 
 #include "App.h"
 
+#include <nxt/engine/render/crtp/RenderEngine.h>
+
 #ifdef NXT_PLATFORM_WINDOWS
 
 namespace nxt
@@ -9,7 +11,6 @@ namespace nxt
 	App::App()
 	{
 		mWindow = NewUnique<Window>(NXT_BIND_FN(App::OnEvent));
-		//mWindow->SetEventCallback(NXT_BIND_FN(App::OnEvent));
 	}
 
 	App::~App()

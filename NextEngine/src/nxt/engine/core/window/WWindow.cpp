@@ -66,35 +66,7 @@ namespace nxt
 		ShowWindow(mWindowHandle, SW_SHOW);
 		UpdateWindow(mWindowHandle);
 
-		// GL Context
-		PIXELFORMATDESCRIPTOR pixelFormatDesc{
-			sizeof(PIXELFORMATDESCRIPTOR),  //  size of this pfd  
-			1,                     // version number  
-			PFD_DRAW_TO_WINDOW |   // support window  
-			PFD_SUPPORT_OPENGL |   // support OpenGL  
-			PFD_DOUBLEBUFFER,      // double buffered  
-			PFD_TYPE_RGBA,         // RGBA type  
-			24,                    // 24-bit color depth  
-			0, 0, 0, 0, 0, 0,      // color bits ignored  
-			0,                     // no alpha buffer  
-			0,                     // shift bit ignored  
-			0,                     // no accumulation buffer  
-			0, 0, 0, 0,            // accum bits ignored  
-			32,                    // 32-bit z-buffer      
-			0,                     // no stencil buffer  
-			0,                     // no auxiliary buffer  
-			PFD_MAIN_PLANE,        // main layer  
-			0,                     // reserved  
-			0, 0, 0                // layer masks ignored  
-		};
-
-		mDeviceContext = GetDC(mWindowHandle);
-		int pixelFormat{ ChoosePixelFormat(mDeviceContext, &pixelFormatDesc) };
-		SetPixelFormat(mDeviceContext, pixelFormat, &pixelFormatDesc);
-		mRenderingContext = wglCreateContext(mDeviceContext);
-		wglMakeCurrent(mDeviceContext, mRenderingContext);
-		gladLoadGL();
-		glViewport(0, 0, GWidth, GHeight);
+		render::Init(&mWindowHandle);
 
 		return true;
 	}
@@ -106,9 +78,8 @@ namespace nxt
 
 	bool Window::OnUpdate(float dt)
 	{
-		glClearColor(0.2f, 0.2f, 0.2f, 1.0f);
-		glClear(GL_COLOR_BUFFER_BIT);
-		SwapBuffers(mDeviceContext);
+		render::FrameStart();
+		//SwapBuffers(mDeviceContext);
 
 		return true;
 	}
@@ -135,8 +106,9 @@ namespace nxt
 
 	bool Window::Release()
 	{
-		ReleaseDC(mWindowHandle, mDeviceContext);
-		wglDeleteContext(mRenderingContext);
+		/*ReleaseDC(mWindowHandle, mDeviceContext);
+		wglDeleteContext(mRenderingContext);*/
+		render::Release();
 		if (mWindowHandle)
 		{
 			if (!DestroyWindow(mWindowHandle))

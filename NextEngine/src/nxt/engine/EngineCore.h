@@ -29,9 +29,11 @@
 #define BIT(x) 1 << x
 
 // types
+#ifdef NXT_DEFINE_TYPES
 #define I32 int32_t
 #define U32 uint32_t
 #define F32 float
+#endif
 
 #define NXT_BIND_FN(x) std::bind(&x, this, std::placeholders::_1)
 
