@@ -1,7 +1,9 @@
 #pragma once
 
-#include <nxt/engine/EngineCore.h>
+#include <nxt/EngineCore.h>
 #include "../window/Window.h"
+
+#include <nxt/render/buffers/VertexBuffer.h>
 
 #ifdef NXT_PLATFORM_WINDOWS
 
@@ -17,7 +19,7 @@ namespace nxt
 		~App();
 	protected:
 		bool OnWindowClose(events::WindowClosed& ev);
-
+		bool OnWindowResize(events::WindowResized& ev);
 	protected:
 		bool mRunning{ true };
 		Shared<Window> mWindow;

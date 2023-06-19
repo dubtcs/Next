@@ -1,24 +1,21 @@
 
-#include "../GLRender.h"
+#include "../Device.h"
 
-#include <iostream>
-
+//#include <glad/glad.h>
 #ifdef NXT_PLATFORM_WINDOWS
-
-#include <glad/glad.h>
 
 // rendering contexts
 static HWND* gWindowHandle{ nullptr };
 static HDC gDeviceContext;
 static HGLRC gRenderingContext;
 
-constexpr const wchar_t* GWindowClassName{ L"NxtWindowClass" };
-constexpr const wchar_t* GWindowDescription{ L"WINDOW HEHE" };
+static constexpr const wchar_t* GWindowClassName{ L"NxtWindowClass" };
+static constexpr const wchar_t* GWindowDescription{ L"WINDOW HEHE" };
 
-constexpr int GWidth{ 1920 };
-constexpr int GHeight{ 1080 };
+static constexpr int GWidth{ 1920 };
+static constexpr int GHeight{ 1080 };
 
-namespace nxt::render
+namespace nxt::device
 {
 
 	bool Init(HWND* windowHandle)
@@ -51,8 +48,6 @@ namespace nxt::render
 		SetPixelFormat(gDeviceContext, pixelFormat, &pixelFormatDesc);
 		gRenderingContext = wglCreateContext(gDeviceContext);
 		wglMakeCurrent(gDeviceContext, gRenderingContext);
-		gladLoadGL();
-		glViewport(0, 0, GWidth, GHeight);
 
 		return true;
 	}
@@ -65,21 +60,9 @@ namespace nxt::render
 		return true;
 	}
 
-	void FrameStart()
+	void SwapBuffers()
 	{
-		glClearColor(0.2f, 0.2f, 0.2f, 1.0f);
-		glClear(GL_COLOR_BUFFER_BIT);
 		SwapBuffers(gDeviceContext);
-	}
-
-	void FrameEnd()
-	{
-
-	}
-
-	void SetClearColor(float& r, float& g, float& b)
-	{
-
 	}
 
 }

@@ -1,10 +1,13 @@
 
 #include <NextEngine.h>
-#include <nxt/Entrypoint.h>
 
-namespace nxt
+#include "EditorApp.h"
+
+int main()
 {
 
-
+	nxt::App* app{ new nxt::App{} };
+	app->Run();
+	delete app;
 
 }

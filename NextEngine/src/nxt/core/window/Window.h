@@ -1,9 +1,9 @@
 #pragma once
 
-#include <nxt/engine/EngineCore.h>
+#include <nxt/EngineCore.h>
 
-#include "nxt/engine/core/events/Event.h"
-#include "nxt/engine/render/device/GLRender.h"
+#include "nxt/core/events/Event.h"
+#include "nxt/core/device/Device.h"
 #include <functional>
 
 #ifdef NXT_PLATFORM_WINDOWS

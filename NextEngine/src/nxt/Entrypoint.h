@@ -19,6 +19,6 @@ int main(int argc, char** argv)
 
 #else
 
-#error "Only windows supported"
+//#error "Only windows supported"
 
 #endif

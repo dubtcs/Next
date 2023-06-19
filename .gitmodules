@@ -1,0 +1,3 @@
+[submodule "NextEngine/vendor/glm"]
+	path = NextEngine/vendor/glm
+	url = https://github.com/dubtcs/glm

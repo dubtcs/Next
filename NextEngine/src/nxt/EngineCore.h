@@ -3,6 +3,10 @@
 #ifdef _WIN32
 	#ifdef _WIN64
 		#define NXT_PLATFORM_WINDOWS
+
+		#ifndef NOMINMAX
+			#define NOMINMAX
+		#endif
 		#include <Windows.h>
 
 		#ifdef NXT_AS_DLL
@@ -35,7 +39,14 @@
 #define F32 float
 #endif
 
-#define NXT_BIND_FN(x) std::bind(&x, this, std::placeholders::_1)
+// Use for binding event callbacks
+#define NXT_CALLBACK(function_name) [this](auto&&... arg) { return this->function_name(std::forward<decltype(arg)>(arg)...); }
+
+// Deprecated
+//#define NXT_BIND_FN(x) std::bind(&x, this, std::placeholders::_1)
+
+// NXT Namespace
+#define NXT_NS nxt
 
 namespace nxt
 {

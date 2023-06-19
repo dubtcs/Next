@@ -1,6 +1,6 @@
 #pragma once
 
-#include <nxt/engine/EngineCore.h>
+#include <nxt/EngineCore.h>
 
 #include <vector>
 #include <functional>
@@ -41,13 +41,13 @@ namespace nxt
 		class NXT_API Handler
 		{
 		public:
-			template<typename T>
-			bool Fire(std::function<bool(T&)> function)
+			template<typename T, typename F> // Event Type, Function Lambda Type
+			bool Fire(const F& fn)
 			{
-				static_assert(std::is_base_of<Event, T>::value, "T must be derive from Event!");
+				static_assert(std::is_base_of<Event, T>::value, "T must derive from Event");
 				if (mEvent.GetType() & T::StaticType)
 				{
-					mEvent.Handled = function(*(T*)&mEvent);
+					mEvent.Handled = fn(static_cast<T&>(mEvent));
 					return true;
 				}
 				return false;

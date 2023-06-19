@@ -1,6 +1,8 @@
 
 #include "Window.h"
 
+#include <nxt/render/RenderAPI.h>
+
 #ifdef NXT_PLATFORM_WINDOWS
 
 #include <glad/glad.h>
@@ -34,6 +36,8 @@ namespace nxt
 
 	bool Window::Init()
 	{
+		render::api::Init();
+
 		mHinstance = GetModuleHandle(nullptr);
 
 		WNDCLASSEX fClass{};
@@ -63,10 +67,13 @@ namespace nxt
 			return false;
 		}
 
+		device::Init(&mWindowHandle);
+		render::api::Init();
+
 		ShowWindow(mWindowHandle, SW_SHOW);
 		UpdateWindow(mWindowHandle);
 
-		render::Init(&mWindowHandle);
+		render::api::SetClearColor(0.25f,0.25f,0.25f,1.f);
 
 		return true;
 	}
@@ -78,8 +85,8 @@ namespace nxt
 
 	bool Window::OnUpdate(float dt)
 	{
-		render::FrameStart();
-		//SwapBuffers(mDeviceContext);
+		device::SwapBuffers();
+		render::api::Clear();
 
 		return true;
 	}
@@ -93,6 +100,7 @@ namespace nxt
 
 	bool Window::OnResize(uint32_t x, uint32_t y)
 	{
+		std::cout << "resize\n";
 		// first WM_SIZE is called before the callback is set
 		events::WindowResized ev{ x, y };
 		mCallback(ev);
@@ -106,9 +114,7 @@ namespace nxt
 
 	bool Window::Release()
 	{
-		/*ReleaseDC(mWindowHandle, mDeviceContext);
-		wglDeleteContext(mRenderingContext);*/
-		render::Release();
+		device::Release();
 		if (mWindowHandle)
 		{
 			if (!DestroyWindow(mWindowHandle))

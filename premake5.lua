@@ -5,6 +5,7 @@ output = "%{cfg.buildcfg}-%{cfg.system}-%{cfg.architecture}";
 -- includes directories
 includes = {};
 includes.glad = "NextEngine/vendor/glad/include"
+includes.glm = "NextEngine/vendor/glm/glm"
 
 -- workspace
 workspace "NEXT"
@@ -35,11 +36,15 @@ workspace "NEXT"
         files {
             "%{prj.name}/src/**.h",
             "%{prj.name}/src/**.cpp",
+
+            -- No GLFW so we need GLAD's opengl loader
+            "%{prj.name}/vendor/glad/src/glad.c",
         };
 
         includedirs {
             "%{prj.name}/src",
             "%{includes.glad}",
+            "%{includes.glm}",
         }
 
         links {
@@ -89,6 +94,7 @@ workspace "NEXT"
         includedirs {
             "NextEngine/src",
             "%{includes.glad}",
+            "%{includes.glm}",
         };
     
         filter "configurations:Debug"
