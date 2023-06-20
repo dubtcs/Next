@@ -6,29 +6,30 @@
 namespace nxt::render
 {
 
-	Shared<VertexBuffer> VertexBuffer::Create(uint32_t size, float* vertices)
+	Shared<VertexBuffer> VertexBuffer::Create(size_t byteSize, uint32_t glTarget, void* data)
 	{
-		return NewShared<VertexBuffer>(size, vertices);
+		return NewShared<VertexBuffer>(byteSize, glTarget);
 	}
 
-	VertexBuffer::VertexBuffer(uint32_t size, float* vertices)
+	// void* switch to std::any??
+	VertexBuffer::VertexBuffer(size_t byteSize, uint32_t drawMode, void* data)
 	{
 		glCreateVertexArrays(1, &mVertexArrayId);
-		glCreateBuffers(1, &mId);
-		glBindBuffer(GL_ARRAY_BUFFER, mId);
-		glBufferData(GL_ARRAY_BUFFER, size, vertices, GL_STATIC_DRAW);
+		glCreateBuffers(1, &mID);
+		glBindBuffer(GL_ARRAY_BUFFER, mID);
+		glBufferData(GL_ARRAY_BUFFER, byteSize, data, drawMode);
 	}
 
 	VertexBuffer::~VertexBuffer()
 	{
-		glDeleteBuffers(1, &mId);
+		glDeleteBuffers(1, &mID);
 		glDeleteVertexArrays(1, &mVertexArrayId);
 	}
 
 	bool VertexBuffer::Bind() const
 	{
-		glBindBuffer(GL_ARRAY_BUFFER, mId);
 		glBindVertexArray(mVertexArrayId);
+		glBindBuffer(GL_ARRAY_BUFFER, mID);
 		return true;
 	}
 

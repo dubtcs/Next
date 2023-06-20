@@ -62,12 +62,12 @@ workspace "NEXT"
         filter "system:windows"
             systemversion "latest";
             filter "configurations:Debug"
-            defines {"NXT_DEBUG", "NXT_ENABLE_ASSERTS"}
+            defines {"NXT_DEBUG", "NXT_ENABLE_ASSERTS", "NXT_LOGGING_ENABLED"}
             runtime "Debug"
             symbols "On"
     
         filter "configurations:Release"
-            defines {"NXT_RELEASE", "NXT_ENABLE_ASSERTS"}
+            defines {"NXT_RELEASE", "NXT_ENABLE_ASSERTS", "NXT_LOGGING_ENABLED"}
             runtime "Release"
             optimize "On"
     

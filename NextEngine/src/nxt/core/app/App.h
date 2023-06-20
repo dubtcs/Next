@@ -1,5 +1,7 @@
 #pragma once
 
+#include "Interface.h"
+
 #include <nxt/EngineCore.h>
 #include "../window/Window.h"
 
@@ -14,6 +16,7 @@ namespace nxt
 	{
 	public:
 		bool OnEvent(events::Event& ev);
+		void AddInterface(const Shared<AppInterface>& appInterface);
 		void Run();
 		App();
 		~App();
@@ -23,6 +26,7 @@ namespace nxt
 	protected:
 		bool mRunning{ true };
 		Shared<Window> mWindow;
+		std::vector<Shared<AppInterface>> mInterfaces;
 	};
 
 }

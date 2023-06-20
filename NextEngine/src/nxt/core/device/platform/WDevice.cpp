@@ -1,7 +1,6 @@
 
 #include "../Device.h"
 
-//#include <glad/glad.h>
 #ifdef NXT_PLATFORM_WINDOWS
 
 // rendering contexts
@@ -62,7 +61,7 @@ namespace nxt::device
 
 	void SwapBuffers()
 	{
-		SwapBuffers(gDeviceContext);
+		::SwapBuffers(gDeviceContext);
 	}
 
 }

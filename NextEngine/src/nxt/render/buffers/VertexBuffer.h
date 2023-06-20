@@ -9,14 +9,13 @@ namespace nxt::render
 	class NXT_API VertexBuffer
 	{
 	public:
-		static Shared<VertexBuffer> Create(uint32_t size, float* vertices = nullptr);
+		static Shared<VertexBuffer> Create(size_t byteSize, uint32_t drawMode, void* data = nullptr);
 		bool Bind() const;
 		bool Unbind() const;
-		bool AddChildBuffer(Shared<VertexBuffer>& otherVertexBuffer) const;
-		VertexBuffer(uint32_t size, float* vertices);
+		VertexBuffer(size_t size, uint32_t drawMode, void* data = nullptr);
 		~VertexBuffer();
 	protected:
-		uint32_t mId;
+		uint32_t mID;
 		uint32_t mVertexArrayId; // GL SPECIFIC >:(
 	};
 

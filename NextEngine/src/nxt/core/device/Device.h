@@ -3,7 +3,7 @@
 #include <nxt/EngineCore.h>
 
 /*
-I'm only using OpenGL atm, so having a namespace for the renderer instead of a class makes more sense to me.
+Device are platform specific viewport/window commands
 */
 
 namespace nxt::device

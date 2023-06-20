@@ -2,9 +2,9 @@
 
 #include <NextEngine.h>
 
-class Editor : public nxt::App
+class Editor : public nxt::AppInterface
 {
 public:
-	Editor() {};
-	~Editor() {};
+	virtual void OnUpdate(double& dt) override;
+	virtual void OnEvent(nxt::events::Event& ev) override;
 };

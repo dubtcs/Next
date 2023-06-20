@@ -36,8 +36,6 @@ namespace nxt
 
 	bool Window::Init()
 	{
-		render::api::Init();
-
 		mHinstance = GetModuleHandle(nullptr);
 
 		WNDCLASSEX fClass{};
@@ -100,7 +98,6 @@ namespace nxt
 
 	bool Window::OnResize(uint32_t x, uint32_t y)
 	{
-		std::cout << "resize\n";
 		// first WM_SIZE is called before the callback is set
 		events::WindowResized ev{ x, y };
 		mCallback(ev);

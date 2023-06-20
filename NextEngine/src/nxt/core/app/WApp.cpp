@@ -3,8 +3,11 @@
 
 #include <nxt/render/RenderAPI.h>
 #include <nxt/core/log/Log.h>
+#include <nxt/core/clock/Clock.h>
 
 #ifdef NXT_PLATFORM_WINDOWS
+
+nxt::clock::time_point gPreviousTime;
 
 namespace nxt
 {
@@ -14,6 +17,7 @@ namespace nxt
 		mWindow = NewUnique<Window>(NXT_CALLBACK(App::OnEvent));
 		log::Init();
 		NXT_LOG_INFO("App Created");
+		gPreviousTime = clock::GetTime();
 	}
 
 	App::~App()
@@ -21,11 +25,22 @@ namespace nxt
 
 	}
 
+	void App::AddInterface(const Shared<AppInterface>& ap)
+	{
+		mInterfaces.push_back(ap);
+	}
+
 	void App::Run()
 	{
 		while (mRunning)
 		{
 			mWindow->ProcessMessages();
+			double dt{ clock::GetDuration(gPreviousTime, clock::GetTime()) };
+			for (Shared<AppInterface>& app : mInterfaces)
+			{
+				app->OnUpdate(dt);
+			}
+			gPreviousTime = clock::GetTime();
 			Sleep(10);
 		}
 	}
@@ -35,6 +50,14 @@ namespace nxt
 		events::Handler handler{ ev };
 		handler.Fire<events::WindowClosed>(NXT_CALLBACK(App::OnWindowClose));
 		handler.Fire<events::WindowResized>(NXT_CALLBACK(App::OnWindowResize));
+
+		// reverse this for top to bottom
+		for (Shared<AppInterface>& app : mInterfaces)
+		{
+			app->OnEvent(ev);
+			//if (ev.Handled)
+				//break;
+		}
 
 		// loop through layers
 		return true;

@@ -11,7 +11,7 @@ namespace nxt::log
 
 	void Init()
 	{
-		spdlog::set_pattern("[%T] [%n] [Thread %t]: %v%$");
+		spdlog::set_pattern("[%T] [%n] [%!] [Thread %t]: %v%$");
 		std::shared_ptr<spdlog::logger> engineLog{ spdlog::stdout_color_mt(GEngineLogName) };
 		engineLog->set_level(spdlog::level::trace);
 		std::shared_ptr<spdlog::logger> appLog{ spdlog::stdout_color_mt(GAppLogName) };
