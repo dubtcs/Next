@@ -2,7 +2,6 @@
 #include "Clock.h"
 
 #include <chrono>
-#include <nxt/core/log/Log.h>
 
 namespace nxt::clock
 {

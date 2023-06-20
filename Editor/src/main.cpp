@@ -7,7 +7,7 @@ int main()
 {
 
 	nxt::App* app{ new nxt::App{} };
-	app->AddInterface(nxt::NewShared<Editor>());
+	app->AddInterface(nxt::NewShared<nxt::Editor>());
 	app->Run();
 	delete app;
 

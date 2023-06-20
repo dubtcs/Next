@@ -84,7 +84,7 @@ namespace nxt
 	bool Window::OnUpdate(float dt)
 	{
 		device::SwapBuffers();
-		render::api::Clear();
+		//render::api::Clear();
 
 		return true;
 	}
