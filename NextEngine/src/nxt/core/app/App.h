@@ -10,7 +10,7 @@
 namespace nxt
 {
 
-	class App
+	class NXT_API App
 	{
 	public:
 		bool OnEvent(events::Event& ev);

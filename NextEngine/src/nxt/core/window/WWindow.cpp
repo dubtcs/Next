@@ -73,7 +73,7 @@ namespace nxt
 		ShowWindow(mWindowHandle, SW_SHOW);
 		UpdateWindow(mWindowHandle);
 
-		render::api::SetClearColor(0.25f,0.25f,0.25f,1.f);
+		render::api::SetClearColor(0.25f, 0.25f, 0.25f, 1.f);
 
 		return true;
 	}

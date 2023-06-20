@@ -2,6 +2,7 @@
 #include "App.h"
 
 #include <nxt/render/RenderAPI.h>
+#include <nxt/core/log/Log.h>
 
 #ifdef NXT_PLATFORM_WINDOWS
 
@@ -11,6 +12,8 @@ namespace nxt
 	App::App()
 	{
 		mWindow = NewUnique<Window>(NXT_CALLBACK(App::OnEvent));
+		log::Init();
+		NXT_LOG_INFO("App Created");
 	}
 
 	App::~App()

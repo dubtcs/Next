@@ -6,6 +6,7 @@ output = "%{cfg.buildcfg}-%{cfg.system}-%{cfg.architecture}";
 includes = {};
 includes.glad = "NextEngine/vendor/glad/include"
 includes.glm = "NextEngine/vendor/glm/glm"
+includes.spdlog = "NextEngine/vendor/spdlog/include"
 
 -- workspace
 workspace "NEXT"
@@ -45,12 +46,17 @@ workspace "NEXT"
             "%{prj.name}/src",
             "%{includes.glad}",
             "%{includes.glm}",
+            "%{includes.spdlog}",
         }
 
         links {
             "glad",
             
             "opengl32.lib",
+        }
+
+        defines {
+            "NXT_BUILD_ENGINE" -- Used to mark the engine build project for engine side logging
         }
 
         filter "system:windows"
@@ -95,6 +101,7 @@ workspace "NEXT"
             "NextEngine/src",
             "%{includes.glad}",
             "%{includes.glm}",
+            "%{includes.spdlog}",
         };
     
         filter "configurations:Debug"
