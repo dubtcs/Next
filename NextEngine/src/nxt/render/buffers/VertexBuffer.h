@@ -18,12 +18,12 @@ namespace nxt::buffers
 	class NXT_API VertexBuffer
 	{
 	public:
-		static Shared<VertexBuffer> Create(size_t byteSize, BUFFERUSAGE_ usage = BUFFERUSAGE_STATIC, void* data = nullptr);
-		void Draw(DRAWMODE_ mode = DRAWMODE_TRIANGLES) const;
+		static Shared<VertexBuffer> Create(size_t byteSize, BUFFER_USAGE_ usage = BUFFER_USAGE_STATIC, void* data = nullptr);
+		void Draw(DRAW_MODE_ mode = DRAW_MODE_TRIANGLES) const;
 		bool Bind() const;
 		bool Unbind() const;
-		void SetLayoutPosition(uint32_t position, uint32_t amount, DATATYPE_ dataType, uint32_t byteStride = 0, uint32_t byteOffset = 0, bool normalized = false);
-		VertexBuffer(size_t byteSize, BUFFERUSAGE_ usage = BUFFERUSAGE_STATIC, void* data = nullptr);
+		void SetLayoutPosition(uint32_t position, uint32_t amount, DATA_TYPE_ dataType, uint32_t byteStride = 0, uint32_t byteOffset = 0, bool normalized = false);
+		VertexBuffer(size_t byteSize, BUFFER_USAGE_ usage = BUFFER_USAGE_STATIC, void* data = nullptr);
 		~VertexBuffer();
 	protected:
 		uint32_t mID;

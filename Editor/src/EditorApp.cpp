@@ -27,14 +27,14 @@ namespace nxt
 
 	Editor::Editor()
 	{
-		gVB = buffers::VertexBuffer::Create(sizeof(gVertices), buffers::BUFFERUSAGE_STATIC, gVertices);
-		gEB = buffers::ElementBuffer::Create(sizeof(gIndices), gIndices, buffers::BUFFERUSAGE_STATIC);
+		gVB = buffers::VertexBuffer::Create(sizeof(gVertices), buffers::BUFFER_USAGE_STATIC, gVertices);
+		gEB = buffers::ElementBuffer::Create(sizeof(gIndices), gIndices, buffers::BUFFER_USAGE_STATIC);
 
 		gShader = Shader{ "assets/shaders/shader.vert", "assets/shaders/shader.frag" };
 
 		uint32_t stride{ 5 * sizeof(float) };
-		gVB->SetLayoutPosition(0, 3, nxt::DATATYPE_FLOAT, stride);
-		gVB->SetLayoutPosition(1, 2, nxt::DATATYPE_FLOAT, stride, 3 * sizeof(float));
+		gVB->SetLayoutPosition(0, 3, nxt::DATA_TYPE_FLOAT, stride);
+		gVB->SetLayoutPosition(1, 2, nxt::DATA_TYPE_FLOAT, stride, 3 * sizeof(float));
 
 		gEB->AddVertexBuffer(gVB);
 
@@ -47,10 +47,10 @@ namespace nxt
 		gShader.Bind();
 		gTT->Bind();
 
-		gShader.SetValue("tex", 0);
+		gShader.SetValue("simpleTexture", 0);
 
-		gEB->Draw(buffers::DRAWMODE_TRIANGLES, 6);
-		NXT_LOG_TRACE("Framerate: {0}", static_cast<int32_t>((1.0 / dt)));
+		gEB->Draw(buffers::DRAW_MODE_TRIANGLES, 6);
+		//NXT_LOG_TRACE("Framerate: {0}", static_cast<int32_t>((1.0 / dt)));
 	}
 
 	void Editor::OnEvent(nxt::events::Event& ev)

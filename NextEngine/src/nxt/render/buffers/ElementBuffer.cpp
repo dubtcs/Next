@@ -6,12 +6,12 @@
 namespace nxt::buffers
 {
 
-	Shared<ElementBuffer> ElementBuffer::Create(size_t byteSize, uint32_t* indices, BUFFERUSAGE_ usage)
+	Shared<ElementBuffer> ElementBuffer::Create(size_t byteSize, uint32_t* indices, BUFFER_USAGE_ usage)
 	{
 		return NewShared<ElementBuffer>(byteSize, indices, usage);
 	}
 
-	ElementBuffer::ElementBuffer(size_t byteSize, uint32_t* indices, BUFFERUSAGE_ usage)
+	ElementBuffer::ElementBuffer(size_t byteSize, uint32_t* indices, BUFFER_USAGE_ usage)
 	{
 		glCreateBuffers(1, &mID);
 		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, mID);
@@ -44,10 +44,10 @@ namespace nxt::buffers
 		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, mID);
 	}
 
-	void ElementBuffer::Draw(DRAWMODE_ mode, uint32_t count, uint32_t offset) const
+	void ElementBuffer::Draw(DRAW_MODE_ mode, uint32_t count, uint32_t offset) const
 	{
 		Bind();
-		glDrawElements(mode, count, DATATYPE_UINT, (void*)offset);
+		glDrawElements(mode, count, DATA_TYPE_UINT, (void*)offset);
 	}
 
 }

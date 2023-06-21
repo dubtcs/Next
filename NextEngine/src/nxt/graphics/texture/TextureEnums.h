@@ -1,27 +1,28 @@
 #pragma once
 
 #include <nxt/EngineCore.h>
+#include <nxt/core/GenericEnums.h>
 
 namespace nxt::texture
 {
 
-	enum TEXTURETYPE_ : uint32_t
+	enum TEXTURETYPE_ : nxt_enum
 	{
-		TEXTURETYPE_1D = 0x0DE0,
-		TEXTURETYPE_2D = 0x0DE1,
-		TEXTURETYPE_3D = 0x806F
+		TEXTURE_TYPE_1D = 0x0DE0,
+		TEXTURE_TYPE_2D = 0x0DE1,
+		TEXTURE_TYPE_3D = 0x806F
 	};
 
-	enum TEXTUREFORMAT_ : uint32_t
+	enum TEXTURE_FORMAT_ : nxt_enum
 	{
-		TEXTUREFORMAT_RGB = 0x1907,
-		TEXTUREFORMAT_RGBA = 0x1908
+		TEXTURE_FORMAT_RGB = 0x1907,
+		TEXTURE_FORMAT_RGBA = 0x1908
 	};
 
-	enum TEXTUREFORMAT_RAW_ : uint32_t
+	enum TEXTURE_FORMAT_INTERNAL_ : nxt_enum
 	{
-		TEXTUREFORMAT_RAW_RGB8 = 0x8051,
-		TEXTUREFORMAT_RAW_RGBA8 = 0x8058,
+		TEXTURE_FORMAT_INTERNAL_RGB8 = 0x8051,
+		TEXTURE_FORMAT_INTERNAL_RGBA8 = 0x8058,
 	};
 
 }

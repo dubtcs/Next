@@ -5,15 +5,19 @@
 namespace nxt
 {
 
-	enum DATATYPE_ : uint32_t
+	using nxt_enum = uint32_t;
+	using nxt_uint = uint32_t;
+	using nxt_int = int32_t;
+
+	enum DATA_TYPE_ : nxt_enum
 	{
-		DATATYPE_BYTE = 0x1400, // Byte
-		DATATYPE_UBYTE = 0x1401, // Unsigned Byte
-		DATATYPE_SHORT = 0x1402, // Short
-		DATATYPE_USHORT = 0x1403, // Unsigned Short
-		DATATYPE_INT = 0x1404, // Integer
-		DATATYPE_UINT = 0x1405, // Unsigned Integer
-		DATATYPE_FLOAT = 0x1406, // Float
+		DATA_TYPE_BYTE = 0x1400, // Byte
+		DATA_TYPE_UBYTE = 0x1401, // Unsigned Byte
+		DATA_TYPE_SHORT = 0x1402, // Short
+		DATA_TYPE_USHORT = 0x1403, // Unsigned Short
+		DATA_TYPE_INT = 0x1404, // Integer
+		DATA_TYPE_UINT = 0x1405, // Unsigned Integer
+		DATA_TYPE_FLOAT = 0x1406, // Float
 	};
 
 }

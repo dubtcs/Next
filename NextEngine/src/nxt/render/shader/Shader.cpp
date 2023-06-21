@@ -129,7 +129,6 @@ namespace nxt
 	void Shader::SetValue(const std::string& name, int32_t value)
 	{
 		int32_t loc{ glGetUniformLocation(mID, name.c_str()) };
-		NXT_LOG_TRACE("Uniform Location : {0}", loc);
 		glUniform1i(loc, value);
 	}
 

@@ -17,6 +17,7 @@ namespace nxt::texture
 
 	Texture::Texture(const std::filesystem::path& filepath)
 	{
+		NXT_LOG_TRACE("Attempting Texture: \"{0}\"", filepath.string());
 		if (!filepath.empty())
 		{
 			int32_t width{ 0 };
@@ -26,23 +27,28 @@ namespace nxt::texture
 			stbi_uc* data{ stbi_load(filepath.string().c_str(), &width, &height, &channels, 0)};
 			if (data != nullptr)
 			{
-				TEXTUREFORMAT_RAW_ glf{ TEXTUREFORMAT_RAW_RGB8 };
-				TEXTUREFORMAT_ fmt{ TEXTUREFORMAT_RGB };
+				TEXTURE_FORMAT_ baseFormat{ TEXTURE_FORMAT_RGB };
+				TEXTURE_FORMAT_INTERNAL_ internalFormat{ TEXTURE_FORMAT_INTERNAL_RGB8 };
 
 				if (channels == 4)
 				{
-					glf = TEXTUREFORMAT_RAW_RGBA8;
-					fmt = TEXTUREFORMAT_RGBA;
+					baseFormat = TEXTURE_FORMAT_RGBA;
+					internalFormat = TEXTURE_FORMAT_INTERNAL_RGBA8;
 				}
 
 				glCreateTextures(GL_TEXTURE_2D, 1, &mID);
-				glTextureStorage2D(mID, 1, glf, width, height);
+				glTextureStorage2D(mID, 1, internalFormat, width, height);
 				glTextureParameteri(mID, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
 				glTextureParameteri(mID, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-				glTextureSubImage2D(mID, 0, 0, 0, width, height, fmt, GL_UNSIGNED_BYTE, data);
+				glTextureSubImage2D(mID, 0, 0, 0, width, height, baseFormat, DATA_TYPE_UBYTE, data);
 
-				stbi_image_free(data);
 			}
+			else
+			{
+				NXT_LOG_CRIT("Texture file not valid: \"{0}\"", filepath.string());
+			}
+			stbi_image_free(data);
+
 		}
 		else
 		{
@@ -57,7 +63,9 @@ namespace nxt::texture
 
 	void Texture::Bind() const
 	{
-		glBindTextureUnit(GL_TEXTURE0, mID);
+		// Kept accidentally putting GL_TEXTURE0 here. First param is the unit index
+		// GL_TEXTURE0 is 0x8... so it was way off
+		glBindTextureUnit(0, mID);
 	}
 
 }
