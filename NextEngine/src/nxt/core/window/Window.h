@@ -14,7 +14,7 @@ namespace nxt
 	class NXT_API Window
 	{
 	public:
-		bool Init();
+		bool Init(const std::string& windowTitle = "NxtWindow");
 		bool Release();
 		bool ProcessMessages();
 		bool OnCreate();
@@ -23,7 +23,7 @@ namespace nxt
 		bool OnResize(uint32_t x, uint32_t y);
 		void SetEventCallback(std::function<bool(events::Event& ev)> func);
 		Window();
-		Window(std::function<bool(events::Event&)>);
+		Window(const std::string& windowTitle, std::function<bool(events::Event&)>);
 		~Window();
 		Window(const Window&) = delete;
 		Window& operator=(const Window&) = delete;

@@ -12,9 +12,9 @@ nxt::clock::time_point gPreviousTime;
 namespace nxt
 {
 
-	App::App()
+	App::App(const std::string& title)
 	{
-		mWindow = NewUnique<Window>(NXT_CALLBACK(App::OnEvent));
+		mWindow = NewUnique<Window>(title, NXT_CALLBACK(App::OnEvent));
 		log::Init();
 		NXT_LOG_INFO("App Created");
 		gPreviousTime = clock::GetTime();
@@ -71,7 +71,7 @@ namespace nxt
 
 	bool App::OnWindowResize(events::WindowResized& ev)
 	{
-		render::api::SetViewport(ev.Width, ev.Height);
+		render::command::SetViewport(ev.Width, ev.Height);
 		return true;
 	}
 

@@ -5,10 +5,7 @@
 
 #ifdef NXT_PLATFORM_WINDOWS
 
-#include <glad/glad.h>
-
 constexpr const wchar_t* GWindowClassName{ L"NxtWindowClass" };
-constexpr const wchar_t* GWindowDescription{ L"WINDOW HEHE" };
 
 constexpr int GWidth{ 1920 };
 constexpr int GHeight{ 1080 };
@@ -18,15 +15,21 @@ LRESULT CALLBACK WindowProcedure(HWND hwnd, UINT msg, WPARAM wparam, LPARAM lpar
 namespace nxt
 {
 
+	static std::wstring StringToWide(const std::string& str)
+	{
+		std::wstring wStr{ str.begin(), str.end() };
+		return wStr;
+	}
+
 	Window::Window()
 	{
 		Init();
 	}
 
-	Window::Window(std::function<bool(events::Event& ev)> func) :
+	Window::Window(const std::string& name, std::function<bool(events::Event& ev)> func) :
 		mCallback{ func }
 	{
-		Init();
+		Init(name);
 	}
 
 	Window::~Window()
@@ -34,7 +37,7 @@ namespace nxt
 		Release();
 	}
 
-	bool Window::Init()
+	bool Window::Init(const std::string& name)
 	{
 		mHinstance = GetModuleHandle(nullptr);
 
@@ -59,19 +62,20 @@ namespace nxt
 			return false;
 		}
 
-		mWindowHandle = CreateWindowEx(WS_EX_OVERLAPPEDWINDOW, GWindowClassName, GWindowDescription, WS_OVERLAPPEDWINDOW, CW_USEDEFAULT, CW_USEDEFAULT, GWidth, GHeight, NULL, NULL, NULL, this);
+		std::wstring wName{ StringToWide(name) };
+		mWindowHandle = CreateWindowEx(WS_EX_OVERLAPPEDWINDOW, GWindowClassName, wName.c_str(), WS_OVERLAPPEDWINDOW, CW_USEDEFAULT, CW_USEDEFAULT, GWidth, GHeight, NULL, NULL, NULL, this);
 		if (!mWindowHandle)
 		{
 			return false;
 		}
 
 		device::Init(&mWindowHandle);
-		render::api::Init();
+		render::command::Init();
 
 		ShowWindow(mWindowHandle, SW_SHOW);
 		UpdateWindow(mWindowHandle);
 
-		render::api::SetClearColor(0.25f, 0.25f, 0.25f, 1.f);
+		render::command::SetClearColor(0.25f, 0.25f, 0.25f, 1.f);
 
 		return true;
 	}
@@ -171,6 +175,11 @@ LRESULT CALLBACK WindowProcedure(HWND hwnd, UINT msg, WPARAM wparam, LPARAM lpar
 			fWindow->OnClose();
 			PostQuitMessage(0);
 			break;
+		}
+		case(WM_KEYDOWN):
+		{
+			nxt::Window* fWindow{ reinterpret_cast<nxt::Window*>(GetWindowLongPtr(hwnd, GWLP_USERDATA)) };
+			
 		}
 	}
 

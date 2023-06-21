@@ -4,21 +4,21 @@
 #include <nxt/core/log/Log.h>
 #include <glad/glad.h>
 
-namespace nxt::render
+namespace nxt::buffers
 {
 
-	Shared<VertexBuffer> VertexBuffer::Create(size_t byteSize, BUFFERUSAGE_ glTarget, void* data)
+	Shared<VertexBuffer> VertexBuffer::Create(size_t byteSize, BUFFERUSAGE_ usage, void* data)
 	{
-		return NewShared<VertexBuffer>(byteSize, glTarget, data);
+		return NewShared<VertexBuffer>(byteSize, usage, data);
 	}
 
 	// void* switch to std::any??
-	VertexBuffer::VertexBuffer(size_t byteSize, BUFFERUSAGE_ drawMode, void* data)
+	VertexBuffer::VertexBuffer(size_t byteSize, BUFFERUSAGE_ usage, void* data)
 	{
 		glCreateVertexArrays(1, &mVertexArrayId);
 		glCreateBuffers(1, &mID);
 		glBindBuffer(GL_ARRAY_BUFFER, mID);
-		glBufferData(GL_ARRAY_BUFFER, byteSize, data, drawMode);
+		glBufferData(GL_ARRAY_BUFFER, byteSize, data, usage);
 	}
 
 	VertexBuffer::~VertexBuffer()
@@ -30,11 +30,16 @@ namespace nxt::render
 	void VertexBuffer::SetLayoutPosition(uint32_t position, uint32_t amount, DATATYPE_ dataType, uint32_t stride, uint32_t offset, bool normalized)
 	{
 		Bind();
-		if (dataType & DATATYPE_FLOAT)
+		switch (dataType)
 		{
-			NXT_LOG_TRACE("HUH");
-			glVertexAttribPointer(position, amount, dataType, (normalized) ? GL_TRUE : GL_FALSE, stride, (void*)offset);
-			glEnableVertexAttribArray(position);
+			case(DATATYPE_FLOAT):
+			{
+				glVertexAttribPointer(position, amount, dataType, (normalized) ? GL_TRUE : GL_FALSE, stride, (void*)offset);
+				glEnableVertexAttribArray(position);
+				break;
+			}
+			default:
+				break;
 		}
 	}
 

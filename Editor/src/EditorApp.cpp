@@ -3,13 +3,23 @@
 
 #include <nxt/render/RenderAPI.h>
 
-static nxt::Shared<nxt::render::VertexBuffer>gVB;
+static nxt::Shared<nxt::buffers::VertexBuffer>gVB;
+static nxt::Shared<nxt::buffers::ElementBuffer>gEB;
+
+static nxt::Shared<nxt::texture::Texture> gTT;
+
 static nxt::Shader gShader;
 
-static float gVertices[9]{
-	-0.5f, -0.5f, 0.0f,
-	 0.5f, -0.5f, 0.0f,
-	 0.0f,  0.5f, 0.0f
+static float gVertices[]{
+	 0.5f,  0.5f, 0.0f,   1.0f, 1.0f, 
+	 0.5f, -0.5f, 0.0f,   1.0f, 0.0f,
+	-0.5f, -0.5f, 0.0f,   0.0f, 0.0f,
+	-0.5f,  0.5f, 0.0f,   0.0f, 1.0f
+};
+
+static uint32_t gIndices[6]{
+	0, 1, 3,
+	1, 2, 3
 };
 
 namespace nxt
@@ -17,18 +27,29 @@ namespace nxt
 
 	Editor::Editor()
 	{
-
-		gVB = render::VertexBuffer::Create(sizeof(gVertices), render::BUFFERUSAGE_STATIC, gVertices);
+		gVB = buffers::VertexBuffer::Create(sizeof(gVertices), buffers::BUFFERUSAGE_STATIC, gVertices);
+		gEB = buffers::ElementBuffer::Create(sizeof(gIndices), gIndices, buffers::BUFFERUSAGE_STATIC);
 
 		gShader = Shader{ "assets/shaders/shader.vert", "assets/shaders/shader.frag" };
-		gVB->SetLayoutPosition(0, 3, render::DATATYPE_FLOAT);
+
+		uint32_t stride{ 5 * sizeof(float) };
+		gVB->SetLayoutPosition(0, 3, nxt::DATATYPE_FLOAT, stride);
+		gVB->SetLayoutPosition(1, 2, nxt::DATATYPE_FLOAT, stride, 3 * sizeof(float));
+
+		gEB->AddVertexBuffer(gVB);
+
+		gTT = texture::Texture::Create("assets/textures/swirl.png");
 	}
 
 	void Editor::OnUpdate(double& dt)
 	{
-		render::api::Clear();
+		render::command::Clear();
 		gShader.Bind();
-		gVB->Draw(render::DRAWMODE_TRIANGLES);
+		gTT->Bind();
+
+		gShader.SetValue("tex", 0);
+
+		gEB->Draw(buffers::DRAWMODE_TRIANGLES, 6);
 		NXT_LOG_TRACE("Framerate: {0}", static_cast<int32_t>((1.0 / dt)));
 	}
 

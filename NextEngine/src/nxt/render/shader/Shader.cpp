@@ -14,7 +14,7 @@ namespace nxt
 	//using shader_pair = std::pair<std::string, ShaderType>;
 	using shader_pair = std::pair<std::string, ShaderType>;
 
-	shader_pair ReadShaderFile(const std::filesystem::path& filepath)
+	static shader_pair ReadShaderFile(const std::filesystem::path& filepath)
 	{
 		std::string output;
 		std::ifstream file;
@@ -124,6 +124,13 @@ namespace nxt
 	void Shader::Bind()
 	{
 		glUseProgram(mID);
+	}
+
+	void Shader::SetValue(const std::string& name, int32_t value)
+	{
+		int32_t loc{ glGetUniformLocation(mID, name.c_str()) };
+		NXT_LOG_TRACE("Uniform Location : {0}", loc);
+		glUniform1i(loc, value);
 	}
 
 }

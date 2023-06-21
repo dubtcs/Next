@@ -5,7 +5,9 @@
 namespace nxt::render
 {
 
-	namespace api
+	// Direct RenderAPI calls
+	// eg. Set the viewport, clear color, clear the screen...
+	namespace command
 	{
 
 		void Init();

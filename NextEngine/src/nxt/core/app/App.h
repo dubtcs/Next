@@ -18,7 +18,7 @@ namespace nxt
 		bool OnEvent(events::Event& ev);
 		void AddInterface(const Shared<AppInterface>& appInterface);
 		void Run();
-		App();
+		App(const std::string& title = "NxtApp");
 		~App();
 	protected:
 		bool OnWindowClose(events::WindowClosed& ev);

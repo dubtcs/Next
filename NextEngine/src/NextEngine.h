@@ -17,5 +17,8 @@ Please include <nxt/EntryPoint.h> to launch a NEXT instance
 #include <nxt/core/log/Log.h>
 
 #include <nxt/render/buffers/VertexBuffer.h>
+#include <nxt/render/buffers/ElementBuffer.h>
+
+#include <nxt/graphics/texture/Texture.h>
 
 #include <nxt/render/shader/Shader.h>

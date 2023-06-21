@@ -6,7 +6,7 @@
 
 #include <iostream>
 
-namespace nxt::render::api
+namespace nxt::render::command
 {
 
 	void Init()

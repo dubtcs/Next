@@ -22,9 +22,10 @@ namespace nxt
 		Shader(const std::initializer_list<std::filesystem::path>& shader_locations);
 		~Shader();
 		void Bind();
+		void SetValue(const std::string& name, int32_t value);
 	protected:
 		std::string mName;
-		uint32_t mID;
+		uint32_t mID{ 0 };
 	};
 
 }

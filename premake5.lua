@@ -7,6 +7,7 @@ includes = {};
 includes.glad = "NextEngine/vendor/glad/include"
 includes.glm = "NextEngine/vendor/glm/glm"
 includes.spdlog = "NextEngine/vendor/spdlog/include"
+includes.stb = "NextEngine/vendor/stb"
 
 -- workspace
 workspace "NEXT"
@@ -38,6 +39,10 @@ workspace "NEXT"
             "%{prj.name}/src/**.h",
             "%{prj.name}/src/**.cpp",
 
+            -- STB Image
+            "%{prj.name}/vendor/stb/**.h",
+            "%{prj.name}/vendor/stb/**.cpp",
+
             -- No GLFW so we need GLAD's opengl loader
             "%{prj.name}/vendor/glad/src/glad.c",
         };
@@ -47,6 +52,8 @@ workspace "NEXT"
             "%{includes.glad}",
             "%{includes.glm}",
             "%{includes.spdlog}",
+            "%{includes.stb}",
+
         }
 
         links {
@@ -102,6 +109,8 @@ workspace "NEXT"
             "%{includes.glad}",
             "%{includes.glm}",
             "%{includes.spdlog}",
+            "%{includes.stb}",
+
         };
     
         filter "configurations:Debug"

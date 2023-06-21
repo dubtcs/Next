@@ -2,7 +2,11 @@
 
 out vec4 outColor;
 
+in vec2 fTexPos;
+
+uniform sampler2D tex;
+
 void main()
 {
-    outColor = vec4(1.0, 0.2, 0.6, 1.0);
+    outColor = texture(tex, fTexPos);
 }
