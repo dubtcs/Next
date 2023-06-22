@@ -14,8 +14,8 @@ namespace nxt
 
 	App::App(const std::string& title)
 	{
-		mWindow = NewUnique<Window>(title, NXT_CALLBACK(App::OnEvent));
 		log::Init();
+		mWindow = NewUnique<Window>(title, NXT_CALLBACK(App::OnEvent));
 		NXT_LOG_INFO("App Created");
 		gPreviousTime = clock::GetTime();
 	}

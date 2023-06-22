@@ -111,6 +111,8 @@ namespace nxt
 	bool Window::OnResize(uint32_t x, uint32_t y)
 	{
 		// first WM_SIZE is called before the callback is set
+		mWidth = x;
+		mHeight = y;
 		events::WindowResized ev{ x, y };
 		mCallback(ev);
 		return true;
@@ -161,11 +163,35 @@ LRESULT CALLBACK NxtWindowProcedure(HWND hwnd, UINT msg, WPARAM wparam, LPARAM l
 			fWindow->OnCreate();
 			break;
 		}
+		case(WM_SIZE):
+		{
+			switch (wparam)
+			{
+				case(SIZE_MAXIMIZED):
+				{
+					nxt::Window* window{ reinterpret_cast<nxt::Window*>(GetWindowLongPtr(hwnd, GWLP_USERDATA)) };
+					UINT width{ LOWORD(lparam) };
+					UINT height{ HIWORD(lparam) };
+					window->OnResize(width, height);
+					break;
+				}
+				case(SIZE_MINIMIZED):
+				{
+					nxt::Window* window{ reinterpret_cast<nxt::Window*>(GetWindowLongPtr(hwnd, GWLP_USERDATA)) };
+					UINT width{ LOWORD(lparam) };
+					UINT height{ HIWORD(lparam) };
+					window->OnResize(width, height);
+					break;
+				}
+				default:
+					break;
+			}
+			break;
+		}
 		case(WM_EXITSIZEMOVE): // used to be WM_SIZE. CHanged to prevent spamming
 		{
+			// Now it doesn't work when you min/max a window...
 			nxt::Window* window{ reinterpret_cast<nxt::Window*>(GetWindowLongPtr(hwnd, GWLP_USERDATA)) };
-			/*UINT fWidth{ LOWORD(lparam) };
-			UINT fHeight{ HIWORD(lparam) };*/
 
 			uint32_t width{ 0 };
 			uint32_t height{ 0 };
@@ -174,7 +200,10 @@ LRESULT CALLBACK NxtWindowProcedure(HWND hwnd, UINT msg, WPARAM wparam, LPARAM l
 			{
 				width = windowSize.right - windowSize.left;
 				height = windowSize.bottom - windowSize.top;
-				window->OnResize(width, height);
+				if (width != window->mWidth || height != window->mHeight)
+				{
+					window->OnResize(width, height);
+				}
 			}
 			// UINT and uint32_t are the same thing, so no casting needed
 
