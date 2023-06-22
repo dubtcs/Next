@@ -1,0 +1,82 @@
+#pragma once
+
+#include <nxt/core/GenericEnums.h>
+
+namespace nxt
+{
+
+	namespace input
+	{
+
+		enum KEYCODE_ : nxt_enum
+		{
+
+			// Mouse Buttons
+
+			KEYCODE_MOUSE_1 = 0x01,
+			KEYCODE_MOUSE_2 = 0x02,
+			KEYCODE_MOUSE_3 = 0x04,
+			KEYCODE_MOUSE_4 = 0x05,
+			KEYCODE_MOUSE_5 = 0x06,
+
+			KEYCODE_MOUSE_LEFT = KEYCODE_MOUSE_1,
+			KEYCODE_MOUSE_MIDDLE = KEYCODE_MOUSE_3,
+			KEYCODE_MOUSE_RIGHT = KEYCODE_MOUSE_2,
+
+			KEYCODE_MOUSE_FORWARD = KEYCODE_MOUSE_5,
+			KEYCODE_MOUSE_BACKWARD = KEYCODE_MOUSE_4,
+
+			// Keyboard Misc Input
+
+			KEYCODE_BACKSPACE = 0x08,
+			KEYCODE_TAB = 0x09,
+			KEYCODE_CLEAR = 0x0C,
+			KEYCODE_ENTER = 0x0D,
+			KEYCODE_SHIFT = 0x10,
+			KEYCODE_CTRL = 0x11,
+			KEYCODE_MENU = 0x12, // Alt Key
+			KEYCODE_PAUSE = 0x13,
+			KEYCODE_CAPITAL = 0x14, // Caps Lock
+			KEYCODE_ESCAPE = 0x1B,
+
+			KEYCODE_SPACE = 0x20,
+			KEYCODE_DELETE = 0x2E,
+
+			KEYCODE_CAPS_LOCK = KEYCODE_CAPITAL,
+			KEYCODE_ALT = KEYCODE_MENU,
+
+			// Keyboard Main / Letter Input
+
+			KEYCODE_A = 0x41,
+			KEYCODE_B = 0x42,
+			KEYCODE_C = 0x43,
+			KEYCODE_D = 0x44,
+			KEYCODE_E = 0x45,
+			KEYCODE_F = 0x46,
+			KEYCODE_G = 0x47,
+			KEYCODE_H = 0x48,
+			KEYCODE_I = 0x49,
+			KEYCODE_J = 0x4A,
+			KEYCODE_K = 0x4B,
+			KEYCODE_L = 0x4C,
+			KEYCODE_M = 0x4D,
+			KEYCODE_N = 0x4E,
+			KEYCODE_O = 0x4F,
+			KEYCODE_P = 0x50,
+			KEYCODE_Q = 0x51,
+			KEYCODE_R = 0x52,
+			KEYCODE_S = 0x53,
+			KEYCODE_T = 0x54,
+			KEYCODE_U = 0x55,
+			KEYCODE_V = 0x56,
+			KEYCODE_W = 0x57,
+			KEYCODE_X = 0x58,
+			KEYCODE_Y = 0x59,
+			KEYCODE_Z = 0x5A,
+
+
+		};
+
+	}
+
+}

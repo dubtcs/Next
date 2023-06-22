@@ -53,9 +53,21 @@ namespace nxt
 		//NXT_LOG_TRACE("Framerate: {0}", static_cast<int32_t>((1.0 / dt)));
 	}
 
-	void Editor::OnEvent(nxt::events::Event& ev)
+	bool Editor::OnEvent(nxt::events::Event& ev)
 	{
 		NXT_LOG_INFO("Event Received: {0}", ev.GetName());
+		events::Handler handler{ ev };
+		handler.Fire<events::KeyboardPressed>(NXT_CALLBACK(Editor::OnKeyPressed));
+		return false;
+	}
+
+	bool Editor::OnKeyPressed(events::KeyboardPressed& ev)
+	{
+		if (ev.Keycode == input::KEYCODE_A)
+		{
+			NXT_LOG_TRACE("A KEY PRESSED!!!");
+		}
+		return false;
 	}
 
 }

@@ -61,11 +61,11 @@ namespace nxt::texture
 		glDeleteTextures(1, &mID);
 	}
 
-	void Texture::Bind() const
+	void Texture::Bind(uint32_t textureUnit) const
 	{
 		// Kept accidentally putting GL_TEXTURE0 here. First param is the unit index
 		// GL_TEXTURE0 is 0x8... so it was way off
-		glBindTextureUnit(0, mID);
+		glBindTextureUnit(textureUnit, mID);
 	}
 
 }

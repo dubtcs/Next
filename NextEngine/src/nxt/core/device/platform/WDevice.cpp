@@ -64,6 +64,11 @@ namespace nxt::device
 		::SwapBuffers(gDeviceContext);
 	}
 
+	bool IsKeyDown(input::KEYCODE_ keycode)
+	{
+		return (::GetKeyState(keycode) & 0x8000);
+	}
+
 }
 
 #endif

@@ -9,7 +9,9 @@ namespace nxt
 	public:
 		Editor();
 		virtual void OnUpdate(double& dt) override;
-		virtual void OnEvent(events::Event& ev) override;
+		virtual bool OnEvent(events::Event& ev) override;
+	protected:
+		bool OnKeyPressed(events::KeyboardPressed& ev);
 	};
 }
 

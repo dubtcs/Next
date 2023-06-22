@@ -1,6 +1,7 @@
 #pragma once
 
 #include <nxt/EngineCore.h>
+#include <nxt/core/input/InputEnums.h>
 
 #include <vector>
 #include <functional>
@@ -65,12 +66,13 @@ namespace nxt
 		{
 		public:
 			types::EventType Type{ types::EventType::Keyboard };
-			uint32_t Keycode;
+			input::KEYCODE_ Keycode;
 
 			virtual types::EventType GetType() const override { return Type; }
 			virtual const char* GetName() const override { return "KEYBOARD"; }
 
 			static const types::EventType StaticType{ types::EventType::Keyboard };
+			KeyboardPressed(input::KEYCODE_ keycode) : Keycode{ keycode } {}
 		};
 
 		class NXT_API MouseButtonPressed : public Event

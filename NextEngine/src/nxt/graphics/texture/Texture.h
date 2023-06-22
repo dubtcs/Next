@@ -12,7 +12,7 @@ namespace nxt::texture
 	{
 	public:
 		static Shared<Texture> Create(const std::filesystem::path& filepath);
-		void Bind() const;
+		void Bind(uint32_t textureUnit = 0) const;
 		Texture(const std::filesystem::path& filepath);
 		~Texture();
 	protected:

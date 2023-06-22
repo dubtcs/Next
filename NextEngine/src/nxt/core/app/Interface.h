@@ -12,7 +12,7 @@ namespace nxt
 	{
 	public:
 		virtual void OnUpdate(double& dt) = 0;
-		virtual void OnEvent(events::Event& ev) = 0;
+		virtual bool OnEvent(events::Event& ev) = 0;
 	};
 
 }

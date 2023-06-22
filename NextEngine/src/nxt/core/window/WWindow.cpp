@@ -1,7 +1,10 @@
 
 #include "Window.h"
+#include <nxt/core/app/App.h>
 
 #include <nxt/render/RenderAPI.h>
+
+#include <nxt/core/input/InputEnums.h>
 
 #ifdef NXT_PLATFORM_WINDOWS
 
@@ -101,20 +104,31 @@ namespace nxt
 		return true;
 	}
 
-	bool Window::OnClose()
+	bool Window::OnClose(events::WindowClosed& ev)
 	{
-		events::WindowClosed ev{};
-		mCallback(ev);
+		//events::WindowClosed ev{};
+		//app::OnEvent(ev);
 		return true;
 	}
 
-	bool Window::OnResize(uint32_t x, uint32_t y)
+	bool Window::OnResize(events::WindowResized& ev)
 	{
 		// first WM_SIZE is called before the callback is set
-		mWidth = x;
-		mHeight = y;
-		events::WindowResized ev{ x, y };
-		mCallback(ev);
+		mWidth = ev.Width;
+		mHeight = ev.Height;
+		return true;
+	}
+
+	bool Window::OnKeyPressed(events::KeyboardPressed& ev)
+	{
+		return false;
+	}
+
+	bool Window::OnEvent(events::Event& ev)
+	{
+		events::Handler handler{ ev };
+		handler.Fire<events::WindowResized>(NXT_CALLBACK(Window::OnResize));
+		//handler.Fire<events::WindowClosed>(NXT_CALLBACK(Window::OnClose));
 		return true;
 	}
 
@@ -172,7 +186,9 @@ LRESULT CALLBACK NxtWindowProcedure(HWND hwnd, UINT msg, WPARAM wparam, LPARAM l
 					nxt::Window* window{ reinterpret_cast<nxt::Window*>(GetWindowLongPtr(hwnd, GWLP_USERDATA)) };
 					UINT width{ LOWORD(lparam) };
 					UINT height{ HIWORD(lparam) };
-					window->OnResize(width, height);
+					//window->OnResize(width, height);
+					nxt::events::WindowResized ev{ width, height };
+					nxt::app::OnEvent(ev);
 					break;
 				}
 				case(SIZE_MINIMIZED):
@@ -180,7 +196,9 @@ LRESULT CALLBACK NxtWindowProcedure(HWND hwnd, UINT msg, WPARAM wparam, LPARAM l
 					nxt::Window* window{ reinterpret_cast<nxt::Window*>(GetWindowLongPtr(hwnd, GWLP_USERDATA)) };
 					UINT width{ LOWORD(lparam) };
 					UINT height{ HIWORD(lparam) };
-					window->OnResize(width, height);
+					//window->OnResize(width, height);
+					nxt::events::WindowResized ev{ width, height };
+					nxt::app::OnEvent(ev);
 					break;
 				}
 				default:
@@ -190,9 +208,7 @@ LRESULT CALLBACK NxtWindowProcedure(HWND hwnd, UINT msg, WPARAM wparam, LPARAM l
 		}
 		case(WM_EXITSIZEMOVE): // used to be WM_SIZE. CHanged to prevent spamming
 		{
-			// Now it doesn't work when you min/max a window...
 			nxt::Window* window{ reinterpret_cast<nxt::Window*>(GetWindowLongPtr(hwnd, GWLP_USERDATA)) };
-
 			uint32_t width{ 0 };
 			uint32_t height{ 0 };
 			RECT windowSize;
@@ -202,11 +218,10 @@ LRESULT CALLBACK NxtWindowProcedure(HWND hwnd, UINT msg, WPARAM wparam, LPARAM l
 				height = windowSize.bottom - windowSize.top;
 				if (width != window->mWidth || height != window->mHeight)
 				{
-					window->OnResize(width, height);
+					nxt::events::WindowResized ev{ width, height };
+					nxt::app::OnEvent(ev);
 				}
 			}
-			// UINT and uint32_t are the same thing, so no casting needed
-
 			break;
 		}
 		case(WM_CLOSE): 
@@ -217,14 +232,24 @@ LRESULT CALLBACK NxtWindowProcedure(HWND hwnd, UINT msg, WPARAM wparam, LPARAM l
 		case(WM_DESTROY):
 		{
 			nxt::Window* fWindow{ reinterpret_cast<nxt::Window*>(GetWindowLongPtr(hwnd, GWLP_USERDATA)) };
-			fWindow->OnClose();
+
+			nxt::events::WindowClosed ev{};
+			nxt::app::OnEvent(ev);
+
 			PostQuitMessage(0);
 			break;
 		}
 		case(WM_KEYDOWN):
 		{
-			nxt::Window* fWindow{ reinterpret_cast<nxt::Window*>(GetWindowLongPtr(hwnd, GWLP_USERDATA)) };
-			
+			nxt::Window* window{ reinterpret_cast<nxt::Window*>(GetWindowLongPtr(hwnd, GWLP_USERDATA)) };
+			switch (msg)
+			{
+				case(WM_KEYDOWN):
+				{
+					nxt::events::KeyboardPressed ev{ static_cast<nxt::input::KEYCODE_>(wparam) };
+					nxt::app::OnEvent(ev);
+				}
+			}
 		}
 	}
 

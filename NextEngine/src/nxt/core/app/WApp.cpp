@@ -4,39 +4,47 @@
 #include <nxt/render/RenderAPI.h>
 #include <nxt/core/log/Log.h>
 #include <nxt/core/clock/Clock.h>
+#include <nxt/core/window/Window.h>
 
 #ifdef NXT_PLATFORM_WINDOWS
 
-nxt::clock::time_point gPreviousTime;
-
-namespace nxt
+namespace nxt::app
 {
 
-	App::App(const std::string& title)
+	static bool gRunning{ false };
+	static clock::time_point gPreviousTime;
+
+	static Unique<Window> gWindow;
+	static std::vector<Shared<AppInterface>> gInterfaces;
+
+	static bool OnWindowClose(events::WindowClosed& ev)
+	{
+		gRunning = false;
+		return false;
+	}
+
+	static bool OnWindowResize(events::WindowResized& ev)
+	{
+		NXT_LOG_TRACE("Window Resize: {0} {1}", ev.Width, ev.Height);
+		render::command::SetViewport(ev.Width, ev.Height);
+		return false;
+	}
+
+	void Launch(const std::string& appName)
 	{
 		log::Init();
-		mWindow = NewUnique<Window>(title, NXT_CALLBACK(App::OnEvent));
-		NXT_LOG_INFO("App Created");
+		gWindow = NewUnique<Window>(appName, NXT_CALLBACK_STATIC(app::OnEvent));
 		gPreviousTime = clock::GetTime();
+		gRunning = true;
 	}
 
-	App::~App()
+	void Run()
 	{
-
-	}
-
-	void App::AddInterface(const Shared<AppInterface>& ap)
-	{
-		mInterfaces.push_back(ap);
-	}
-
-	void App::Run()
-	{
-		while (mRunning)
+		while (gRunning)
 		{
-			mWindow->ProcessMessages();
+			gWindow->ProcessMessages();
 			double dt{ clock::GetDuration(gPreviousTime, clock::GetTime()) };
-			for (Shared<AppInterface>& app : mInterfaces)
+			for (Shared<AppInterface>& app : gInterfaces)
 			{
 				app->OnUpdate(dt);
 			}
@@ -45,34 +53,21 @@ namespace nxt
 		}
 	}
 
-	bool App::OnEvent(events::Event& ev)
+	void AddInterface(const Shared<AppInterface>& appInter)
+	{
+		gInterfaces.push_back(appInter);
+	}
+
+	bool OnEvent(events::Event& ev)
 	{
 		events::Handler handler{ ev };
-		handler.Fire<events::WindowClosed>(NXT_CALLBACK(App::OnWindowClose));
-		handler.Fire<events::WindowResized>(NXT_CALLBACK(App::OnWindowResize));
-
-		// reverse this for top to bottom
-		for (Shared<AppInterface>& app : mInterfaces)
+		handler.Fire<events::WindowClosed>(NXT_CALLBACK_STATIC(app::OnWindowClose));
+		handler.Fire<events::WindowResized>(NXT_CALLBACK_STATIC(app::OnWindowResize));
+		for (Shared<AppInterface>& app : gInterfaces)
 		{
 			app->OnEvent(ev);
-			//if (ev.Handled)
-				//break;
 		}
 
-		// loop through layers
-		return true;
-	}
-
-	bool App::OnWindowClose(events::WindowClosed& ev)
-	{
-		mRunning = false;
-		return true;
-	}
-
-	bool App::OnWindowResize(events::WindowResized& ev)
-	{
-		NXT_LOG_TRACE("Window Resize: {0} {1}", ev.Width, ev.Height);
-		render::command::SetViewport(ev.Width, ev.Height);
 		return true;
 	}
 

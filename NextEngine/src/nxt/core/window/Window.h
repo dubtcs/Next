@@ -19,14 +19,17 @@ namespace nxt
 		bool ProcessMessages();
 		bool OnCreate();
 		bool OnUpdate(float dt);
-		bool OnClose();
-		bool OnResize(uint32_t x, uint32_t y);
+		bool OnEvent(events::Event& ev);
+		bool OnClose(events::WindowClosed& ev);
 		void SetEventCallback(std::function<bool(events::Event& ev)> func);
 		Window();
 		Window(const std::string& windowTitle, std::function<bool(events::Event&)>);
 		~Window();
 		Window(const Window&) = delete;
 		Window& operator=(const Window&) = delete;
+	protected:
+		bool OnResize(events::WindowResized& ev);
+		bool OnKeyPressed(events::KeyboardPressed& ev);
 	public:
 		HWND mWindowHandle;
 		HINSTANCE mHinstance;

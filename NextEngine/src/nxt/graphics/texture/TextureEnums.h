@@ -6,7 +6,7 @@
 namespace nxt::texture
 {
 
-	enum TEXTURETYPE_ : nxt_enum
+	enum TEXTURE_TYPE_ : nxt_enum
 	{
 		TEXTURE_TYPE_1D = 0x0DE0,
 		TEXTURE_TYPE_2D = 0x0DE1,

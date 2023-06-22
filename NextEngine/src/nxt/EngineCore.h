@@ -41,6 +41,7 @@
 
 // Use for binding event callbacks
 #define NXT_CALLBACK(function_name) [this](auto&&... arg) { return this->function_name(std::forward<decltype(arg)>(arg)...); }
+#define NXT_CALLBACK_STATIC(function_name) [](auto&&... arg) { return function_name(std::forward<decltype(arg)>(arg)...); }
 
 // Deprecated
 //#define NXT_BIND_FN(x) std::bind(&x, this, std::placeholders::_1)

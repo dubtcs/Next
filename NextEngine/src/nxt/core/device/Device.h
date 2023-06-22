@@ -2,6 +2,8 @@
 
 #include <nxt/EngineCore.h>
 
+#include <nxt/core/input/InputEnums.h>
+
 /*
 Device are platform specific viewport/window commands
 */
@@ -13,6 +15,7 @@ namespace nxt::device
 	bool Init(HWND* windowHandle);
 	bool Release();
 	void SwapBuffers();
+	bool IsKeyDown(input::KEYCODE_ keycode);
 #else
 
 #error "windows"
