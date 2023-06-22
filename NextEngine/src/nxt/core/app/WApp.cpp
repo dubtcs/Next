@@ -71,6 +71,7 @@ namespace nxt
 
 	bool App::OnWindowResize(events::WindowResized& ev)
 	{
+		NXT_LOG_TRACE("Window Resize: {0} {1}", ev.Width, ev.Height);
 		render::command::SetViewport(ev.Width, ev.Height);
 		return true;
 	}

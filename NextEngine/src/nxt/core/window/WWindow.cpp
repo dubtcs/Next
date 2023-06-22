@@ -10,7 +10,15 @@ constexpr const wchar_t* GWindowClassName{ L"NxtWindowClass" };
 constexpr int GWidth{ 1920 };
 constexpr int GHeight{ 1080 };
 
-LRESULT CALLBACK WindowProcedure(HWND hwnd, UINT msg, WPARAM wparam, LPARAM lparam);
+/*
+
+IF I EVER COME BACK BECAUSE PIXELS ARE OFF BY A FEW VERTICALLY!!!
+Win32 includes the title bar in it's window construction.
+So (1920 x 1080) is actually (1900 x 1037) in my case atm
+
+*/
+
+LRESULT CALLBACK NxtWindowProcedure(HWND hwnd, UINT msg, WPARAM wparam, LPARAM lparam);
 
 namespace nxt
 {
@@ -54,7 +62,7 @@ namespace nxt
 		fClass.lpszMenuName = L"";
 		fClass.style = NULL;
 
-		fClass.lpfnWndProc = WindowProcedure;
+		fClass.lpfnWndProc = NxtWindowProcedure;
 
 		// All window classes that an application registers are unregistered when it terminates.
 		if (!RegisterClassEx(&fClass))
@@ -142,7 +150,7 @@ namespace nxt
 
 }
 
-LRESULT CALLBACK WindowProcedure(HWND hwnd, UINT msg, WPARAM wparam, LPARAM lparam)
+LRESULT CALLBACK NxtWindowProcedure(HWND hwnd, UINT msg, WPARAM wparam, LPARAM lparam)
 {
 	switch (msg)
 	{
@@ -153,14 +161,22 @@ LRESULT CALLBACK WindowProcedure(HWND hwnd, UINT msg, WPARAM wparam, LPARAM lpar
 			fWindow->OnCreate();
 			break;
 		}
-		case(WM_SIZE):
+		case(WM_EXITSIZEMOVE): // used to be WM_SIZE. CHanged to prevent spamming
 		{
-			nxt::Window* fWindow{ reinterpret_cast<nxt::Window*>(GetWindowLongPtr(hwnd, GWLP_USERDATA)) };
-			UINT fWidth{ LOWORD(lparam) };
-			UINT fHeight{ HIWORD(lparam) };
+			nxt::Window* window{ reinterpret_cast<nxt::Window*>(GetWindowLongPtr(hwnd, GWLP_USERDATA)) };
+			/*UINT fWidth{ LOWORD(lparam) };
+			UINT fHeight{ HIWORD(lparam) };*/
 
+			uint32_t width{ 0 };
+			uint32_t height{ 0 };
+			RECT windowSize;
+			if (GetClientRect(window->mWindowHandle, &windowSize))
+			{
+				width = windowSize.right - windowSize.left;
+				height = windowSize.bottom - windowSize.top;
+				window->OnResize(width, height);
+			}
 			// UINT and uint32_t are the same thing, so no casting needed
-			fWindow->OnResize(fWidth, fHeight);
 
 			break;
 		}

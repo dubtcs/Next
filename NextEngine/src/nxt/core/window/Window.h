@@ -27,7 +27,7 @@ namespace nxt
 		~Window();
 		Window(const Window&) = delete;
 		Window& operator=(const Window&) = delete;
-	protected:
+	public:
 		HWND mWindowHandle;
 		HINSTANCE mHinstance;
 
