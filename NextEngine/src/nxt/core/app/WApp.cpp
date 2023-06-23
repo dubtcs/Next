@@ -5,6 +5,18 @@
 #include <nxt/core/log/Log.h>
 #include <nxt/core/clock/Clock.h>
 #include <nxt/core/window/Window.h>
+#include <nxt/core/input/Input.h>
+
+static class nxtCursorCleaner
+{
+public:
+	nxtCursorCleaner() = default;
+	~nxtCursorCleaner()
+	{
+		std::cout << "Showing cursor.";
+		nxt::input::ShowCursor();
+	}
+} gCleaner{};
 
 #ifdef NXT_PLATFORM_WINDOWS
 
@@ -25,15 +37,14 @@ namespace nxt::app
 
 	static bool OnWindowResize(events::WindowResized& ev)
 	{
-		NXT_LOG_TRACE("Window Resize: {0} {1}", ev.Width, ev.Height);
 		render::command::SetViewport(ev.Width, ev.Height);
 		return false;
 	}
 
-	void Launch(const std::string& appName)
+	void Launch(const std::string& appName, int32_t width, int32_t height)
 	{
 		log::Init();
-		gWindow = NewUnique<Window>(appName, NXT_CALLBACK_STATIC(app::OnEvent));
+		gWindow = NewUnique<Window>(appName, width, height);
 		gPreviousTime = clock::GetTime();
 		gRunning = true;
 	}
@@ -63,6 +74,8 @@ namespace nxt::app
 		events::Handler handler{ ev };
 		handler.Fire<events::WindowClosed>(NXT_CALLBACK_STATIC(app::OnWindowClose));
 		handler.Fire<events::WindowResized>(NXT_CALLBACK_STATIC(app::OnWindowResize));
+		gWindow->OnEvent(ev);
+
 		for (Shared<AppInterface>& app : gInterfaces)
 		{
 			app->OnEvent(ev);

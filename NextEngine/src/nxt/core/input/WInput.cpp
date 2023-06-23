@@ -15,5 +15,20 @@ namespace nxt::input
 		return device::IsKeyDown(keycode);
 	}
 
+	glm::vec2 GetMousePosition()
+	{
+		return device::GetMousePosition();
+	}
+
+	void ShowCursor()
+	{
+		device::ShowCursor();
+	}
+
+	void HideCursor()
+	{
+		device::HideCursor();
+	}
+
 #endif
 }

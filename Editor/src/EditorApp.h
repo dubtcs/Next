@@ -12,6 +12,7 @@ namespace nxt
 		virtual bool OnEvent(events::Event& ev) override;
 	protected:
 		bool OnKeyPressed(events::KeyboardPressed& ev);
+		bool OnMouseButtonPressed(events::MouseButtonPressed& ev);
 	};
 }
 

@@ -8,12 +8,6 @@ static HWND* gWindowHandle{ nullptr };
 static HDC gDeviceContext;
 static HGLRC gRenderingContext;
 
-static constexpr const wchar_t* GWindowClassName{ L"NxtWindowClass" };
-static constexpr const wchar_t* GWindowDescription{ L"WINDOW HEHE" };
-
-static constexpr int GWidth{ 1920 };
-static constexpr int GHeight{ 1080 };
-
 namespace nxt::device
 {
 
@@ -67,6 +61,29 @@ namespace nxt::device
 	bool IsKeyDown(input::KEYCODE_ keycode)
 	{
 		return (::GetKeyState(keycode) & 0x8000);
+	}
+
+	glm::vec2 GetMousePosition()
+	{
+		POINT p;
+		if (GetCursorPos(&p))
+		{
+			if (ScreenToClient(*gWindowHandle, &p))
+			{
+				return glm::vec2{ p.x, p.y };
+			}
+		}
+		return glm::vec2{ 0.f };
+	}
+
+	void ShowCursor()
+	{
+		::ShowCursor(TRUE);
+	}
+
+	void HideCursor()
+	{
+		::ShowCursor(FALSE);
 	}
 
 }

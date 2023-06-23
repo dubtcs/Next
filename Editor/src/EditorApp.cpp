@@ -2,6 +2,7 @@
 #include "EditorApp.h"
 
 #include <nxt/render/RenderAPI.h>
+#include <nxt/core/input/Input.h>
 
 static nxt::Shared<nxt::buffers::VertexBuffer>gVB;
 static nxt::Shared<nxt::buffers::ElementBuffer>gEB;
@@ -55,18 +56,24 @@ namespace nxt
 
 	bool Editor::OnEvent(nxt::events::Event& ev)
 	{
-		NXT_LOG_INFO("Event Received: {0}", ev.GetName());
 		events::Handler handler{ ev };
 		handler.Fire<events::KeyboardPressed>(NXT_CALLBACK(Editor::OnKeyPressed));
+		handler.Fire<events::MouseButtonPressed>(NXT_CALLBACK(Editor::OnMouseButtonPressed));
 		return false;
 	}
 
 	bool Editor::OnKeyPressed(events::KeyboardPressed& ev)
 	{
-		if (ev.Keycode == input::KEYCODE_A)
+		if (ev.Keycode == input::KEYCODE_MOUSE_LEFT)
 		{
-			NXT_LOG_TRACE("A KEY PRESSED!!!");
+			NXT_LOG_CRIT("BRUH!");
 		}
+		return false;
+	}
+
+	bool Editor::OnMouseButtonPressed(events::MouseButtonPressed& ev)
+	{
+		NXT_LOG_TRACE("MouseButton Pressed. Double click: {0}", ev.IsDoubleClick ? "yes" : "no");
 		return false;
 	}
 

@@ -6,19 +6,17 @@
 
 #include <nxt/core/input/InputEnums.h>
 
+#include <nxt/core/log/Log.h>
+
 #ifdef NXT_PLATFORM_WINDOWS
 
 constexpr const wchar_t* GWindowClassName{ L"NxtWindowClass" };
-
-constexpr int GWidth{ 1920 };
-constexpr int GHeight{ 1080 };
 
 /*
 
 IF I EVER COME BACK BECAUSE PIXELS ARE OFF BY A FEW VERTICALLY!!!
 Win32 includes the title bar in it's window construction.
 So (1920 x 1080) is actually (1900 x 1037) in my case atm
-
 */
 
 LRESULT CALLBACK NxtWindowProcedure(HWND hwnd, UINT msg, WPARAM wparam, LPARAM lparam);
@@ -37,10 +35,9 @@ namespace nxt
 		Init();
 	}
 
-	Window::Window(const std::string& name, std::function<bool(events::Event& ev)> func) :
-		mCallback{ func }
+	Window::Window(const std::string& name, int32_t width, int32_t height)
 	{
-		Init(name);
+		Init(name, width, height);
 	}
 
 	Window::~Window()
@@ -48,7 +45,7 @@ namespace nxt
 		Release();
 	}
 
-	bool Window::Init(const std::string& name)
+	bool Window::Init(const std::string& name, int32_t width, int32_t height)
 	{
 		mHinstance = GetModuleHandle(nullptr);
 
@@ -63,7 +60,7 @@ namespace nxt
 		fClass.hInstance = NULL;
 		fClass.lpszClassName = GWindowClassName;
 		fClass.lpszMenuName = L"";
-		fClass.style = NULL;
+		fClass.style = CS_DBLCLKS;
 
 		fClass.lpfnWndProc = NxtWindowProcedure;
 
@@ -74,7 +71,19 @@ namespace nxt
 		}
 
 		std::wstring wName{ StringToWide(name) };
-		mWindowHandle = CreateWindowEx(WS_EX_OVERLAPPEDWINDOW, GWindowClassName, wName.c_str(), WS_OVERLAPPEDWINDOW, CW_USEDEFAULT, CW_USEDEFAULT, GWidth, GHeight, NULL, NULL, NULL, this);
+
+		DWORD windowStyle{ WS_OVERLAPPEDWINDOW };
+		DWORD windowStyleEx{ WS_EX_OVERLAPPEDWINDOW };
+
+		// This will actually make the client area 1920x1080
+		RECT asize{ .left{0}, .top{0}, .right{width}, .bottom{height} };
+		if (AdjustWindowRectEx(&asize, windowStyle, false, windowStyleEx))
+		{
+			width = asize.right - asize.left;
+			height = asize.bottom - asize.top;
+		}
+
+		mWindowHandle = CreateWindowEx(windowStyleEx, GWindowClassName, wName.c_str(), windowStyle, CW_USEDEFAULT, CW_USEDEFAULT, width, height, NULL, NULL, NULL, this);
 		if (!mWindowHandle)
 		{
 			return false;
@@ -108,12 +117,12 @@ namespace nxt
 	{
 		//events::WindowClosed ev{};
 		//app::OnEvent(ev);
-		return true;
+		return false;
 	}
 
 	bool Window::OnResize(events::WindowResized& ev)
 	{
-		// first WM_SIZE is called before the callback is set
+		NXT_LOG_TRACE("Resizing to: {0}, {1}", ev.Width, ev.Height);
 		mWidth = ev.Width;
 		mHeight = ev.Height;
 		return true;
@@ -166,8 +175,31 @@ namespace nxt
 
 }
 
+void FireSizeEvent(LPARAM& lparam)
+{
+	UINT width{ LOWORD(lparam) };
+	UINT height{ HIWORD(lparam) };
+	nxt::events::WindowResized ev{ width, height };
+	nxt::app::OnEvent(ev);
+}
+
+void FireMouseDownEvent(nxt::input::KEYCODE_ keycode, bool isDouble)
+{
+	nxt::events::MouseButtonPressed ev{ keycode, isDouble };
+	nxt::app::OnEvent(ev);
+	return;
+}
+
+void FireMouseUpEvent(nxt::input::KEYCODE_ keycode)
+{
+	nxt::events::MouseButtonReleased ev{ keycode };
+	nxt::app::OnEvent(ev);
+	return;
+}
+
 LRESULT CALLBACK NxtWindowProcedure(HWND hwnd, UINT msg, WPARAM wparam, LPARAM lparam)
 {
+	using namespace nxt;
 	switch (msg)
 	{
 		case(WM_CREATE):
@@ -181,28 +213,23 @@ LRESULT CALLBACK NxtWindowProcedure(HWND hwnd, UINT msg, WPARAM wparam, LPARAM l
 		{
 			switch (wparam)
 			{
+				default:
+					break;
 				case(SIZE_MAXIMIZED):
 				{
-					nxt::Window* window{ reinterpret_cast<nxt::Window*>(GetWindowLongPtr(hwnd, GWLP_USERDATA)) };
-					UINT width{ LOWORD(lparam) };
-					UINT height{ HIWORD(lparam) };
-					//window->OnResize(width, height);
-					nxt::events::WindowResized ev{ width, height };
-					nxt::app::OnEvent(ev);
+					FireSizeEvent(lparam);
 					break;
 				}
 				case(SIZE_MINIMIZED):
 				{
-					nxt::Window* window{ reinterpret_cast<nxt::Window*>(GetWindowLongPtr(hwnd, GWLP_USERDATA)) };
-					UINT width{ LOWORD(lparam) };
-					UINT height{ HIWORD(lparam) };
-					//window->OnResize(width, height);
-					nxt::events::WindowResized ev{ width, height };
-					nxt::app::OnEvent(ev);
+					FireSizeEvent(lparam);
 					break;
 				}
-				default:
+				case(SIZE_RESTORED):
+				{
+					//FireSizeEvent(lparam);
 					break;
+				}
 			}
 			break;
 		}
@@ -248,8 +275,40 @@ LRESULT CALLBACK NxtWindowProcedure(HWND hwnd, UINT msg, WPARAM wparam, LPARAM l
 				{
 					nxt::events::KeyboardPressed ev{ static_cast<nxt::input::KEYCODE_>(wparam) };
 					nxt::app::OnEvent(ev);
+					break;
 				}
 			}
+		}
+		case(WM_LBUTTONDOWN):
+		{
+			// can also get x/y coords from lparam
+			FireMouseDownEvent(input::KEYCODE_MOUSE_1, false);
+			break;
+		}
+		case(WM_LBUTTONUP):
+		{
+			FireMouseUpEvent(input::KEYCODE_MOUSE_1);
+			break;
+		}
+		case(WM_LBUTTONDBLCLK):
+		{
+			FireMouseDownEvent(input::KEYCODE_MOUSE_1, true);
+			break;
+		}
+		case(WM_RBUTTONDOWN):
+		{
+			FireMouseDownEvent(input::KEYCODE_MOUSE_2, false);
+			break;
+		}
+		case(WM_RBUTTONUP):
+		{
+			FireMouseUpEvent(input::KEYCODE_MOUSE_2);
+			break;
+		}
+		case(WM_RBUTTONDBLCLK):
+		{
+			FireMouseDownEvent(input::KEYCODE_MOUSE_2, true);
+			break;
 		}
 	}
 

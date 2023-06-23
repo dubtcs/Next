@@ -14,7 +14,7 @@ namespace nxt
 	class NXT_API Window
 	{
 	public:
-		bool Init(const std::string& windowTitle = "NxtWindow");
+		bool Init(const std::string& windowTitle = "NxtWindow", int32_t width = 1920, int32_t height = 1080);
 		bool Release();
 		bool ProcessMessages();
 		bool OnCreate();
@@ -23,7 +23,7 @@ namespace nxt
 		bool OnClose(events::WindowClosed& ev);
 		void SetEventCallback(std::function<bool(events::Event& ev)> func);
 		Window();
-		Window(const std::string& windowTitle, std::function<bool(events::Event&)>);
+		Window(const std::string& windowTitle = "NxtWindow", int32_t width = 1920, int32_t height = 1080);
 		~Window();
 		Window(const Window&) = delete;
 		Window& operator=(const Window&) = delete;
@@ -37,9 +37,8 @@ namespace nxt
 		uint32_t mWidth{ 0 };
 		uint32_t mHeight{ 0 };
 
-		// rendering contexts
-		/*HDC mDeviceContext;
-		HGLRC mRenderingContext;*/
+		//uint32_t mTrueWidth{ 0 };
+		//uint32_t mTrueHeight{ 0 };
 
 		std::function<bool(events::Event&)> mCallback;
 	};
