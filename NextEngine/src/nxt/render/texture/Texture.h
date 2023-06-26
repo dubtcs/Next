@@ -8,6 +8,8 @@
 namespace nxt::texture
 {
 
+	// This is in namespace texture because I'm not sure if I'm going to have separate 2D/3D texture classes
+
 	class NXT_API Texture
 	{
 	public:

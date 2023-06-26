@@ -11,9 +11,9 @@ namespace nxt::clock
 		return std::chrono::steady_clock::now();
 	}
 
-	double GetDuration(const time_point& start, const time_point& stop)
+	float GetDuration(const time_point& start, const time_point& stop)
 	{
-		return std::chrono::duration<double>(stop - start).count();
+		return std::chrono::duration<float>(stop - start).count();
 	}
 
 }

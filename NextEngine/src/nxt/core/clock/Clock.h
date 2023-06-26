@@ -11,7 +11,7 @@ namespace nxt
 		using time_point = std::chrono::steady_clock::time_point;
 
 		time_point GetTime();
-		double GetDuration(const time_point& start, const time_point& stop);
+		float GetDuration(const time_point& start, const time_point& stop);
 
 	}
 

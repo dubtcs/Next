@@ -40,4 +40,11 @@ namespace nxt::log
 		#define NXT_LOG_CRIT(...) nxt::log::GetAppLog()->log(spdlog::source_loc{__FILE__, __LINE__, __FUNCTION__}, spdlog::level::critical, __VA_ARGS__)
 		#define NXT_ASSERT(...)
 	#endif
+#else
+	#define NXT_LOG_TRACE(...)
+	#define NXT_LOG_DEBUG(...)
+	#define NXT_LOG_INFO(...)
+	#define NXT_LOG_WARN(...)
+	#define NXT_LOG_CRIT(...)
+	#define NXT_ASSERT(...)
 #endif

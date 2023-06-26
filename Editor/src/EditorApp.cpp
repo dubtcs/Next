@@ -1,64 +1,27 @@
 
 #include "EditorApp.h"
 
-#include <nxt/render/RenderAPI.h>
-#include <nxt/core/input/Input.h>
-
-static nxt::Shared<nxt::buffers::VertexBuffer>gVB;
-static nxt::Shared<nxt::buffers::ElementBuffer>gEB;
-
-static nxt::Shared<nxt::texture::Texture> gTT;
-
-static nxt::Shader gShader;
-
-static float gVertices[]{
-	 0.5f,  0.5f, 0.0f,   1.0f, 1.0f, 
-	 0.5f, -0.5f, 0.0f,   1.0f, 0.0f,
-	-0.5f, -0.5f, 0.0f,   0.0f, 0.0f,
-	-0.5f,  0.5f, 0.0f,   0.0f, 1.0f
-};
-
-static uint32_t gIndices[6]{
-	0, 1, 3,
-	1, 2, 3
-};
-
 namespace nxt
 {
 
 	Editor::Editor()
 	{
-		gVB = buffers::VertexBuffer::Create(sizeof(gVertices), buffers::BUFFER_USAGE_STATIC, gVertices);
-		gEB = buffers::ElementBuffer::Create(sizeof(gIndices), gIndices, buffers::BUFFER_USAGE_STATIC);
-
-		gShader = Shader{ "assets/shaders/shader.vert", "assets/shaders/shader.frag" };
-
-		uint32_t stride{ 5 * sizeof(float) };
-		gVB->SetLayoutPosition(0, 3, nxt::DATA_TYPE_FLOAT, stride);
-		gVB->SetLayoutPosition(1, 2, nxt::DATA_TYPE_FLOAT, stride, 3 * sizeof(float));
-
-		gEB->AddVertexBuffer(gVB);
-
-		gTT = texture::Texture::Create("assets/textures/swirl.png");
+		
 	}
 
-	void Editor::OnUpdate(double& dt)
+	void Editor::OnUpdate(float& dt)
 	{
-		render::command::Clear();
-		gShader.Bind();
-		gTT->Bind();
-
-		gShader.SetValue("simpleTexture", 0);
-
-		gEB->Draw(buffers::DRAW_MODE_TRIANGLES, 6);
-		//NXT_LOG_TRACE("Framerate: {0}", static_cast<int32_t>((1.0 / dt)));
+		mRender.OnUpdate(dt);
 	}
 
 	bool Editor::OnEvent(nxt::events::Event& ev)
 	{
 		events::Handler handler{ ev };
+		NXT_LOG_TRACE(ev.GetName());
 		handler.Fire<events::KeyboardPressed>(NXT_CALLBACK(Editor::OnKeyPressed));
 		handler.Fire<events::MouseButtonPressed>(NXT_CALLBACK(Editor::OnMouseButtonPressed));
+		//handler.Fire<events::WindowResized>(NXT_CALLBACK(Editor::OnWindowResize));
+		mRender.OnEvent(ev);
 		return false;
 	}
 
@@ -74,8 +37,14 @@ namespace nxt
 	bool Editor::OnMouseButtonPressed(events::MouseButtonPressed& ev)
 	{
 		NXT_LOG_TRACE("MouseButton Pressed. Double click: {0}", ev.IsDoubleClick ? "yes" : "no");
+		//float rep[]{ 0.25f, 0.9f, 0.f };
+		//gVB->SetBufferSubData(sizeof(rep), 0, &rep);
 		return false;
 	}
+	//bool Editor::OnWindowResize(events::WindowResized& ev)
+	//{
+	//	//return mRender.OnWindowResize(ev);
+	//}
 
 }
 

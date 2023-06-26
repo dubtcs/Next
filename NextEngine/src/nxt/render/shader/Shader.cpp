@@ -8,6 +8,8 @@
 
 #include <glad/glad.h>
 
+#include <gtc/type_ptr.hpp>
+
 namespace nxt
 {
 
@@ -130,6 +132,12 @@ namespace nxt
 	{
 		int32_t loc{ glGetUniformLocation(mID, name.c_str()) };
 		glUniform1i(loc, value);
+	}
+
+	void Shader::SetValue(const std::string& name, const glm::mat4& matrix)
+	{
+		int32_t loc{ glGetUniformLocation(mID, name.c_str()) };
+		glUniformMatrix4fv(loc, 1, GL_FALSE, glm::value_ptr(matrix));
 	}
 
 }

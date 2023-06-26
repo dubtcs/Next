@@ -22,6 +22,8 @@ namespace nxt
 		bool OnEvent(events::Event& ev);
 		bool OnClose(events::WindowClosed& ev);
 		void SetEventCallback(std::function<bool(events::Event& ev)> func);
+		uint32_t GetWidth() const;
+		uint32_t GetHeight() const;
 		Window();
 		Window(const std::string& windowTitle = "NxtWindow", int32_t width = 1920, int32_t height = 1080);
 		~Window();

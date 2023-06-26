@@ -8,7 +8,7 @@ namespace nxt::buffers
 
 	enum BUFFER_USAGE_ : nxt_enum
 	{
-		BUFFER_USAGE_STATIC = 0x88E4,
+		BUFFER_USAGE_STATIC = 0x88E4, // GL_STATIC_DRAW
 		BUFFER_USAGE_STREAM = 0x88E0,
 		BUFFER_USAGE_DYNAMIC = 0x88E8
 	};

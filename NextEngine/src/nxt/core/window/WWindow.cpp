@@ -44,6 +44,16 @@ namespace nxt
 	{
 		Release();
 	}
+	
+	uint32_t Window::GetHeight() const
+	{
+		return mHeight;
+	}
+
+	uint32_t Window::GetWidth() const
+	{
+		return mWidth;
+	}
 
 	bool Window::Init(const std::string& name, int32_t width, int32_t height)
 	{
@@ -96,6 +106,9 @@ namespace nxt
 		UpdateWindow(mWindowHandle);
 
 		render::command::SetClearColor(0.25f, 0.25f, 0.25f, 1.f);
+
+		mWidth = static_cast<uint32_t>(width);
+		mHeight = static_cast<uint32_t>(height);
 
 		return true;
 	}
@@ -269,15 +282,9 @@ LRESULT CALLBACK NxtWindowProcedure(HWND hwnd, UINT msg, WPARAM wparam, LPARAM l
 		case(WM_KEYDOWN):
 		{
 			nxt::Window* window{ reinterpret_cast<nxt::Window*>(GetWindowLongPtr(hwnd, GWLP_USERDATA)) };
-			switch (msg)
-			{
-				case(WM_KEYDOWN):
-				{
-					nxt::events::KeyboardPressed ev{ static_cast<nxt::input::KEYCODE_>(wparam) };
-					nxt::app::OnEvent(ev);
-					break;
-				}
-			}
+			nxt::events::KeyboardPressed ev{ static_cast<nxt::input::KEYCODE_>(wparam) };
+			nxt::app::OnEvent(ev);
+			break;
 		}
 		case(WM_LBUTTONDOWN):
 		{

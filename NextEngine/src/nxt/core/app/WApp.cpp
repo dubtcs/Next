@@ -43,29 +43,46 @@ namespace nxt::app
 
 	void Launch(const std::string& appName, int32_t width, int32_t height)
 	{
-		log::Init();
-		gWindow = NewUnique<Window>(appName, width, height);
-		gPreviousTime = clock::GetTime();
-		gRunning = true;
+		if (gWindow == nullptr)
+		{
+			log::Init();
+			gWindow = NewUnique<Window>(appName, width, height);
+			gPreviousTime = clock::GetTime();
+		}
+		else
+		{
+			NXT_LOG_CRIT("Attempted to launch app more than once.");
+		}
 	}
 
 	void Run()
 	{
-		while (gRunning)
+		if (!gRunning)
 		{
-			gWindow->ProcessMessages();
-			double dt{ clock::GetDuration(gPreviousTime, clock::GetTime()) };
-			for (Shared<AppInterface>& app : gInterfaces)
+			gRunning = true;
+			while (gRunning)
 			{
-				app->OnUpdate(dt);
+				gWindow->ProcessMessages();
+				float dt{ clock::GetDuration(gPreviousTime, clock::GetTime()) };
+				for (Shared<AppInterface>& app : gInterfaces)
+				{
+					app->OnUpdate(dt);
+				}
+				gPreviousTime = clock::GetTime();
+				Sleep(10);
 			}
-			gPreviousTime = clock::GetTime();
-			Sleep(10);
+		}
+		else
+		{
+			NXT_LOG_CRIT("Attempted to run app more than once.");
 		}
 	}
 
 	void AddInterface(const Shared<AppInterface>& appInter)
 	{
+		// Fire a resize event to fit stuff to screen
+		events::WindowResized spoof{ gWindow->GetWidth(), gWindow->GetHeight() };
+		appInter->OnEvent(spoof);
 		gInterfaces.push_back(appInter);
 	}
 

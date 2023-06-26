@@ -27,6 +27,12 @@ namespace nxt::buffers
 		glDeleteVertexArrays(1, &mVertexArrayId);
 	}
 
+	void VertexBuffer::SetBufferSubData(size_t byteSize, size_t byteOffset, void* data) const
+	{
+		Bind();
+		glBufferSubData(GL_ARRAY_BUFFER, byteOffset, byteSize, data);
+	}
+
 	void VertexBuffer::SetLayoutPosition(uint32_t position, uint32_t amount, DATA_TYPE_ dataType, uint32_t stride, uint32_t offset, bool normalized)
 	{
 		Bind();

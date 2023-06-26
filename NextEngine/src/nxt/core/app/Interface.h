@@ -11,7 +11,7 @@ namespace nxt
 	class NXT_API AppInterface
 	{
 	public:
-		virtual void OnUpdate(double& dt) = 0;
+		virtual void OnUpdate(float& dt) = 0;
 		virtual bool OnEvent(events::Event& ev) = 0;
 	};
 

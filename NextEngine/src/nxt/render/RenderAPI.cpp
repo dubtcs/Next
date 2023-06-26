@@ -12,6 +12,7 @@ namespace nxt::render::command
 	void Init()
 	{
 		gladLoadGL();
+		glEnable(GL_DEPTH_TEST);
 	}
 
 	void SetViewport(int32_t width, int32_t height)
@@ -21,7 +22,7 @@ namespace nxt::render::command
 
 	void Clear(int32_t buffer_bits)
 	{
-		glClear(GL_COLOR_BUFFER_BIT);
+		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 	}
 
 	void SetClearColor(float r, float g, float b, float a)
@@ -29,7 +30,6 @@ namespace nxt::render::command
 		glClearColor(r, g, b, a);
 	}
 
-	// Use device::SwapBuffers instead
 	void SwapBuffers()
 	{
 		device::SwapBuffers();

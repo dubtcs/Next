@@ -19,7 +19,7 @@ In development rendering platform / game engine for Windows.
 
 ## Goals
 
-NxtEngine is built from the ground up with Win32 and OpenGL to get a better understanding of the computer graphics pipeline.
+NxtEngine is built with Win32 and OpenGL to get a better understanding of the computer graphics pipeline, graphics programming, and game engine development.
 
 ### Current Features 
    - [Custom ECS](https://github.com/dubtcs/nECS)
@@ -29,16 +29,13 @@ NxtEngine is built from the ground up with Win32 and OpenGL to get a better unde
 NxtEngine comes with a built in editor, but if you want to use the raw render api or your own app, you can.
 An interface is provided to hook into the main loop of the engine.
 
-Be sure to add NxtEngine/src as an include directory.
+Add ```NextEngine/src``` as an include directory.
 
 ```
 
 #include <NextEngine.h>
 
-// Include the app interface
-#include <nxt/core/app/Interface.h>
-
-class Example : public nxt::AppInterface
+class ExampleInterface : public nxt::AppInterface
 {
 public:
     virtual OnUpdate(double dt) override;
@@ -47,13 +44,13 @@ public:
 
 int main()
 {
-    nxt::App* app{ new nxt::App{} };
+
+    nxt::app::Launch("Your App Name", 1920, 1080);
 
     // AddInterface takes an std::shared_pointer to an AppInterface
-    app->AddInterface(nxt::NewShared<Example>());
+    nxt::app::AddInterface(nxt::NewShared<ExampleInterface>());
     
-    app->Run();
-    delete app;
+    nxt::app::Run();
 }
 
 ```

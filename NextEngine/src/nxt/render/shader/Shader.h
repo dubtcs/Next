@@ -5,6 +5,8 @@
 #include <filesystem>
 #include <string>
 
+#include <glm.hpp>
+
 namespace nxt
 {
 
@@ -23,6 +25,7 @@ namespace nxt
 		~Shader();
 		void Bind();
 		void SetValue(const std::string& name, int32_t value);
+		void SetValue(const std::string& name, const glm::mat4& matrix);
 	protected:
 		std::string mName;
 		uint32_t mID{ 0 };
