@@ -3,6 +3,8 @@
 
 #ifdef NXT_PLATFORM_WINDOWS
 
+#include <iostream>
+
 // rendering contexts
 static HWND* gWindowHandle{ nullptr };
 static HDC gDeviceContext;
@@ -63,6 +65,7 @@ namespace nxt::device
 		return (::GetKeyState(keycode) & 0x8000);
 	}
 
+	// Maybe use high definition mouse movement. Raw input
 	glm::vec2 GetMousePosition()
 	{
 		POINT p;
@@ -78,12 +81,12 @@ namespace nxt::device
 
 	void ShowCursor()
 	{
-		::ShowCursor(TRUE);
+		::ShowCursor(true);
 	}
 
 	void HideCursor()
 	{
-		::ShowCursor(FALSE);
+		::ShowCursor(false);
 	}
 
 }

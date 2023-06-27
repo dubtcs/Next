@@ -24,6 +24,7 @@ namespace nxt
 		Shader mShader;
 
 		Shared<texture::Texture> mTexture;
+		Model mModel;
 	};
 
 }

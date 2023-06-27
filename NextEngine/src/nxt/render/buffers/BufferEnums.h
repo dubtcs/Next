@@ -25,4 +25,10 @@ namespace nxt::buffers
 		DRAW_MODE_QUADS = 0x0007
 	};
 
+	enum BUFFER_TARGET_ : nxt_enum
+	{
+		BUFFER_TARGET_ARRAY_BUFFER = 0x8892,
+		BUFFER_TARGET_ELEMENT_ARRAY = 0x8893
+	};
+
 }

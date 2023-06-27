@@ -89,7 +89,7 @@ namespace nxt
 			virtual EVENT_TYPE_ GetType() const override { return Type; }
 			virtual const char* GetName() const override { return "MOUSE"; }
 
-			static const EVENT_TYPE_ StaticType{ EVENT_TYPE_MOUSE_PRESSED };
+			static const EVENT_TYPE_ StaticType{ EVENT_TYPE_MOUSE_RELEASED };
 			MouseButtonReleased(input::KEYCODE_ keycode) : Keycode{ keycode } {}
 		};
 

@@ -8,6 +8,7 @@ includes.glad = "NextEngine/vendor/glad/include"
 includes.glm = "NextEngine/vendor/glm/glm"
 includes.spdlog = "NextEngine/vendor/spdlog/include"
 includes.stb = "NextEngine/vendor/stb"
+includes.gltf = "NextEngine/vendor/gltf"
 
 -- workspace
 workspace "NEXT"
@@ -43,6 +44,9 @@ workspace "NEXT"
             "%{prj.name}/vendor/stb/**.h",
             "%{prj.name}/vendor/stb/**.cpp",
 
+            -- TINY GLTF
+            "%{prj.name}/vendor/gltf/tinygltf.cpp",
+
             -- No GLFW so we need GLAD's opengl loader
             "%{prj.name}/vendor/glad/src/glad.c",
         };
@@ -53,6 +57,7 @@ workspace "NEXT"
             "%{includes.glm}",
             "%{includes.spdlog}",
             "%{includes.stb}",
+            "%{includes.gltf}",
 
         }
 
@@ -110,6 +115,7 @@ workspace "NEXT"
             "%{includes.glm}",
             "%{includes.spdlog}",
             "%{includes.stb}",
+            "%{includes.gltf}",
 
         };
     

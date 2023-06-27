@@ -50,14 +50,20 @@ namespace nxt
 
 	bool Camera::OnMouseButtonPressed(events::MouseButtonPressed& ev)
 	{
-		mMousePosition = input::GetMousePosition();
-		input::HideCursor();
+		if (ev.Keycode == input::KEYCODE_MOUSE_RIGHT)
+		{
+			mMousePosition = input::GetMousePosition();
+			input::HideCursor();
+		}
 		return false;
 	}
 
 	bool Camera::OnMouseButtonReleased(events::MouseButtonReleased& ev)
 	{
-		input::ShowCursor();
+		if (ev.Keycode == input::KEYCODE_MOUSE_RIGHT)
+		{
+			input::ShowCursor();
+		}
 		return false;
 	}
 

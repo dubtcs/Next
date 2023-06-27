@@ -17,7 +17,7 @@ namespace nxt::texture
 
 	Texture::Texture(const std::filesystem::path& filepath)
 	{
-		NXT_LOG_TRACE("Attempting Texture: \"{0}\"", filepath.string());
+		NXT_LOG_TRACE("Creating texture: \"{0}\"", filepath.string());
 		if (!filepath.empty())
 		{
 			int32_t width{ 0 };

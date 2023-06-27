@@ -19,7 +19,10 @@ All functionaility is in namespace nxt
 #include <nxt/render/RenderAPI.h>
 #include <nxt/render/buffers/VertexBuffer.h>
 #include <nxt/render/buffers/ElementBuffer.h>
+#include <nxt/render/buffers/DataBuffer.h>
+#include <nxt/render/buffers/ArrayObject.h>
 
 #include <nxt/render/texture/Texture.h>
-
 #include <nxt/render/shader/Shader.h>
+
+#include <nxt/world/Model.h>

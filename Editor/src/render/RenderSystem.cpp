@@ -19,16 +19,17 @@ namespace nxt
 {
 
 	RenderSystem::RenderSystem() :
-		mVertexBuffer{ buffers::VertexBuffer::Create(sizeof(gVertices), buffers::BUFFER_USAGE_STATIC, gVertices) },
-		mElementBuffer{ buffers::ElementBuffer::Create(sizeof(gIndices), gIndices, buffers::BUFFER_USAGE_STATIC) },
+		//mVertexBuffer{ buffers::VertexBuffer::Create(sizeof(gVertices), gVertices, buffers::BUFFER_USAGE_STATIC) },
+		//mElementBuffer{ buffers::ElementBuffer::Create(sizeof(gIndices), gIndices, buffers::BUFFER_USAGE_STATIC) },
 		mTexture{ texture::Texture::Create("assets/textures/swirl.png") },
 		mShader{ "assets/shaders/shader3.vert", "assets/shaders/shader3.frag" },
-		mCamera{  }
+		mCamera{  },
+		mModel{ "assets/models/Triangle.gltf" }
 	{
 		uint32_t stride{ 5 * sizeof(float) };
-		mVertexBuffer->SetLayoutPosition(0, 3, DATA_TYPE_FLOAT, stride, 0, false);
-		mVertexBuffer->SetLayoutPosition(1, 2, DATA_TYPE_FLOAT, stride, 3 * sizeof(float), false);
-		mElementBuffer->AddVertexBuffer(mVertexBuffer);
+		//mVertexBuffer->SetLayoutPosition(0, 3, DATA_TYPE_FLOAT, stride, 0, false);
+		//mVertexBuffer->SetLayoutPosition(1, 2, DATA_TYPE_FLOAT, stride, 3 * sizeof(float), false);
+		//mElementBuffer->AddVertexBuffer(mVertexBuffer);
 	}
 
 	void RenderSystem::OnUpdate(float& dt)
@@ -36,8 +37,8 @@ namespace nxt
 		render::command::Clear();
 		mCamera.OnUpdate(dt);
 		mShader.Bind();
-		mTexture->Bind();
-		mShader.SetValue("simpleTexture", 0);
+		//mTexture->Bind();
+		//mShader.SetValue("simpleTexture", 0);
 
 		// translate vertices to world space
 		glm::mat4 ones{ 1.f };
@@ -48,8 +49,8 @@ namespace nxt
 		};
 
 		mShader.SetValue("worldMatrix", mCamera.GetProjectionViewMatrix() * model);
-
-		mElementBuffer->Draw(buffers::DRAW_MODE_TRIANGLES, 6);
+		mModel.Draw();
+		//mElementBuffer->Draw(buffers::DRAW_MODE_TRIANGLES, 6);
 	}
 
 	bool RenderSystem::OnEvent(events::Event& ev)

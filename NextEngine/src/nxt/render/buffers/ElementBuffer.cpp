@@ -6,12 +6,12 @@
 namespace nxt::buffers
 {
 
-	Shared<ElementBuffer> ElementBuffer::Create(size_t byteSize, uint32_t* indices, BUFFER_USAGE_ usage)
+	Shared<ElementBuffer> ElementBuffer::Create(size_t byteSize, void* indices, BUFFER_USAGE_ usage)
 	{
 		return NewShared<ElementBuffer>(byteSize, indices, usage);
 	}
 
-	ElementBuffer::ElementBuffer(size_t byteSize, uint32_t* indices, BUFFER_USAGE_ usage)
+	ElementBuffer::ElementBuffer(size_t byteSize, void* indices, BUFFER_USAGE_ usage)
 	{
 		glCreateBuffers(1, &mID);
 		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, mID);

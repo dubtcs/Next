@@ -7,18 +7,18 @@
 namespace nxt::buffers
 {
 
-	Shared<VertexBuffer> VertexBuffer::Create(size_t byteSize, BUFFER_USAGE_ usage, void* data)
+	Shared<VertexBuffer> VertexBuffer::Create(size_t byteSize, void* data, BUFFER_USAGE_ bufferUsage)
 	{
-		return NewShared<VertexBuffer>(byteSize, usage, data);
+		return NewShared<VertexBuffer>(byteSize, data, bufferUsage);
 	}
 
 	// void* switch to std::any??
-	VertexBuffer::VertexBuffer(size_t byteSize, BUFFER_USAGE_ usage, void* data)
+	VertexBuffer::VertexBuffer(size_t byteSize, void* data, BUFFER_USAGE_ bufferUsage)
 	{
 		glCreateVertexArrays(1, &mVertexArrayId);
 		glCreateBuffers(1, &mID);
 		glBindBuffer(GL_ARRAY_BUFFER, mID);
-		glBufferData(GL_ARRAY_BUFFER, byteSize, data, usage);
+		glBufferData(GL_ARRAY_BUFFER, byteSize, data, bufferUsage);
 	}
 
 	VertexBuffer::~VertexBuffer()
