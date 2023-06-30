@@ -32,9 +32,12 @@ namespace nxt
 		Model(const std::filesystem::path& filepath);
 		void Draw();
 	protected:
-		void RegisterModel(tinygltf::Model& model);
-		void RegisterNode(tinygltf::Model& model, tinygltf::Node& node);
-		void RegisterMesh(tinygltf::Model& model, tinygltf::Mesh& mesh);
+		std::vector<Mesh> RegisterModel(tinygltf::Model& model);
+		Mesh RegisterNode(tinygltf::Model& model, tinygltf::Node& node, std::vector<Shared<buffers::DataBuffer>>& buffers);
+		std::vector<Primitive> RegisterMesh(tinygltf::Model& model, tinygltf::Mesh& mesh, std::vector<Shared<buffers::DataBuffer>>& buffers);
+		//void RegisterModel(tinygltf::Model& model);
+		//void RegisterNode(tinygltf::Model& model, tinygltf::Node& node);
+		//void RegisterMesh(tinygltf::Model& model, tinygltf::Mesh& mesh);
 	protected:
 		Shared<buffers::ArrayObject> mArrayObject{ buffers::ArrayObject::Create() };
 		std::vector<Mesh> mMeshes;

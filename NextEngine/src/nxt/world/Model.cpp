@@ -16,9 +16,10 @@ namespace nxt
 		std::string msgWarn;
 		tinygltf::Model model;
 		bool pass{ loader.LoadASCIIFromFile(&model, &msgError, &msgWarn, filepath.string()) };
-		RegisterModel(model);
+		mMeshes = RegisterModel(model);
 	}
 
+	// temp
 	void Model::Draw()
 	{
 		for (Mesh& mesh : mMeshes)
@@ -32,57 +33,62 @@ namespace nxt
 		}
 	}
 
-	void Model::RegisterModel(tinygltf::Model& model)
+	std::vector<Mesh> Model::RegisterModel(tinygltf::Model& model)
 	{
-		// Create data buffers for each view
+		std::vector<Shared<DataBuffer>> buffers{};
 		for (tinygltf::BufferView& view : model.bufferViews)
 		{
 			tinygltf::Buffer& buffer{ model.buffers[view.buffer] };
 			Shared<DataBuffer> dBuffer{ DataBuffer::Create(view.byteLength, &buffer.data.at(0) + view.byteOffset, static_cast<BUFFER_TARGET_>(view.target)) };
-			mBuffers.push_back(dBuffer);
+			buffers.push_back(dBuffer);
 		}
 
 		// Cycle nodes
+		std::vector<Mesh> meshes;
 		for (int32_t& i : model.scenes[model.defaultScene].nodes)
 		{
-			RegisterNode(model, model.nodes[i]);
+			meshes.push_back(RegisterNode(model, model.nodes[i], buffers));
 		}
+
+		return meshes;
 	}
 
-	/*
-	NEED TO UPDATE TO WORK WITH RECURSIVE CHILDREN ADDITIONS
-	*/
-	void Model::RegisterNode(tinygltf::Model& model, tinygltf::Node& node)
+	Mesh Model::RegisterNode(tinygltf::Model& model, tinygltf::Node& node, std::vector<Shared<DataBuffer>>& buffers)
 	{
+		Mesh mesh{};
 		if (node.mesh >= 0)
 		{
-			RegisterMesh(model, model.meshes[node.mesh]);
+			mesh.primitives = RegisterMesh(model, model.meshes[node.mesh], buffers);
 		}
 		for (int32_t& i : node.children)
 		{
-			RegisterNode(model, model.nodes[i]);
+			mesh.children.push_back(RegisterNode(model, model.nodes[i], buffers));
 		}
+		return mesh;
 	}
 
-	void Model::RegisterMesh(tinygltf::Model& model, tinygltf::Mesh& mesh)
+	std::vector<Primitive> Model::RegisterMesh(tinygltf::Model& model, tinygltf::Mesh& mesh, std::vector<Shared<buffers::DataBuffer>>& buffers)
 	{
-		Mesh addMesh{};
+		std::vector<Primitive> primitives{};
+
 		for (tinygltf::Primitive& primitive : mesh.primitives)
 		{
 			tinygltf::Accessor& indexAccessor{ model.accessors[primitive.indices] };
 			Primitive addPrimitive{};
 
-			addPrimitive.buffer = mBuffers[primitive.indices];
+			addPrimitive.buffer = buffers[primitive.indices];
 			addPrimitive.mode = static_cast<DRAW_MODE_>(primitive.mode);
 			addPrimitive.count = indexAccessor.count;
 			addPrimitive.byteOffset = indexAccessor.byteOffset;
 			addPrimitive.componentType = static_cast<DATA_TYPE_>(indexAccessor.componentType);
 
+			primitives.push_back(addPrimitive);
+
 			for (auto& attribute : primitive.attributes)
 			{
 				// Binding buffers for attribute locationd data
 				tinygltf::Accessor& accessor{ model.accessors[attribute.second] };
-				Shared<DataBuffer>& dBuffer{ mBuffers[accessor.bufferView] };
+				Shared<DataBuffer>& dBuffer{ buffers[accessor.bufferView] };
 				dBuffer->Bind();
 				int32_t amount{ accessor.type == TINYGLTF_TYPE_SCALAR ? 1 : accessor.type };
 				NXT_LOG_TRACE("Attribute amount: {0}", amount);
@@ -95,9 +101,9 @@ namespace nxt
 				}
 			}
 
-			addMesh.primitives.push_back(addPrimitive);
 		}
-		mMeshes.push_back(addMesh);
+
+		return primitives;
 	}
 
 }
