@@ -1,6 +1,7 @@
 #pragma once
 
 #include <nxt/EngineCore.h>
+#include <nxt/render/buffers/ArrayObject.h>
 
 namespace nxt::render
 {

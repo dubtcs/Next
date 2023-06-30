@@ -7,15 +7,34 @@
 #include <glad/glad.h>
 #include <stb_image.h>
 
-namespace nxt::texture
+namespace nxt
 {
 
-	Shared<Texture> Texture::Create(const std::filesystem::path& filepath)
+	Shared<Texture> Texture::Create(const std::filesystem::path& filepath, TEXTURE_TARGET_ textureTarget)
 	{
-		return NewShared<Texture>(filepath);
+		return NewShared<Texture>(filepath, textureTarget);
 	}
 
-	Texture::Texture(const std::filesystem::path& filepath)
+	Shared<Texture> Texture::Create(int32_t width, int32_t height, TEXTURE_FORMAT_ textureFormat, TEXTURE_TARGET_ target)
+	{
+		return NewShared<Texture>(width, height, textureFormat, target);
+	}
+
+	Texture::Texture(int32_t width, int32_t height, TEXTURE_FORMAT_ textureFormat, TEXTURE_TARGET_ target) :
+		mWidth{ width },
+		mHeight{ height },
+		mTarget{ target },
+		mFormat{ textureFormat }
+	{
+		SetInternalFormat();
+		glCreateTextures(target, 1, &mID);
+		glTextureStorage2D(mID, 1, mInternalFormat, width, height);
+		glTextureParameteri(mID, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+		glTextureParameteri(mID, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+	}
+
+	Texture::Texture(const std::filesystem::path& filepath, TEXTURE_TARGET_ textureTarget) :
+		mTarget{ textureTarget }
 	{
 		NXT_LOG_TRACE("Creating texture: \"{0}\"", filepath.string());
 		if (!filepath.empty())
@@ -36,7 +55,13 @@ namespace nxt::texture
 					internalFormat = TEXTURE_FORMAT_INTERNAL_RGBA8;
 				}
 
-				glCreateTextures(GL_TEXTURE_2D, 1, &mID);
+				mFormat = baseFormat;
+				mInternalFormat = internalFormat;
+
+				mWidth = width;
+				mHeight = height;
+
+				glCreateTextures(textureTarget, 1, &mID);
 				glTextureStorage2D(mID, 1, internalFormat, width, height);
 				glTextureParameteri(mID, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
 				glTextureParameteri(mID, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
@@ -54,6 +79,23 @@ namespace nxt::texture
 		{
 			NXT_LOG_CRIT("Filepath not valid: {0}", filepath.string());
 		}
+	}
+
+	void Texture::SetInternalFormat()
+	{
+		switch (mFormat)
+		{
+			case(TEXTURE_FORMAT_R): {mInternalFormat = TEXTURE_FORMAT_INTERNAL_R8; return; }
+			case(TEXTURE_FORMAT_RG): {mInternalFormat = TEXTURE_FORMAT_INTERNAL_RG8; return; }
+			case(TEXTURE_FORMAT_RGB): {mInternalFormat = TEXTURE_FORMAT_INTERNAL_RGB8; return; }
+			case(TEXTURE_FORMAT_RGBA): {mInternalFormat = TEXTURE_FORMAT_INTERNAL_RGBA8; return; }
+		}
+		NXT_LOG_CRIT("No internal format found for requested format");
+	}
+
+	void Texture::SetData(TEXTURE_FORMAT_ format, DATA_TYPE_ dataType, void* data)
+	{
+		glTextureSubImage2D(mID, 0, 0, 0, mWidth, mHeight, format, dataType, data);
 	}
 
 	Texture::~Texture()

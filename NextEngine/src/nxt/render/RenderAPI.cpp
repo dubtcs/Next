@@ -2,8 +2,8 @@
 #include "RenderAPI.h"
 
 #include <nxt/core/device/Device.h>
-#include <glad/glad.h>
 
+#include <glad/glad.h>
 #include <iostream>
 
 namespace nxt::render::command

@@ -3,6 +3,8 @@
 
 In development rendering platform / game engine for Windows.
 
+Sample models taken from the [KhronosGroup GLTF sample repo.](https://github.com/KhronosGroup/glTF-Sample-Models/tree/master/2.0)
+
 ## Download + Build
 
 ### Requirements 

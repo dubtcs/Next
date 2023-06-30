@@ -19,17 +19,13 @@ namespace nxt
 {
 
 	RenderSystem::RenderSystem() :
-		//mVertexBuffer{ buffers::VertexBuffer::Create(sizeof(gVertices), gVertices, buffers::BUFFER_USAGE_STATIC) },
-		//mElementBuffer{ buffers::ElementBuffer::Create(sizeof(gIndices), gIndices, buffers::BUFFER_USAGE_STATIC) },
-		mTexture{ texture::Texture::Create("assets/textures/swirl.png") },
-		mShader{ "assets/shaders/shader3.vert", "assets/shaders/shader3.frag" },
+		mTexture{ Texture::Create("assets/textures/swirl.png") },
+		mShader{ "assets/shaders/gltfShader.vert", "assets/shaders/gltfShader.frag" },
 		mCamera{  },
-		mModel{ "assets/models/Triangle.gltf" }
+		mModel{ "assets/models/Triangle.gltf" },
+		mModel2{ "assets/models/Triangle.gltf" }
 	{
-		uint32_t stride{ 5 * sizeof(float) };
-		//mVertexBuffer->SetLayoutPosition(0, 3, DATA_TYPE_FLOAT, stride, 0, false);
-		//mVertexBuffer->SetLayoutPosition(1, 2, DATA_TYPE_FLOAT, stride, 3 * sizeof(float), false);
-		//mElementBuffer->AddVertexBuffer(mVertexBuffer);
+
 	}
 
 	void RenderSystem::OnUpdate(float& dt)
@@ -45,12 +41,17 @@ namespace nxt
 
 		glm::mat4 model{ 
 			glm::translate(ones, glm::vec3{0.f, 0.5f, 0.f})
-			//glm::rotate(ones, glm::radians(45.f), glm::vec3{1.f,0.f,0.f})
 		};
 
 		mShader.SetValue("worldMatrix", mCamera.GetProjectionViewMatrix() * model);
 		mModel.Draw();
-		//mElementBuffer->Draw(buffers::DRAW_MODE_TRIANGLES, 6);
+
+		glm::mat4 model2{
+			glm::translate(ones, glm::vec3{1.f, 1.f, 1.f})
+		};
+		mShader.SetValue("worldMatrix", mCamera.GetProjectionViewMatrix() * model2);
+		mModel2.Draw();
+
 	}
 
 	bool RenderSystem::OnEvent(events::Event& ev)

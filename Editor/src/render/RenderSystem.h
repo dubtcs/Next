@@ -4,6 +4,9 @@
 
 #include "Camera.h"
 
+#include <nxt/world/ModelOld.h>
+#include <nxt/world/Model.h>
+
 namespace nxt
 {
 
@@ -23,8 +26,9 @@ namespace nxt
 
 		Shader mShader;
 
-		Shared<texture::Texture> mTexture;
-		Model mModel;
+		Shared<Texture> mTexture;
+		OldModel mModel;
+		Model mModel2;
 	};
 
 }

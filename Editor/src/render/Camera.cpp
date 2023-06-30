@@ -9,6 +9,9 @@
 static float gSens{ 0.5f };
 static float gSpeed{ 5.f }; // movement speed
 
+static constexpr float gNearClip{ 0.01f };
+static constexpr float gFarClip{ 1'000.f };
+
 namespace nxt
 {
 
@@ -82,7 +85,7 @@ namespace nxt
 
 	void Camera::BuildProjectionMatrix()
 	{
-		mProjectionMatrix = glm::perspective(glm::radians(mFov), mAspectRatio, 0.1f, 1000.f);
+		mProjectionMatrix = glm::perspective(glm::radians(mFov), mAspectRatio, gNearClip, gFarClip);
 	}
 
 	void Camera::BuildProjectionViewMatrix()
@@ -125,11 +128,11 @@ namespace nxt
 			mPosition -= dt * GetLookVector();
 		}
 		// Vertical
-		if (input::IsKeyDown(input::KEYCODE_E))
+		if (input::IsKeyDown(input::KEYCODE_E) || input::IsKeyDown(input::KEYCODE_SPACE))
 		{
 			mPosition += dt * GetUpVector();
 		}
-		else if (input::IsKeyDown(input::KEYCODE_Q))
+		else if (input::IsKeyDown(input::KEYCODE_Q) || input::IsKeyDown(input::KEYCODE_CTRL))
 		{
 			mPosition -= dt * GetUpVector();
 		}
