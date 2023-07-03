@@ -30,7 +30,7 @@ namespace nxt
 
 	void Camera::OnUpdate(float dt)
 	{
-		if (input::IsKeyDown(input::KEYCODE_MOUSE_RIGHT))
+		if (input::IsKeyDown(nxtKeycode_MouseRight))
 		{
 			// if usable check
 			glm::vec2 mousePosition{ input::GetMousePosition() };
@@ -53,7 +53,7 @@ namespace nxt
 
 	bool Camera::OnMouseButtonPressed(events::MouseButtonPressed& ev)
 	{
-		if (ev.Keycode == input::KEYCODE_MOUSE_RIGHT)
+		if (ev.Keycode == nxtKeycode_MouseRight)
 		{
 			mMousePosition = input::GetMousePosition();
 			input::HideCursor();
@@ -63,7 +63,7 @@ namespace nxt
 
 	bool Camera::OnMouseButtonReleased(events::MouseButtonReleased& ev)
 	{
-		if (ev.Keycode == input::KEYCODE_MOUSE_RIGHT)
+		if (ev.Keycode == nxtKeycode_MouseRight)
 		{
 			input::ShowCursor();
 		}
@@ -110,29 +110,29 @@ namespace nxt
 	void Camera::Translate(float& dt)
 	{
 		// Horizontal
-		if (input::IsKeyDown(input::KEYCODE_A))
+		if (input::IsKeyDown(nxtKeycode_A))
 		{
 			mPosition += dt * GetRightVector();
 		}
-		else if (input::IsKeyDown(input::KEYCODE_D))
+		else if (input::IsKeyDown(nxtKeycode_D))
 		{
 			mPosition -= dt * GetRightVector();
 		}
 		// Forward
-		if (input::IsKeyDown(input::KEYCODE_W))
+		if (input::IsKeyDown(nxtKeycode_W))
 		{
 			mPosition += dt * GetLookVector();
 		}
-		else if (input::IsKeyDown(input::KEYCODE_S))
+		else if (input::IsKeyDown(nxtKeycode_S))
 		{
 			mPosition -= dt * GetLookVector();
 		}
 		// Vertical
-		if (input::IsKeyDown(input::KEYCODE_E) || input::IsKeyDown(input::KEYCODE_SPACE))
+		if (input::IsKeyDown(nxtKeycode_E) || input::IsKeyDown(nxtKeycode_Space))
 		{
 			mPosition += dt * GetUpVector();
 		}
-		else if (input::IsKeyDown(input::KEYCODE_Q) || input::IsKeyDown(input::KEYCODE_CTRL))
+		else if (input::IsKeyDown(nxtKeycode_Q) || input::IsKeyDown(nxtKeycode_Ctrl))
 		{
 			mPosition -= dt * GetUpVector();
 		}

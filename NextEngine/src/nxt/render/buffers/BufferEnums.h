@@ -3,32 +3,32 @@
 #include <nxt/EngineCore.h>
 #include <nxt/core/GenericEnums.h>
 
-namespace nxt::buffers
+namespace nxt
 {
 
-	enum BUFFER_USAGE_ : nxt_enum
+	enum nxtBufferUsage : nxt_enum
 	{
-		BUFFER_USAGE_STATIC = 0x88E4, // GL_STATIC_DRAW
-		BUFFER_USAGE_STREAM = 0x88E0,
-		BUFFER_USAGE_DYNAMIC = 0x88E8
+		nxtBufferUsage_Static = 0x88E4, // GL_STATIC_DRAW
+		nxtBufferUsage_Stream = 0x88E0,
+		nxtBufferUsage_Dynamic = 0x88E8
 	};
 
-	enum DRAW_MODE_ : nxt_enum
+	enum nxtDrawMode : nxt_enum
 	{
-		DRAW_MODE_POINTS = 0x0000,
-		DRAW_MODE_LINES = 0x0001,
-		DRAW_MODE_LINE_LOOP = 0x0002,
-		DRAW_MODE_LINE_STRIP = 0x0003,
-		DRAW_MODE_TRIANGLES = 0x0004,
-		DRAW_MODE_TRIANGLE_STRIP = 0x0005,
-		DRAW_MODE_TRIANGLE_FAN = 0x0006,
-		DRAW_MODE_QUADS = 0x0007
+		nxtDrawMode_Points = 0x0000,
+		nxtDrawMode_Lines = 0x0001,
+		nxtDrawMode_LineLoop = 0x0002,
+		nxtDrawMode_LineStrip = 0x0003,
+		nxtDrawMode_Triangles = 0x0004,
+		nxtDrawMode_TriangleStrip = 0x0005,
+		nxtDrawMode_TriangleFan = 0x0006,
+		nxtDrawMode_Quads = 0x0007
 	};
 
-	enum BUFFER_TARGET_ : nxt_enum
+	enum nxtBufferTarget : nxt_enum
 	{
-		BUFFER_TARGET_ARRAY_BUFFER = 0x8892,
-		BUFFER_TARGET_ELEMENT_ARRAY = 0x8893
+		nxtBufferTarget_ArrayBuffer = 0x8892,
+		nxtBufferTarget_ElementArray = 0x8893
 	};
 
 }

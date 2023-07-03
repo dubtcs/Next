@@ -30,6 +30,11 @@ namespace nxt::render::command
 		glClearColor(r, g, b, a);
 	}
 
+	void DrawElements(nxtDrawMode mode, uint32_t count, nxtDataType dataType, void* offset)
+	{
+		glDrawElements(mode, count, dataType, offset);
+	}
+
 	void SwapBuffers()
 	{
 		device::SwapBuffers();

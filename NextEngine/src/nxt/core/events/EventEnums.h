@@ -6,16 +6,16 @@
 namespace nxt::events
 {
 
-	enum EVENT_TYPE_ : nxt_enum
+	enum nxtEventType : nxt_enum
 	{
-		EVENT_TYPE_NONE = BIT(0),
-		EVENT_TYPE_MOUSE = BIT(1),
-		EVENT_TYPE_MOUSE_MOVE = BIT(2),
-		EVENT_TYPE_MOUSE_PRESSED = BIT(3),
-		EVENT_TYPE_MOUSE_RELEASED = BIT(4),
-		EVENT_TYPE_KEYBOARD = BIT(5),
-		EVENT_TYPE_WINDOW_RESIZE = BIT(6),
-		EVENT_TYPE_WINDOW_CLOSE = BIT(7)
+		nxtEventType_None = BIT(0),
+		nxtEventType_Mouse = BIT(1),
+		nxtEventType_MouseMove = BIT(2),
+		nxtEventType_MousePressed = BIT(3),
+		nxtEventType_MouseReleased = BIT(4),
+		nxtEventType_Keyboard = BIT(5),
+		nxtEventType_WindowResize = BIT(6),
+		nxtEventType_WindowClose = BIT(7)
 	};
 
 }

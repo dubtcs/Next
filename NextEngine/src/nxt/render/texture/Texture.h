@@ -13,12 +13,12 @@ namespace nxt
 	class NXT_API Texture
 	{
 	public:
-		static Shared<Texture> Create(const std::filesystem::path& filepath, TEXTURE_TARGET_ textureTarget = TEXTURE_TARGET_2D);
-		static Shared<Texture> Create(int32_t width, int32_t height, TEXTURE_FORMAT_ textureFormat = TEXTURE_FORMAT_RGB, TEXTURE_TARGET_ target = TEXTURE_TARGET_2D);
-		void SetData(TEXTURE_FORMAT_ format, DATA_TYPE_ dataType, void* data);
+		static Shared<Texture> Create(const std::filesystem::path& filepath, nxtTextureTarget textureTarget = nxtTextureTarget_2D);
+		static Shared<Texture> Create(int32_t width, int32_t height, nxtTextureFormat textureFormat = nxtTextureFormat_RGB, nxtTextureTarget target = nxtTextureTarget_2D);
+		void SetData(nxtTextureFormat format, nxtDataType dataType, void* data);
 		void Bind(uint32_t textureUnit = 0) const;
-		Texture(const std::filesystem::path& filepath, TEXTURE_TARGET_ textureTarget = TEXTURE_TARGET_2D);
-		Texture(int32_t width, int32_t height, TEXTURE_FORMAT_ textureFormat = TEXTURE_FORMAT_RGB, TEXTURE_TARGET_ target = TEXTURE_TARGET_2D);
+		Texture(const std::filesystem::path& filepath, nxtTextureTarget textureTarget = nxtTextureTarget_2D);
+		Texture(int32_t width, int32_t height, nxtTextureFormat textureFormat = nxtTextureFormat_RGB, nxtTextureTarget target = nxtTextureTarget_2D);
 		~Texture();
 	protected:
 		void SetInternalFormat();
@@ -26,9 +26,9 @@ namespace nxt
 		uint32_t mID{ 0 };
 		int32_t mWidth;
 		int32_t mHeight;
-		const TEXTURE_TARGET_ mTarget;
-		TEXTURE_FORMAT_ mFormat;
-		TEXTURE_FORMAT_INTERNAL_ mInternalFormat;
+		const nxtTextureTarget mTarget;
+		nxtTextureFormat mFormat;
+		nxtTextureFormatInternal mInternalFormat;
 	};
 
 }

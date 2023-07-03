@@ -10,20 +10,20 @@ namespace nxt::buffers
 	{
 	public:
 		static Shared<DataBuffer> Create(size_t byteSize, void* data = nullptr, 
-			BUFFER_TARGET_ bufferTarget = BUFFER_TARGET_ARRAY_BUFFER, BUFFER_USAGE_ bufferUsage = BUFFER_USAGE_STATIC);
+			nxtBufferTarget bufferTarget = nxtBufferTarget_ArrayBuffer, nxtBufferUsage bufferUsage = nxtBufferUsage_Static);
 		DataBuffer(size_t byteSize, void* data = nullptr,
-			BUFFER_TARGET_ bufferTarget = BUFFER_TARGET_ARRAY_BUFFER, BUFFER_USAGE_ bufferUsage = BUFFER_USAGE_STATIC);
+			nxtBufferTarget bufferTarget = nxtBufferTarget_ArrayBuffer, nxtBufferUsage bufferUsage = nxtBufferUsage_Static);
 		~DataBuffer();
 	public:
 		void SetSubData(size_t byteSize, size_t byteOffset, void* data);
-		const BUFFER_TARGET_& GetTarget() const;
+		const nxtBufferTarget& GetTarget() const;
 		void Bind() const;
 		void Unbind() const;
 
 		// PLACEHOLDER
-		void Draw(DRAW_MODE_ drawMode, uint32_t count, uint32_t byteOffset, DATA_TYPE_ datType = DATA_TYPE_FLOAT) const;
+		void Draw(nxtDrawMode drawMode, uint32_t count, uint32_t byteOffset, nxtDataType datType = nxtDataType_Float) const;
 	protected:
-		const BUFFER_TARGET_ mTarget;
+		const nxtBufferTarget mTarget;
 		uint32_t mID;
 	};
 

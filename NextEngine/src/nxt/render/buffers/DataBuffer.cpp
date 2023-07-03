@@ -8,13 +8,13 @@ namespace nxt::buffers
 {
 
 	Shared<DataBuffer> DataBuffer::Create(size_t byteSize, void* data,
-		BUFFER_TARGET_ bufferTarget, BUFFER_USAGE_ bufferUsage)
+		nxtBufferTarget bufferTarget, nxtBufferUsage bufferUsage)
 	{
 		return NewShared<DataBuffer>(byteSize, data, bufferTarget, bufferUsage);
 	}
 
 	DataBuffer::DataBuffer(size_t byteSize, void* data,
-		BUFFER_TARGET_ bufferTarget, BUFFER_USAGE_ bufferUsage) :
+		nxtBufferTarget bufferTarget, nxtBufferUsage bufferUsage) :
 		mTarget{ bufferTarget }
 	{
 		glCreateBuffers(1, &mID);
@@ -28,9 +28,9 @@ namespace nxt::buffers
 		glBufferSubData(mTarget, byteOffset, byteSize, data);
 	}
 
-	void DataBuffer::Draw(DRAW_MODE_ drawMode, uint32_t count, uint32_t offset, DATA_TYPE_ dataType) const
+	void DataBuffer::Draw(nxtDrawMode drawMode, uint32_t count, uint32_t offset, nxtDataType dataType) const
 	{
-		if (mTarget == BUFFER_TARGET_ARRAY_BUFFER)
+		if (mTarget == nxtBufferTarget_ArrayBuffer)
 		{
 			glDrawArrays(drawMode, offset, count);
 		}
@@ -40,7 +40,7 @@ namespace nxt::buffers
 		}
 	}
 
-	const BUFFER_TARGET_& DataBuffer::GetTarget() const
+	const nxtBufferTarget& DataBuffer::GetTarget() const
 	{
 		return mTarget;
 	}

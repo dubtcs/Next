@@ -10,13 +10,6 @@
 namespace nxt
 {
 
-	enum class ShaderType
-	{
-		None = 0,
-		Vertex,
-		Pixel
-	};
-
 	class NXT_API Shader
 	{
 	public:

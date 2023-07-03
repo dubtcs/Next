@@ -10,7 +10,7 @@ namespace nxt::input
 {
 #ifdef NXT_PLATFORM_WINDOWS
 
-	bool IsKeyDown(KEYCODE_ keycode)
+	bool IsKeyDown(nxtKeycode keycode)
 	{
 		return device::IsKeyDown(keycode);
 	}

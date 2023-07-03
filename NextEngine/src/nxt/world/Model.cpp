@@ -28,7 +28,7 @@ namespace nxt
 			{
 				Shared<DataBuffer> buffer{ p.buffer };
 				buffer->Bind();
-				buffer->Draw(DRAW_MODE_TRIANGLES, p.count, p.byteOffset, static_cast<DATA_TYPE_>(p.componentType));
+				buffer->Draw(nxtDrawMode_Triangles, p.count, p.byteOffset, static_cast<nxtDataType>(p.componentType));
 			}
 		}
 	}
@@ -39,7 +39,7 @@ namespace nxt
 		for (tinygltf::BufferView& view : model.bufferViews)
 		{
 			tinygltf::Buffer& buffer{ model.buffers[view.buffer] };
-			Shared<DataBuffer> dBuffer{ DataBuffer::Create(view.byteLength, &buffer.data.at(0) + view.byteOffset, static_cast<BUFFER_TARGET_>(view.target)) };
+			Shared<DataBuffer> dBuffer{ DataBuffer::Create(view.byteLength, &buffer.data.at(0) + view.byteOffset, static_cast<nxtBufferTarget>(view.target)) };
 			buffers.push_back(dBuffer);
 		}
 
@@ -77,10 +77,10 @@ namespace nxt
 			Primitive addPrimitive{};
 
 			addPrimitive.buffer = buffers[primitive.indices];
-			addPrimitive.mode = static_cast<DRAW_MODE_>(primitive.mode);
+			addPrimitive.mode = static_cast<nxtDrawMode>(primitive.mode);
 			addPrimitive.count = indexAccessor.count;
 			addPrimitive.byteOffset = indexAccessor.byteOffset;
-			addPrimitive.componentType = static_cast<DATA_TYPE_>(indexAccessor.componentType);
+			addPrimitive.componentType = static_cast<nxtDataType>(indexAccessor.componentType);
 
 			primitives.push_back(addPrimitive);
 
@@ -97,7 +97,7 @@ namespace nxt
 				if (attribute.first == "POSITION")
 				{
 					NXT_LOG_TRACE("Setting POSITION");
-					mArrayObject->SetLayoutPosition(0, amount, static_cast<DATA_TYPE_>(accessor.componentType), stride, accessor.byteOffset, accessor.normalized);
+					mArrayObject->SetLayoutPosition(0, amount, static_cast<nxtDataType>(accessor.componentType), stride, accessor.byteOffset, accessor.normalized);
 				}
 			}
 

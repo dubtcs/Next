@@ -21,11 +21,11 @@ namespace nxt
 		class NXT_API Event
 		{
 		public:
-			virtual EVENT_TYPE_ GetType() const = 0;
+			virtual nxtEventType GetType() const = 0;
 			virtual const char* GetName() const = 0;
-			EVENT_TYPE_ Type;
+			nxtEventType Type;
 			bool Handled{ false };
-			static const EVENT_TYPE_ StaticType;
+			static const nxtEventType StaticType;
 		};
 
 		// dispatcher
@@ -55,66 +55,66 @@ namespace nxt
 		class NXT_API KeyboardPressed : public Event
 		{
 		public:
-			EVENT_TYPE_ Type{ EVENT_TYPE_KEYBOARD };
-			input::KEYCODE_ Keycode;
+			nxtEventType Type{ nxtEventType_Keyboard };
+			nxtKeycode Keycode;
 
-			virtual EVENT_TYPE_ GetType() const override { return Type; }
+			virtual nxtEventType GetType() const override { return Type; }
 			virtual const char* GetName() const override { return "KEYBOARD"; }
 
-			static const EVENT_TYPE_ StaticType{ EVENT_TYPE_KEYBOARD };
-			KeyboardPressed(input::KEYCODE_ keycode) : Keycode{ keycode } {}
+			static const nxtEventType StaticType{ nxtEventType_Keyboard };
+			KeyboardPressed(nxtKeycode keycode) : Keycode{ keycode } {}
 		};
 
 		class NXT_API MouseButtonPressed : public Event
 		{
 		public:
-			EVENT_TYPE_ Type{ EVENT_TYPE_MOUSE_PRESSED };
+			nxtEventType Type{ nxtEventType_MousePressed };
 			uint32_t Keycode;
 			bool IsDoubleClick;
 
-			virtual EVENT_TYPE_ GetType() const override { return Type; }
+			virtual nxtEventType GetType() const override { return Type; }
 			virtual const char* GetName() const override { return "MOUSE"; }
 
-			static const EVENT_TYPE_ StaticType{ EVENT_TYPE_MOUSE_PRESSED };
-			MouseButtonPressed(input::KEYCODE_ keycode, bool isDoubleClick) : Keycode{ keycode }, IsDoubleClick{ isDoubleClick } {}
+			static const nxtEventType StaticType{ nxtEventType_MousePressed };
+			MouseButtonPressed(nxtKeycode keycode, bool isDoubleClick) : Keycode{ keycode }, IsDoubleClick{ isDoubleClick } {}
 		};
 
 		class NXT_API MouseButtonReleased : public Event
 		{
 		public:
-			EVENT_TYPE_ Type{ EVENT_TYPE_MOUSE_RELEASED };
+			nxtEventType Type{ nxtEventType_MouseReleased };
 			uint32_t Keycode;
 			//bool IsDoubleClick;
 
-			virtual EVENT_TYPE_ GetType() const override { return Type; }
+			virtual nxtEventType GetType() const override { return Type; }
 			virtual const char* GetName() const override { return "MOUSE"; }
 
-			static const EVENT_TYPE_ StaticType{ EVENT_TYPE_MOUSE_RELEASED };
-			MouseButtonReleased(input::KEYCODE_ keycode) : Keycode{ keycode } {}
+			static const nxtEventType StaticType{ nxtEventType_MouseReleased };
+			MouseButtonReleased(nxtKeycode keycode) : Keycode{ keycode } {}
 		};
 
 		class NXT_API WindowResized : public Event
 		{
 		public:
-			EVENT_TYPE_ Type{ EVENT_TYPE_WINDOW_RESIZE };
+			nxtEventType Type{ nxtEventType_WindowResize };
 			uint32_t Width, Height;
 
-			virtual EVENT_TYPE_ GetType() const override { return Type; }
+			virtual nxtEventType GetType() const override { return Type; }
 			virtual const char* GetName() const override { return "WINDOW_RESIZE"; }
 
-			static const EVENT_TYPE_ StaticType{ EVENT_TYPE_WINDOW_RESIZE };
+			static const nxtEventType StaticType{ nxtEventType_WindowResize };
 			WindowResized(uint32_t x, uint32_t y) : Width{ x }, Height{ y } {};
 		};
 
 		class NXT_API WindowClosed : public Event
 		{
 		public:
-			EVENT_TYPE_ Type{ EVENT_TYPE_WINDOW_CLOSE };
+			nxtEventType Type{ nxtEventType_WindowClose };
 
-			virtual EVENT_TYPE_ GetType() const override { return Type; }
+			virtual nxtEventType GetType() const override { return Type; }
 			virtual const char* GetName() const override { return "WINDOW_CLOSED"; }
 
-			static const EVENT_TYPE_ StaticType{ EVENT_TYPE_WINDOW_CLOSE };
+			static const nxtEventType StaticType{ nxtEventType_WindowClose };
 		};
 
 	}

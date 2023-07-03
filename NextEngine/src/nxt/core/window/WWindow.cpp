@@ -196,14 +196,14 @@ void FireSizeEvent(LPARAM& lparam)
 	nxt::app::OnEvent(ev);
 }
 
-void FireMouseDownEvent(nxt::input::KEYCODE_ keycode, bool isDouble)
+void FireMouseDownEvent(nxt::nxtKeycode keycode, bool isDouble)
 {
 	nxt::events::MouseButtonPressed ev{ keycode, isDouble };
 	nxt::app::OnEvent(ev);
 	return;
 }
 
-void FireMouseUpEvent(nxt::input::KEYCODE_ keycode)
+void FireMouseUpEvent(nxt::nxtKeycode keycode)
 {
 	nxt::events::MouseButtonReleased ev{ keycode };
 	nxt::app::OnEvent(ev);
@@ -282,39 +282,39 @@ LRESULT CALLBACK NxtWindowProcedure(HWND hwnd, UINT msg, WPARAM wparam, LPARAM l
 		case(WM_KEYDOWN):
 		{
 			nxt::Window* window{ reinterpret_cast<nxt::Window*>(GetWindowLongPtr(hwnd, GWLP_USERDATA)) };
-			nxt::events::KeyboardPressed ev{ static_cast<nxt::input::KEYCODE_>(wparam) };
+			nxt::events::KeyboardPressed ev{ static_cast<nxtKeycode>(wparam) };
 			nxt::app::OnEvent(ev);
 			break;
 		}
 		case(WM_LBUTTONDOWN):
 		{
 			// can also get x/y coords from lparam
-			FireMouseDownEvent(input::KEYCODE_MOUSE_1, false);
+			FireMouseDownEvent(nxtKeycode_Mouse1, false);
 			break;
 		}
 		case(WM_LBUTTONUP):
 		{
-			FireMouseUpEvent(input::KEYCODE_MOUSE_1);
+			FireMouseUpEvent(nxtKeycode_Mouse1);
 			break;
 		}
 		case(WM_LBUTTONDBLCLK):
 		{
-			FireMouseDownEvent(input::KEYCODE_MOUSE_1, true);
+			FireMouseDownEvent(nxtKeycode_Mouse1, true);
 			break;
 		}
 		case(WM_RBUTTONDOWN):
 		{
-			FireMouseDownEvent(input::KEYCODE_MOUSE_2, false);
+			FireMouseDownEvent(nxtKeycode_Mouse2, false);
 			break;
 		}
 		case(WM_RBUTTONUP):
 		{
-			FireMouseUpEvent(input::KEYCODE_MOUSE_2);
+			FireMouseUpEvent(nxtKeycode_Mouse2);
 			break;
 		}
 		case(WM_RBUTTONDBLCLK):
 		{
-			FireMouseDownEvent(input::KEYCODE_MOUSE_2, true);
+			FireMouseDownEvent(nxtKeycode_Mouse2, true);
 			break;
 		}
 	}

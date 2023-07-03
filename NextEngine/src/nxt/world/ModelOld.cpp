@@ -71,7 +71,7 @@ namespace nxt
 			gltf::Accessor& ac{ mModel.accessors[primitive.indices] };
 			Shared<DataBuffer> buffer{ gBuffers[ac.bufferView] };
 			buffer->Bind();
-			buffer->Draw(static_cast<DRAW_MODE_>(primitive.mode), ac.count, ac.byteOffset, static_cast<DATA_TYPE_>(ac.componentType));
+			buffer->Draw(static_cast<nxtDrawMode>(primitive.mode), ac.count, ac.byteOffset, static_cast<nxtDataType>(ac.componentType));
 		}
 	}
 
@@ -84,7 +84,7 @@ namespace nxt
 			//gVBuffers.push_back(vBuffer);
 			gltf::Buffer& buffer{ mModel.buffers[view.buffer] };
 			
-			Shared<DataBuffer> dBuffer{ DataBuffer::Create(view.byteLength, &buffer.data.at(0) + view.byteOffset, static_cast<BUFFER_TARGET_>(view.target)) };
+			Shared<DataBuffer> dBuffer{ DataBuffer::Create(view.byteLength, &buffer.data.at(0) + view.byteOffset, static_cast<nxtBufferTarget>(view.target)) };
 			gBuffers.push_back(dBuffer);
 
 		}
@@ -98,43 +98,43 @@ namespace nxt
 				{
 					gltf::Image& image{ mModel.images[texture.source] };
 
-					TEXTURE_FORMAT_ imgFormat{ };
+					nxtTextureFormat imgFormat{ };
 					switch (image.component)
 					{
 						case(1):
 						{
-							imgFormat = TEXTURE_FORMAT_R;
+							imgFormat = nxtTextureFormat_R;
 							break;
 						}
 						case(2):
 						{
-							imgFormat = TEXTURE_FORMAT_RG;
+							imgFormat = nxtTextureFormat_RG;
 							break;
 						}
 						case(3):
 						{
-							imgFormat = TEXTURE_FORMAT_RGB;
+							imgFormat = nxtTextureFormat_RGB;
 							break;
 						}
 						case(4):
 						{
-							imgFormat = TEXTURE_FORMAT_RGBA;
+							imgFormat = nxtTextureFormat_RGBA;
 							break;
 						}
 					}
 
-					DATA_TYPE_ dataType{  };
+					nxtDataType dataType{  };
 					if (image.bits == 8)
 					{
-						dataType = DATA_TYPE_UBYTE;
+						dataType = nxtDataType_UByte;
 					}
 					else if (image.bits == 16)
 					{
-						dataType = DATA_TYPE_USHORT;
+						dataType = nxtDataType_UShort;
 					}
 					else if (image.bits == 32)
 					{
-						dataType = DATA_TYPE_UINT;
+						dataType = nxtDataType_UInt;
 					}
 					else
 					{
@@ -205,7 +205,7 @@ namespace nxt
 				if (attribute.first == "POSITION")
 				{
 					NXT_LOG_TRACE("Setting POSITION");
-					mArrayObject->SetLayoutPosition(0, amount, static_cast<DATA_TYPE_>(ac2.componentType), stride, ac2.byteOffset, ac2.normalized);
+					mArrayObject->SetLayoutPosition(0, amount, static_cast<nxtDataType>(ac2.componentType), stride, ac2.byteOffset, ac2.normalized);
 				}
 			}
 		}

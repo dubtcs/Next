@@ -19,7 +19,7 @@ namespace nxt::device
 	bool Init(HWND* windowHandle);
 	bool Release();
 	void SwapBuffers();
-	bool IsKeyDown(input::KEYCODE_ keycode);
+	bool IsKeyDown(nxtKeycode keycode);
 	glm::vec2 GetMousePosition();
 	void ShowCursor();
 	void HideCursor();

@@ -7,13 +7,13 @@
 namespace nxt::buffers
 {
 
-	Shared<VertexBuffer> VertexBuffer::Create(size_t byteSize, void* data, BUFFER_USAGE_ bufferUsage)
+	Shared<VertexBuffer> VertexBuffer::Create(size_t byteSize, void* data, nxtBufferUsage bufferUsage)
 	{
 		return NewShared<VertexBuffer>(byteSize, data, bufferUsage);
 	}
 
 	// void* switch to std::any??
-	VertexBuffer::VertexBuffer(size_t byteSize, void* data, BUFFER_USAGE_ bufferUsage)
+	VertexBuffer::VertexBuffer(size_t byteSize, void* data, nxtBufferUsage bufferUsage)
 	{
 		glCreateVertexArrays(1, &mVertexArrayId);
 		glCreateBuffers(1, &mID);
@@ -33,12 +33,12 @@ namespace nxt::buffers
 		glBufferSubData(GL_ARRAY_BUFFER, byteOffset, byteSize, data);
 	}
 
-	void VertexBuffer::SetLayoutPosition(uint32_t position, uint32_t amount, DATA_TYPE_ dataType, uint32_t stride, uint32_t offset, bool normalized)
+	void VertexBuffer::SetLayoutPosition(uint32_t position, uint32_t amount, nxtDataType dataType, uint32_t stride, uint32_t offset, bool normalized)
 	{
 		Bind();
 		switch (dataType)
 		{
-			case(DATA_TYPE_FLOAT):
+			case(nxtDataType_Float):
 			{
 				glVertexAttribPointer(position, amount, dataType, (normalized) ? GL_TRUE : GL_FALSE, stride, (void*)offset);
 				glEnableVertexAttribArray(position);
@@ -49,7 +49,7 @@ namespace nxt::buffers
 		}
 	}
 
-	void VertexBuffer::Draw(DRAW_MODE_ mode) const
+	void VertexBuffer::Draw(nxtDrawMode mode) const
 	{
 		Bind();
 		glDrawArrays(GL_TRIANGLES, 0, 3);

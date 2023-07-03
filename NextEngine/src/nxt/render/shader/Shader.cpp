@@ -13,14 +13,21 @@
 namespace nxt
 {
 
-	//using shader_pair = std::pair<std::string, ShaderType>;
-	using shader_pair = std::pair<std::string, ShaderType>;
+	enum class nxtShaderType
+	{
+		None = 0,
+		Vertex,
+		Pixel
+	};
+
+	//using shader_pair = std::pair<std::string, nxtShaderType>;
+	using shader_pair = std::pair<std::string, nxtShaderType>;
 
 	static shader_pair ReadShaderFile(const std::filesystem::path& filepath)
 	{
 		std::string output;
 		std::ifstream file;
-		ShaderType t{ ShaderType::None };
+		nxtShaderType t{ nxtShaderType::None };
 		file.open(filepath);
 		NXT_ASSERT(file.good(), "Shader read failure: \"{0}\"", filepath.string());
 		if (file.good())
@@ -31,11 +38,11 @@ namespace nxt
 
 			if (filepath.extension().string() == ".vert")
 			{
-				t = ShaderType::Vertex;
+				t = nxtShaderType::Vertex;
 			}
 			else if (filepath.extension().string() == ".frag")
 			{
-				t = ShaderType::Pixel;
+				t = nxtShaderType::Pixel;
 			}
 
 		}
@@ -57,13 +64,13 @@ namespace nxt
 			uint32_t id{ 0 };
 			switch (subShader.second)
 			{
-				case(ShaderType::None): break;
-				case(ShaderType::Vertex):
+				case(nxtShaderType::None): break;
+				case(nxtShaderType::Vertex):
 				{
 					id = glCreateShader(GL_VERTEX_SHADER);
 					break;
 				}
-				case(ShaderType::Pixel):
+				case(nxtShaderType::Pixel):
 				{
 					id = glCreateShader(GL_FRAGMENT_SHADER);
 					break;

@@ -6,27 +6,27 @@
 namespace nxt
 {
 
-	enum TEXTURE_TARGET_ : nxt_enum
+	enum nxtTextureTarget : nxt_enum
 	{
-		TEXTURE_TARGET_1D = 0x0DE0,
-		TEXTURE_TARGET_2D = 0x0DE1,
-		TEXTURE_TARGET_3D = 0x806F
+		nxtTextureTarget_1D = 0x0DE0,
+		nxtTextureTarget_2D = 0x0DE1,
+		nxtTextureTarget_3D = 0x806F
 	};
 
-	enum TEXTURE_FORMAT_ : nxt_enum
+	enum nxtTextureFormat : nxt_enum
 	{
-		TEXTURE_FORMAT_R = 0x1903,
-		TEXTURE_FORMAT_RG = 0x8227,
-		TEXTURE_FORMAT_RGB = 0x1907,
-		TEXTURE_FORMAT_RGBA = 0x1908
+		nxtTextureFormat_R = 0x1903,
+		nxtTextureFormat_RG = 0x8227,
+		nxtTextureFormat_RGB = 0x1907,
+		nxtTextureFormat_RGBA = 0x1908
 	};
 
-	enum TEXTURE_FORMAT_INTERNAL_ : nxt_enum
+	enum nxtTextureFormatInternal : nxt_enum
 	{
-		TEXTURE_FORMAT_INTERNAL_R8 = 0x8229,
-		TEXTURE_FORMAT_INTERNAL_RG8 = 0x822B,
-		TEXTURE_FORMAT_INTERNAL_RGB8 = 0x8051,
-		TEXTURE_FORMAT_INTERNAL_RGBA8 = 0x8058,
+		nxtTextureFormatInternal_R8 = 0x8229,
+		nxtTextureFormatInternal_RG8 = 0x822B,
+		nxtTextureFormatInternal_RGB8 = 0x8051,
+		nxtTextureFormatInternal_RGBA8 = 0x8058,
 	};
 
 }

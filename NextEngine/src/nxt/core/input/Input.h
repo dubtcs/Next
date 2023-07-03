@@ -8,7 +8,7 @@
 namespace nxt::input
 {
 
-	bool IsKeyDown(KEYCODE_ keycode);
+	bool IsKeyDown(nxtKeycode keycode);
 	glm::vec2 GetMousePosition();
 
 	//void ToggleCursor(bool show);
