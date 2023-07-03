@@ -200,7 +200,6 @@ namespace nxt
 				{
 					amount = ac2.type;
 				}
-				NXT_LOG_INFO(amount);
 
 				if (attribute.first == "POSITION")
 				{

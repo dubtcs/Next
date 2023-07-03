@@ -7,6 +7,10 @@
 namespace nxt::buffers
 {
 
+	/*
+	Array Objects must be unbound before deleting any associated buffers
+	*/
+
 	class NXT_API ArrayObject
 	{
 	public:

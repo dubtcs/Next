@@ -31,4 +31,7 @@ namespace nxt
 		nxtTextureFormatInternal mInternalFormat;
 	};
 
+	// Shared Texture
+	using STexture = Shared<Texture>;
+
 }

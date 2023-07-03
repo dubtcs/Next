@@ -5,6 +5,8 @@
 #include <nxt/render/buffers/ArrayObject.h>
 #include <nxt/render/buffers/DataBuffer.h>
 
+#include <nxt/render/texture/Texture.h>
+
 #include <filesystem>
 #include <tiny_gltf.h>
 
@@ -16,7 +18,7 @@ namespace nxt
 		Shared<buffers::DataBuffer> buffer;
 		nxtDrawMode mode;
 		uint32_t count;
-		uint32_t byteOffset;
+		size_t byteOffset;
 		nxtDataType componentType;
 	};
 
@@ -38,6 +40,7 @@ namespace nxt
 	protected:
 		Shared<buffers::ArrayObject> mArrayObject{ buffers::ArrayObject::Create() };
 		std::vector<Mesh> mMeshes;
+		std::vector<STexture> mTextures;
 	};
 
 }

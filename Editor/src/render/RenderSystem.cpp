@@ -22,8 +22,7 @@ namespace nxt
 		mTexture{ Texture::Create("assets/textures/swirl.png") },
 		mShader{ "assets/shaders/gltfShader.vert", "assets/shaders/gltfShader.frag" },
 		mCamera{  },
-		mModel{ "assets/models/Triangle.gltf" },
-		mModel2{ "assets/models/Triangle.gltf" }
+		mModel2{ "assets/models/BoxTexturedOut.gltf" }
 	{
 
 	}
@@ -39,15 +38,8 @@ namespace nxt
 		// translate vertices to world space
 		glm::mat4 ones{ 1.f };
 
-		glm::mat4 model{ 
-			glm::translate(ones, glm::vec3{0.f, 0.5f, 0.f})
-		};
-
-		mShader.SetValue("worldMatrix", mCamera.GetProjectionViewMatrix() * model);
-		mModel.Draw();
-
 		glm::mat4 model2{
-			glm::translate(ones, glm::vec3{1.f, 1.f, 1.f})
+			glm::translate(ones, glm::vec3{0.f})
 		};
 		mShader.SetValue("worldMatrix", mCamera.GetProjectionViewMatrix() * model2);
 		mModel2.Draw();

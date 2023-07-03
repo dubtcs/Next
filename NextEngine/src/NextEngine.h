@@ -25,4 +25,4 @@ All functionaility is in namespace nxt
 #include <nxt/render/texture/Texture.h>
 #include <nxt/render/shader/Shader.h>
 
-//#include <nxt/world/Model.h>
+#include <nxt/world/Model.h>
