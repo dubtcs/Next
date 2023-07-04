@@ -3,18 +3,6 @@
 
 #include <gtc/matrix_transform.hpp>
 
-static float gVertices[]{
-	 0.5f,  0.5f, 0.0f,   1.0f, 1.0f,
-	 0.5f, -0.5f, 0.0f,   1.0f, 0.0f,
-	-0.5f, -0.5f, 0.0f,   0.0f, 0.0f,
-	-0.5f,  0.5f, 0.0f,   0.0f, 1.0f
-};
-
-static uint32_t gIndices[6]{
-	0, 1, 3,
-	1, 2, 3
-};
-
 namespace nxt
 {
 
@@ -22,9 +10,24 @@ namespace nxt
 		mTexture{ Texture::Create("assets/textures/swirl.png") },
 		mShader{ "assets/shaders/gltfShader.vert", "assets/shaders/gltfShader.frag" },
 		mCamera{  },
-		mModel2{ "assets/models/BoxTexturedOut.gltf" }
+		mModel{ "assets/models/BoxTextured.gltf" }
 	{
 
+	}
+
+	static void DrawMesh(const Mesh& mesh)
+	{
+		using namespace buffers;
+		for (const Primitive& p : mesh.primitives)
+		{
+			SDataBuffer buffer{ p.buffer };
+			buffer->Bind();
+			render::command::DrawElements(nxtDrawMode_Triangles, p.count, static_cast<nxtDataType>(p.componentType), (void*)(p.byteOffset));
+		}
+		for (const Mesh& otherMesh : mesh.children)
+		{
+			DrawMesh(otherMesh);
+		}
 	}
 
 	void RenderSystem::OnUpdate(float& dt)
@@ -32,9 +35,7 @@ namespace nxt
 		render::command::Clear();
 		mCamera.OnUpdate(dt);
 		mShader.Bind();
-		//mTexture->Bind();
-		//mShader.SetValue("simpleTexture", 0);
-
+		
 		// translate vertices to world space
 		glm::mat4 ones{ 1.f };
 
@@ -42,7 +43,13 @@ namespace nxt
 			glm::translate(ones, glm::vec3{0.f})
 		};
 		mShader.SetValue("worldMatrix", mCamera.GetProjectionViewMatrix() * model2);
-		mModel2.Draw();
+
+		mModel.Bind();
+		mModel.GetTextures().front()->Bind();
+		for (const Mesh& m : mModel.GetMeshes())
+		{
+			DrawMesh(m);
+		}
 
 	}
 

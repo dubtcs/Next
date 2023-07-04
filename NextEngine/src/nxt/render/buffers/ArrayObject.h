@@ -25,4 +25,6 @@ namespace nxt::buffers
 		uint32_t mID;
 	};
 
+	using SArrayObject = Shared<ArrayObject>;
+
 }

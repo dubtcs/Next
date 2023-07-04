@@ -9,6 +9,7 @@ includes.glm = "NextEngine/vendor/glm/glm"
 includes.spdlog = "NextEngine/vendor/spdlog/include"
 includes.stb = "NextEngine/vendor/stb"
 includes.gltf = "NextEngine/vendor/gltf"
+includes.necs = "NextEngine/vendor/necs/nECS"
 
 -- workspace
 workspace "NEXT"
@@ -23,6 +24,7 @@ workspace "NEXT"
 
     group "Vendors"
         include "NextEngine/vendor/glad"
+        include "NextEngine/vendor/necs"
     group ""
 
     -- ENGINE PROJECT
@@ -58,12 +60,14 @@ workspace "NEXT"
             "%{includes.spdlog}",
             "%{includes.stb}",
             "%{includes.gltf}",
+            "%{includes.necs}",
 
         }
 
         links {
             "glad",
-            
+            "necs",
+
             "opengl32.lib",
         }
 
@@ -116,6 +120,7 @@ workspace "NEXT"
             "%{includes.spdlog}",
             "%{includes.stb}",
             "%{includes.gltf}",
+            "%{includes.necs}",
 
         };
     

@@ -8,14 +8,13 @@
 #include <nxt/render/texture/Texture.h>
 
 #include <filesystem>
-#include <tiny_gltf.h>
 
 namespace nxt
 {
 
 	struct NXT_API Primitive
 	{
-		Shared<buffers::DataBuffer> buffer;
+		buffers::SDataBuffer buffer;
 		nxtDrawMode mode;
 		uint32_t count;
 		size_t byteOffset;
@@ -32,11 +31,11 @@ namespace nxt
 	{
 	public:
 		Model(const std::filesystem::path& filepath);
-		void Draw();
-	protected:
-		std::vector<Mesh> RegisterModel(tinygltf::Model& model);
-		Mesh RegisterNode(tinygltf::Model& model, tinygltf::Node& node, std::vector<Shared<buffers::DataBuffer>>& buffers);
-		std::vector<Primitive> RegisterMesh(tinygltf::Model& model, tinygltf::Mesh& mesh, std::vector<Shared<buffers::DataBuffer>>& buffers);
+
+		// TEMP FOR ECS
+		void Bind() const;
+		const std::vector<Mesh>& GetMeshes() const;
+		const std::vector<STexture>& GetTextures() const;
 	protected:
 		Shared<buffers::ArrayObject> mArrayObject{ buffers::ArrayObject::Create() };
 		std::vector<Mesh> mMeshes;

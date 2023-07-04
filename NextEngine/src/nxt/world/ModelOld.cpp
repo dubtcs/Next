@@ -1,250 +1,188 @@
 
-#include "ModelOld.h"
+#include "Model.h"
 
 #include <nxt/core/log/Log.h>
-
-#include <nxt/render/texture/Texture.h>
-#include <tiny_gltf.h>
 #include <vector>
 
 namespace nxt
 {
 
-	namespace gltf = tinygltf;
 	using namespace buffers;
 
-	// temp
-	static std::vector<Shared<buffers::VertexBuffer>> gVBuffers;
-	static std::vector<Shared<buffers::ElementBuffer>> gEBuffers;
-
-	static Shared<ArrayObject> mArrayObject;
-	static std::vector<Shared<DataBuffer>> gBuffers;
-	static std::vector<Shared<Texture>> gTextures;
-
-	OldModel::OldModel(const std::filesystem::path& filepath)
+	Model::Model(const std::filesystem::path& filepath)
 	{
-		gltf::TinyGLTF loader;
+		tinygltf::TinyGLTF loader;
 		std::string msgError;
-		std::string msgWarning;
-		bool pass{ loader.LoadASCIIFromFile(&mModel, &msgError, &msgWarning, filepath.string()) };
-		NXT_LOG_TRACE("Loading model: {0}", filepath.string());
-		if (!msgWarning.empty())
-		{
-			NXT_LOG_WARN("Model load warning: {0}", msgWarning);
-		}
-		if (!msgError.empty())
-		{
-			NXT_LOG_CRIT("Model load error: {0}", msgError);
-		}
-		mArrayObject = ArrayObject::Create();
-		mArrayObject->Bind();
-
-		RegisterModel();
+		std::string msgWarn;
+		tinygltf::Model model;
+		bool pass{ loader.LoadASCIIFromFile(&model, &msgError, &msgWarn, filepath.string()) };
+		mMeshes = RegisterModel(model);
 	}
 
-	void OldModel::Draw()
+	void DrawMesh(Mesh& mesh)
 	{
-		mArrayObject->Bind();
-		gltf::Scene& scene{ mModel.scenes[mModel.defaultScene] };
-		for (int32_t& i : scene.nodes)
+		for (Primitive& p : mesh.primitives)
 		{
-			DrawNode(mModel.nodes[i]);
-		}
-	}
-
-	void OldModel::DrawNode(gltf::Node& node)
-	{
-		if (node.mesh >= 0)
-		{
-			DrawMesh(mModel.meshes[node.mesh]);
-		}
-		for (int32_t& i : node.children)
-		{
-			DrawNode(mModel.nodes[i]);
-		}
-	}
-
-	void OldModel::DrawMesh(gltf::Mesh& mesh)
-	{
-		for (gltf::Primitive& primitive : mesh.primitives)
-		{
-			gltf::Accessor& ac{ mModel.accessors[primitive.indices] };
-			Shared<DataBuffer> buffer{ gBuffers[ac.bufferView] };
+			Shared<DataBuffer> buffer{ p.buffer };
 			buffer->Bind();
-			buffer->Draw(static_cast<nxtDrawMode>(primitive.mode), ac.count, ac.byteOffset, static_cast<nxtDataType>(ac.componentType));
+			buffer->Draw(nxtDrawMode_Triangles, p.count, static_cast<uint32_t>(p.byteOffset), static_cast<nxtDataType>(p.componentType));
+		}
+		for (Mesh& otherMesh : mesh.children)
+		{
+			DrawMesh(otherMesh);
 		}
 	}
 
-	void OldModel::RegisterModel()
+	// temp
+	void Model::Draw()
 	{
-		using namespace buffers;
-		for (gltf::BufferView& view : mModel.bufferViews)
+		mArrayObject->Bind();
+		mTextures.front()->Bind(0);
+		for (Mesh& mesh : mMeshes)
 		{
-			//Shared<VertexBuffer> vBuffer{ VertexBuffer::Create(view.byteLength) };
-			//gVBuffers.push_back(vBuffer);
-			gltf::Buffer& buffer{ mModel.buffers[view.buffer] };
-			
-			Shared<DataBuffer> dBuffer{ DataBuffer::Create(view.byteLength, &buffer.data.at(0) + view.byteOffset, static_cast<nxtBufferTarget>(view.target)) };
-			gBuffers.push_back(dBuffer);
+			DrawMesh(mesh);
+		}
+	}
 
+	std::vector<Mesh> Model::RegisterModel(tinygltf::Model& model)
+	{
+
+		// Buffers
+		std::vector<Shared<DataBuffer>> buffers{};
+		for (tinygltf::BufferView& view : model.bufferViews)
+		{
+			tinygltf::Buffer& buffer{ model.buffers[view.buffer] };
+			Shared<DataBuffer> dBuffer{ DataBuffer::Create(view.byteLength, &buffer.data.at(0) + view.byteOffset, static_cast<nxtBufferTarget>(view.target)) };
+			buffers.push_back(dBuffer);
 		}
 
 		// Textures
-		if (mModel.textures.size() > 0)
+		if (model.textures.size() > 0)
 		{
-			for (gltf::Texture& texture : mModel.textures)
+			for (tinygltf::Texture& texture : model.textures)
 			{
-				if (texture.source >= 0)
+				tinygltf::Image& image{ model.images[texture.source] };
+
+				nxtTextureFormat format{ 0 };
+				switch (image.component)
 				{
-					gltf::Image& image{ mModel.images[texture.source] };
-
-					nxtTextureFormat imgFormat{ };
-					switch (image.component)
+					case(1):
 					{
-						case(1):
-						{
-							imgFormat = nxtTextureFormat_R;
-							break;
-						}
-						case(2):
-						{
-							imgFormat = nxtTextureFormat_RG;
-							break;
-						}
-						case(3):
-						{
-							imgFormat = nxtTextureFormat_RGB;
-							break;
-						}
-						case(4):
-						{
-							imgFormat = nxtTextureFormat_RGBA;
-							break;
-						}
-					}
-
-					nxtDataType dataType{  };
-					if (image.bits == 8)
-					{
-						dataType = nxtDataType_UByte;
-					}
-					else if (image.bits == 16)
-					{
-						dataType = nxtDataType_UShort;
-					}
-					else if (image.bits == 32)
-					{
-						dataType = nxtDataType_UInt;
-					}
-					else
-					{
+						format = nxtTextureFormat_R;
 						break;
 					}
-					
-					Shared<Texture> tex{ Texture::Create(image.width, image.height, imgFormat) };
-					tex->SetData(imgFormat, dataType, &image.image.at(0));
-					gTextures.push_back(tex);
-
+					case(2):
+					{
+						format = nxtTextureFormat_RG;
+						break;
+					}
+					case(3):
+					{
+						format = nxtTextureFormat_RGB;
+						break;
+					}
+					case(4):
+					{
+						format = nxtTextureFormat_RGBA;
+						break;
+					}
 				}
+
+				nxtDataType dataType{ 0 };
+				if (image.bits == 8)
+				{
+					dataType = nxtDataType_UByte;
+				}
+				else if (image.bits == 16)
+				{
+					dataType = nxtDataType_UShort;
+				}
+				else if (image.bits == 32)
+				{
+					dataType = nxtDataType_UInt;
+				}
+				else
+				{
+					NXT_LOG_CRIT("Image bitdepth [{0}] not support atm", image.bits);
+					break;
+				}
+
+				STexture tex{ Texture::Create(image.width, image.height, format) };
+				tex->SetData(format, dataType, &image.image.at(0));
+				mTextures.push_back(tex);
+
 			}
-		}
-		
-		gltf::Scene scene{ mModel.scenes[mModel.defaultScene] };
-		for (int32_t& nodeIndex : scene.nodes)
-		{
-			RegisterNode(mModel.nodes[nodeIndex]);
 		}
 
-		// Not using because we need to keep the exact indices of the EBOs
-		/*using buffer_iter = std::vector<Shared<DataBuffer>>::iterator;
-		for (int32_t i{ 0 }; i < gBuffers.size();)
+		// Cycle nodes
+		std::vector<Mesh> meshes;
+		for (int32_t& i : model.scenes[model.defaultScene].nodes)
 		{
-			if (gBuffers[i]->GetTarget() == BUFFER_TARGET_ARRAY_BUFFER)
-			{
-				gBuffers.erase(gBuffers.begin() + i);
-				continue;
-			}
-			i++;
-		}*/
+			meshes.push_back(RegisterNode(model, model.nodes[i], buffers));
+		}
+
+		// MUST Unbind VAO before the buffers are deleted
+		mArrayObject->Unbind();
+		return meshes;
 	}
 
-	void OldModel::RegisterNode(gltf::Node& node)
+	Mesh Model::RegisterNode(tinygltf::Model& model, tinygltf::Node& node, std::vector<Shared<DataBuffer>>& buffers)
 	{
 		NXT_LOG_TRACE("Register Node");
-		if (node.mesh >= 0)//< mModel.meshes.size())
+		Mesh mesh{};
+		if (node.mesh >= 0)
 		{
-			RegisterMesh(mModel.meshes[node.mesh]);
+			mesh.primitives = RegisterMesh(model, model.meshes[node.mesh], buffers);
 		}
 		for (int32_t& i : node.children)
 		{
-			RegisterNode(mModel.nodes[i]);
+			mesh.children.push_back(RegisterNode(model, model.nodes[i], buffers));
 		}
+		return mesh;
 	}
 
-	void OldModel::RegisterMesh(gltf::Mesh& mesh)
+	std::vector<Primitive> Model::RegisterMesh(tinygltf::Model& model, tinygltf::Mesh& mesh, std::vector<Shared<buffers::DataBuffer>>& buffers)
 	{
 		NXT_LOG_TRACE("Register Mesh");
-		for (gltf::Primitive& primitive : mesh.primitives)
+		std::vector<Primitive> primitives{};
+
+		for (tinygltf::Primitive& primitive : mesh.primitives)
 		{
-			gltf::Accessor& ac1{ mModel.accessors[primitive.indices] };
+			tinygltf::Accessor& indexAccessor{ model.accessors[primitive.indices] };
+			Primitive addPrimitive{};
+
+			addPrimitive.buffer = buffers[primitive.indices];
+			addPrimitive.mode = static_cast<nxtDrawMode>(primitive.mode);
+			addPrimitive.count = static_cast<uint32_t>(indexAccessor.count);
+			addPrimitive.byteOffset = static_cast<uint32_t>(indexAccessor.byteOffset);
+			addPrimitive.componentType = static_cast<nxtDataType>(indexAccessor.componentType);
+
+			primitives.push_back(addPrimitive);
+
 			for (auto& attribute : primitive.attributes)
 			{
-				gltf::Accessor& ac2{ mModel.accessors[attribute.second] };
-				int32_t stride{ ac2.ByteStride(mModel.bufferViews[ac2.bufferView]) };
+				// Binding buffers for attribute locationd data
+				tinygltf::Accessor& accessor{ model.accessors[attribute.second] };
 
-				Shared<DataBuffer>& dBuffer{ gBuffers[ac2.bufferView] };
+				Shared<DataBuffer>& dBuffer{ buffers[accessor.bufferView] };
 				dBuffer->Bind();
 
-				int32_t amount{ 1 };
-				if (ac2.type != TINYGLTF_TYPE_SCALAR)
-				{
-					amount = ac2.type;
-				}
+				int32_t amount{ accessor.type == TINYGLTF_TYPE_SCALAR ? 1 : accessor.type };
+				int32_t stride{ accessor.ByteStride(model.bufferViews[accessor.bufferView]) };
 
-				if (attribute.first == "POSITION")
-				{
-					NXT_LOG_TRACE("Setting POSITION");
-					mArrayObject->SetLayoutPosition(0, amount, static_cast<nxtDataType>(ac2.componentType), stride, ac2.byteOffset, ac2.normalized);
-				}
+				int32_t layoutPosition{ 0 };
+				
+				if (attribute.first == "POSITION") layoutPosition = 0;
+				else if (attribute.first == "NORMAL") layoutPosition = 1;
+				else if (attribute.first == "TEXCOORD_0") layoutPosition = 2;
+
+				NXT_LOG_TRACE("Setting Layout Position: {0}", layoutPosition);
+				mArrayObject->SetLayoutPosition(layoutPosition, amount, static_cast<nxtDataType>(accessor.componentType), stride, static_cast<uint32_t>(accessor.byteOffset), accessor.normalized);
 			}
+
 		}
 
-		// Textures?
-
+		return primitives;
 	}
 
 }
-
-/*
-
-if (view.target == BUFFER_TARGET_ARRAY_BUFFER)
-			{
-				Shared<VertexBuffer> vBuffer{ VertexBuffer::Create(buffer.data.size(), &buffer.data.at(0) + view.byteOffset, BUFFER_USAGE_STATIC) };
-				gVBuffers.push_back(vBuffer);
-			}
-			else if (view.target == BUFFER_TARGET_ELEMENT_ARRAY)
-			{
-				Shared<ElementBuffer> eBuffer{ ElementBuffer::Create(buffer.data.size(), &buffer.data.at(0) + view.byteOffset, BUFFER_USAGE_STATIC) };
-				gEBuffers.push_back(eBuffer);
-			}
-			else
-			{
-				NXT_LOG_WARN("Buffer Target not supported: {0}", view.target);
-			}
-
-*/
-
-
-/*using namespace buffers;
-		for (gltf::BufferView& view : mModel.bufferViews)
-		{
-			vertex_buffer vBuffer{ VertexBuffer::Create(view.byteLength) };
-			gVBuffers.push_back(vBuffer);
-		}
-		for (gltf::Accessor& accessor : mModel.accessors)
-		{
-			vertex_buffer& vbuffer{ gVBuffers[accessor.bufferView] };
-			int32_t stride{ accessor.ByteStride(mModel.bufferViews[accessor.bufferView]) };
-			if(accessor.name)
-			vbuffer->SetLayoutPosition(0, accessor.count, static_cast<DATA_TYPE_>(accessor.componentType), static_cast<uint32_t>(stride), accessor.byteOffset, accessor.normalized);
-		}*/

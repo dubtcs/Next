@@ -31,6 +31,6 @@ namespace nxt::buffers
 		uint32_t mVertexArrayId; // GL SPECIFIC >:(
 	};
 
-	using vertex_buffer = Shared<VertexBuffer>;
+	using SVertexBuffer = Shared<VertexBuffer>;
 
 }

@@ -27,4 +27,7 @@ namespace nxt::buffers
 		uint32_t mID;
 	};
 
+	// Shared Data Buffer
+	using SDataBuffer = Shared<DataBuffer>;
+
 }

@@ -1,12 +1,21 @@
 
 #include "EditorApp.h"
 
+#include <necs/include.h>
+
 namespace nxt
 {
 
 	Editor::Editor()
 	{
 		//Model m{ "assets/models/Triangle.gltf" };
+		necs::Scene scene{};
+		necs::Entity e1{ scene.CreateEntity() };
+		scene.Attach<int>(e1);
+		if (scene.HasComponent<int>(e1))
+		{
+			NXT_LOG_TRACE("BRUH!");
+		}
 	}
 
 	void Editor::OnUpdate(float& dt)
@@ -17,7 +26,6 @@ namespace nxt
 	bool Editor::OnEvent(nxt::events::Event& ev)
 	{
 		events::Handler handler{ ev };
-		//NXT_LOG_TRACE(ev.GetName());
 		handler.Fire<events::KeyboardPressed>(NXT_CALLBACK(Editor::OnKeyPressed));
 		handler.Fire<events::MouseButtonPressed>(NXT_CALLBACK(Editor::OnMouseButtonPressed));
 		handler.Fire<events::MouseButtonReleased>(NXT_CALLBACK(Editor::OnMouseButtonReleased));

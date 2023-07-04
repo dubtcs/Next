@@ -22,4 +22,6 @@ namespace nxt::buffers
 		Shared<VertexBuffer> mVertexBuffer{ nullptr };
 	};
 
+	using SElementBuffer = Shared<ElementBuffer>;
+
 }
