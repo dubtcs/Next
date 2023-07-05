@@ -19,9 +19,6 @@ namespace nxt::buffers
 		const nxtBufferTarget& GetTarget() const;
 		void Bind() const;
 		void Unbind() const;
-
-		// PLACEHOLDER
-		void Draw(nxtDrawMode drawMode, uint32_t count, uint32_t byteOffset, nxtDataType datType = nxtDataType_Float) const;
 	protected:
 		const nxtBufferTarget mTarget;
 		uint32_t mID;

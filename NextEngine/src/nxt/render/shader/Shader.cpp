@@ -147,4 +147,10 @@ namespace nxt
 		glUniformMatrix4fv(loc, 1, GL_FALSE, glm::value_ptr(matrix));
 	}
 
+	void Shader::SetValue(const std::string& name, const glm::vec3& vec)
+	{
+		int32_t loc{ glGetUniformLocation(mID, name.c_str()) };
+		glUniform3fv(loc, 1, glm::value_ptr(vec));
+	}
+
 }

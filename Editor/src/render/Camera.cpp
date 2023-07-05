@@ -139,6 +139,11 @@ namespace nxt
 		BuildViewMatrix();
 	}
 
+	glm::vec3 Camera::GetPosition()
+	{
+		return mPosition;
+	}
+
 	glm::vec3 Camera::GetRightVector()
 	{
 		return glm::normalize(glm::cross(glm::vec3{ 0.f, 1.f, 0.f }, mDirection));

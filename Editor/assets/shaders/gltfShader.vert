@@ -5,11 +5,16 @@ layout (location = 1) in vec3 vNormal;
 layout (location = 2) in vec2 vTexPos;
 
 uniform mat4 worldMatrix;
+uniform mat4 projectionViewMatrix;
 
 out vec2 pTexPos;
+out vec3 pWorldPos;
+out vec3 pNormal;
 
 void main()
 {
-    gl_Position = worldMatrix * vec4(vPos, 1.0);
+    gl_Position = projectionViewMatrix * worldMatrix * vec4(vPos, 1.0);
     pTexPos = vTexPos;
+    pNormal = vNormal;
+    pWorldPos = vec3(worldMatrix * vec4(vPos, 1.0));
 }

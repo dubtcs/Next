@@ -9,7 +9,7 @@ namespace nxt
 	RenderSystem::RenderSystem() :
 		mTexture{ Texture::Create("assets/textures/swirl.png") },
 		mShader{ "assets/shaders/gltfShader.vert", "assets/shaders/gltfShader.frag" },
-		mCamera{  },
+		mCamera{ {-2.f, 1.f, 2.f} },
 		mModel{ "assets/models/BoxTextured.gltf" }
 	{
 
@@ -42,7 +42,13 @@ namespace nxt
 		glm::mat4 model2{
 			glm::translate(ones, glm::vec3{0.f})
 		};
-		mShader.SetValue("worldMatrix", mCamera.GetProjectionViewMatrix() * model2);
+		mShader.SetValue("worldMatrix", model2);
+		mShader.SetValue("projectionViewMatrix", mCamera.GetProjectionViewMatrix());
+		mShader.SetValue("normalMatrix", glm::transpose(glm::inverse(model2)));
+		mShader.SetValue("cameraPosition", mCamera.GetPosition());
+
+		glm::vec3 lightPosition{  1.f + std::sin(clock::GetRunTime()), std::sin(clock::GetRunTime()), 1.f};
+		mShader.SetValue("lightPosition", lightPosition);
 
 		mModel.Bind();
 		mModel.GetTextures().front()->Bind();

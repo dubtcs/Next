@@ -28,18 +28,6 @@ namespace nxt::buffers
 		glBufferSubData(mTarget, byteOffset, byteSize, data);
 	}
 
-	void DataBuffer::Draw(nxtDrawMode drawMode, uint32_t count, uint32_t offset, nxtDataType dataType) const
-	{
-		if (mTarget == nxtBufferTarget_ArrayBuffer)
-		{
-			glDrawArrays(drawMode, offset, count);
-		}
-		else
-		{
-			glDrawElements(drawMode, count, dataType, (void*)offset);
-		}
-	}
-
 	const nxtBufferTarget& DataBuffer::GetTarget() const
 	{
 		return mTarget;

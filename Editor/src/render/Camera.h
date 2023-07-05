@@ -12,6 +12,8 @@ namespace nxt
 		Camera(const glm::vec3& position = { 0.f, 1.f, 3.f }, const glm::vec3& lookAtPosition = { 0.f, 0.f, 0.f });
 		void OnUpdate(float dt);
 		bool OnEvent(events::Event& ev);
+
+		glm::vec3 GetPosition();
 		glm::vec3 GetLookVector();
 		glm::vec3 GetRightVector();
 		glm::vec3 GetUpVector();
