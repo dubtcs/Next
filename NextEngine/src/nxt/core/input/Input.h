@@ -3,7 +3,7 @@
 #include <nxt/EngineCore.h>
 #include "InputEnums.h"
 
-#include <glm.hpp>
+#include <glm/glm.hpp>
 
 namespace nxt::input
 {

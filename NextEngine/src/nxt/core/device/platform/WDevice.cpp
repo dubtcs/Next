@@ -17,6 +17,7 @@ namespace nxt::device
 	{
 		gWindowHandle = windowHandle;
 
+		// vkCreateWin32SurfaceKHR if I ever use vulkan
 		PIXELFORMATDESCRIPTOR pixelFormatDesc{
 			sizeof(PIXELFORMATDESCRIPTOR),  //  size of this pfd  
 			1,                     // version number  

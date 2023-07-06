@@ -8,7 +8,7 @@
 
 #include <glad/glad.h>
 
-#include <gtc/type_ptr.hpp>
+#include <glm/gtc/type_ptr.hpp>
 
 namespace nxt
 {

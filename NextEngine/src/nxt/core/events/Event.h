@@ -93,6 +93,20 @@ namespace nxt
 			MouseButtonReleased(nxtKeycode keycode) : Keycode{ keycode } {}
 		};
 
+		class NXT_API MouseScroll : public Event
+		{
+		public:
+			static const nxtEventType StaticType{ nxtEventType_MouseScroll };
+			nxtEventType Type{ StaticType };
+
+			float delta;
+
+			virtual nxtEventType GetType() const override { return Type; }
+			virtual const char* GetName() const override { return "MOUSE"; }
+
+			MouseScroll(float delta) : delta{ delta } {}
+		};
+
 		class NXT_API WindowResized : public Event
 		{
 		public:

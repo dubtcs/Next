@@ -6,21 +6,21 @@
 namespace nxt
 {
 
-	Editor::Editor()
+	Editor::Editor() :
+		mWorld{}
 	{
-		//Model m{ "assets/models/Triangle.gltf" };
-		necs::Scene scene{};
-		necs::Entity e1{ scene.CreateEntity() };
-		scene.Attach<int>(e1);
-		if (scene.HasComponent<int>(e1))
+		SModel modelInstance{ Model::Create("assets/models/Avocado.gltf") };
+		for (float i{ 0 }; i < 1; i++)
 		{
-			NXT_LOG_TRACE("BRUH!");
+			necs::Entity e{ mWorld.CreateEntity() };
+			mWorld.Attach<cmp::WorldModel>(e, modelInstance);
+			mWorld.Attach<cmp::Transform>(e, { glm::vec3{ i } });
 		}
 	}
 
 	void Editor::OnUpdate(float& dt)
 	{
-		mRender.OnUpdate(dt);
+		mRender.OnUpdate(dt, mWorld);
 	}
 
 	bool Editor::OnEvent(nxt::events::Event& ev)

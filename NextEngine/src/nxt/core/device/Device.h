@@ -4,7 +4,7 @@
 
 #include <nxt/core/input/InputEnums.h>
 
-#include <glm.hpp>
+#include <glm/glm.hpp>
 
 /*
 Device are platform specific viewport/window commands

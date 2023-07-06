@@ -30,6 +30,7 @@ namespace nxt
 	class NXT_API Model
 	{
 	public:
+		static Shared<Model> Create(const std::filesystem::path& filepath);
 		Model(const std::filesystem::path& filepath);
 
 		// TEMP FOR ECS
@@ -41,5 +42,7 @@ namespace nxt
 		std::vector<Mesh> mMeshes;
 		std::vector<STexture> mTextures;
 	};
+
+	using SModel = Shared<Model>;
 
 }

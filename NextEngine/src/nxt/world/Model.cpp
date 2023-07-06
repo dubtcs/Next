@@ -41,14 +41,18 @@ namespace nxt
 				int32_t amount{ accessor.type == TINYGLTF_TYPE_SCALAR ? 1 : accessor.type };
 				int32_t stride{ accessor.ByteStride(model.bufferViews[accessor.bufferView]) };
 
-				int32_t layoutPosition{ 0 };
+				int32_t layoutPosition{ -1 };
 
 				if (attribute.first == "POSITION") layoutPosition = 0;
 				else if (attribute.first == "NORMAL") layoutPosition = 1;
 				else if (attribute.first == "TEXCOORD_0") layoutPosition = 2;
+				else NXT_LOG_DEBUG("Attribute found that is not supported: {0}", attribute.first);
 
-				NXT_LOG_TRACE("Setting Layout Position: {0}", layoutPosition);
-				arrayObject->SetLayoutPosition(layoutPosition, amount, static_cast<nxtDataType>(accessor.componentType), stride, static_cast<uint32_t>(accessor.byteOffset), accessor.normalized);
+				if (layoutPosition >= 0)
+				{
+					NXT_LOG_TRACE("Setting Layout Position: {0}", layoutPosition);
+					arrayObject->SetLayoutPosition(layoutPosition, amount, static_cast<nxtDataType>(accessor.componentType), stride, static_cast<uint32_t>(accessor.byteOffset), accessor.normalized);
+				}
 			}
 
 		}
@@ -151,6 +155,11 @@ namespace nxt
 		// MUST Unbind VAO before the buffers are deleted
 		arrayObject->Unbind();
 		return meshes;
+	}
+
+	Shared<Model> Model::Create(const std::filesystem::path& filepath)
+	{
+		return NewShared<Model>(filepath);
 	}
 
 	Model::Model(const std::filesystem::path& filepath)

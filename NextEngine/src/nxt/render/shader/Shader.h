@@ -5,7 +5,7 @@
 #include <filesystem>
 #include <string>
 
-#include <glm.hpp>
+#include <glm/glm.hpp>
 
 namespace nxt
 {

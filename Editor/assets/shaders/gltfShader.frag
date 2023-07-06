@@ -11,7 +11,7 @@ uniform mat4 normalMatrix;
 uniform vec3 lightPosition;
 uniform vec3 cameraPosition;
 
-float ambientStrength = 0.025;
+float ambientStrength = 0.1;
 float specularStrength = 0.4;
 vec3 lightColor = vec3(1.0);
 
@@ -23,8 +23,8 @@ void main()
 {
     
 
-    //vec4 targetColor = texture(simpleTexture, pTexPos);
-    vec4 targetColor = vec4(0.5, 0.2, 0.6, 1.0);
+    vec4 targetColor = texture(simpleTexture, pTexPos);
+    //vec4 targetColor = vec4(0.5, 0.2, 0.6, 1.0);
     vec3 ambient = ambientStrength * lightColor;
 
     vec3 normal = normalize(pNormal);

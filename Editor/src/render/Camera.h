@@ -1,7 +1,7 @@
 #pragma once
 
 #include <NextEngine.h>
-#include <glm.hpp>
+#include <glm/glm.hpp>
 
 namespace nxt
 {
@@ -30,6 +30,7 @@ namespace nxt
 		bool OnWindowResize(events::WindowResized& ev);
 		bool OnMouseButtonPressed(events::MouseButtonPressed& ev);
 		bool OnMouseButtonReleased(events::MouseButtonReleased& ev);
+		bool OnMouseScroll(events::MouseScroll& ev);
 	protected:
 		glm::vec3 mPosition;
 		glm::vec3 mDirection;

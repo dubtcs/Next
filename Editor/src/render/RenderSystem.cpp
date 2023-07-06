@@ -1,7 +1,7 @@
 
 #include "RenderSystem.h"
 
-#include <gtc/matrix_transform.hpp>
+#include <glm/gtc/matrix_transform.hpp>
 
 namespace nxt
 {
@@ -9,8 +9,7 @@ namespace nxt
 	RenderSystem::RenderSystem() :
 		mTexture{ Texture::Create("assets/textures/swirl.png") },
 		mShader{ "assets/shaders/gltfShader.vert", "assets/shaders/gltfShader.frag" },
-		mCamera{ {-2.f, 1.f, 2.f} },
-		mModel{ "assets/models/BoxTextured.gltf" }
+		mCamera{ {-2.f, 1.f, 2.f} }
 	{
 
 	}
@@ -22,7 +21,7 @@ namespace nxt
 		{
 			SDataBuffer buffer{ p.buffer };
 			buffer->Bind();
-			render::command::DrawElements(nxtDrawMode_Triangles, p.count, static_cast<nxtDataType>(p.componentType), (void*)(p.byteOffset));
+			render::command::DrawElements(p.mode, p.count, p.componentType, (void*)(p.byteOffset));
 		}
 		for (const Mesh& otherMesh : mesh.children)
 		{
@@ -30,7 +29,16 @@ namespace nxt
 		}
 	}
 
-	void RenderSystem::OnUpdate(float& dt)
+	static void DrawModel(const SModel& model)
+	{
+		model->Bind();
+		for (const Mesh& m : model->GetMeshes())
+		{
+			DrawMesh(m);
+		}
+	}
+
+	void RenderSystem::OnUpdate(float& dt, World& world)
 	{
 		render::command::Clear();
 		mCamera.OnUpdate(dt);
@@ -39,22 +47,27 @@ namespace nxt
 		// translate vertices to world space
 		glm::mat4 ones{ 1.f };
 
-		glm::mat4 model2{
-			glm::translate(ones, glm::vec3{0.f})
-		};
-		mShader.SetValue("worldMatrix", model2);
 		mShader.SetValue("projectionViewMatrix", mCamera.GetProjectionViewMatrix());
-		mShader.SetValue("normalMatrix", glm::transpose(glm::inverse(model2)));
 		mShader.SetValue("cameraPosition", mCamera.GetPosition());
 
-		glm::vec3 lightPosition{  1.f + std::sin(clock::GetRunTime()), std::sin(clock::GetRunTime()), 1.f};
+		float ti{ clock::GetRunTime() };
+		glm::vec3 lightPosition{ 0.f, std::sin(ti) * 500.f, 300.f };
 		mShader.SetValue("lightPosition", lightPosition);
 
-		mModel.Bind();
-		mModel.GetTextures().front()->Bind();
-		for (const Mesh& m : mModel.GetMeshes())
+		necs::SceneView<cmp::WorldModel, cmp::Transform> view{ world.GetScene() };
+		for (const necs::Entity& e : view)
 		{
-			DrawMesh(m);
+			cmp::Transform& t{ world.GetComponent<cmp::Transform>(e) };
+
+			glm::mat4 modelMatrix{
+				glm::translate(ones, t.Position)
+			};
+			mShader.SetValue("worldMatrix", modelMatrix);
+			mShader.SetValue("normalMatrix", glm::transpose(glm::inverse(modelMatrix)));
+
+			cmp::WorldModel& wm{ world.GetComponent<cmp::WorldModel>(e) };
+			wm.ModelInstance->GetTextures().front()->Bind();
+			DrawModel(wm.ModelInstance);
 		}
 
 	}

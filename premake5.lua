@@ -5,7 +5,7 @@ output = "%{cfg.buildcfg}-%{cfg.system}-%{cfg.architecture}";
 -- includes directories
 includes = {};
 includes.glad = "NextEngine/vendor/glad/include"
-includes.glm = "NextEngine/vendor/glm/glm"
+includes.glm = "NextEngine/vendor/glm"
 includes.spdlog = "NextEngine/vendor/spdlog/include"
 includes.stb = "NextEngine/vendor/stb"
 includes.gltf = "NextEngine/vendor/gltf"

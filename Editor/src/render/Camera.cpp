@@ -1,10 +1,10 @@
 
 #include "Camera.h"
 
-#include <glm.hpp>
-#include <gtc/matrix_transform.hpp>
-#include <gtx/quaternion.hpp>
-#include <gtx/string_cast.hpp>
+#include <glm/glm.hpp>
+#include <glm/gtc/matrix_transform.hpp>
+#include <glm/gtx/quaternion.hpp>
+#include <glm/gtx/string_cast.hpp>
 
 static float gSens{ 0.5f };
 static float gSpeed{ 5.f }; // movement speed
@@ -48,6 +48,7 @@ namespace nxt
 		handler.Fire<events::WindowResized>(NXT_CALLBACK(Camera::OnWindowResize));
 		handler.Fire<events::MouseButtonPressed>(NXT_CALLBACK(Camera::OnMouseButtonPressed));
 		handler.Fire<events::MouseButtonReleased>(NXT_CALLBACK(Camera::OnMouseButtonReleased));
+		handler.Fire<events::MouseScroll>(NXT_CALLBACK(Camera::OnMouseScroll));
 		return false;
 	}
 
@@ -75,6 +76,12 @@ namespace nxt
 		mAspectRatio = static_cast<float>(ev.Width) / static_cast<float>(ev.Height);
 		BuildProjectionMatrix();
 		BuildProjectionViewMatrix();
+		return false;
+	}
+
+	bool Camera::OnMouseScroll(events::MouseScroll& ev)
+	{
+		gSpeed = std::max(5.f, gSpeed + ev.delta);
 		return false;
 	}
 
@@ -112,29 +119,29 @@ namespace nxt
 		// Horizontal
 		if (input::IsKeyDown(nxtKeycode_A))
 		{
-			mPosition += dt * GetRightVector();
+			mPosition += gSpeed * dt * GetRightVector();
 		}
 		else if (input::IsKeyDown(nxtKeycode_D))
 		{
-			mPosition -= dt * GetRightVector();
+			mPosition -= gSpeed * dt * GetRightVector();
 		}
 		// Forward
 		if (input::IsKeyDown(nxtKeycode_W))
 		{
-			mPosition += dt * GetLookVector();
+			mPosition += gSpeed * dt * GetLookVector();
 		}
 		else if (input::IsKeyDown(nxtKeycode_S))
 		{
-			mPosition -= dt * GetLookVector();
+			mPosition -= gSpeed * dt * GetLookVector();
 		}
 		// Vertical
 		if (input::IsKeyDown(nxtKeycode_E) || input::IsKeyDown(nxtKeycode_Space))
 		{
-			mPosition += dt * GetUpVector();
+			mPosition += gSpeed * dt * GetUpVector();
 		}
 		else if (input::IsKeyDown(nxtKeycode_Q) || input::IsKeyDown(nxtKeycode_Ctrl))
 		{
-			mPosition -= dt * GetUpVector();
+			mPosition -= gSpeed * dt * GetUpVector();
 		}
 		BuildViewMatrix();
 	}

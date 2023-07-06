@@ -317,6 +317,13 @@ LRESULT CALLBACK NxtWindowProcedure(HWND hwnd, UINT msg, WPARAM wparam, LPARAM l
 			FireMouseDownEvent(nxtKeycode_Mouse2, true);
 			break;
 		}
+		case(WM_MOUSEWHEEL):
+		{
+			float delta{ static_cast<float>(GET_WHEEL_DELTA_WPARAM(wparam)) };
+			nxt::events::MouseScroll ev{ delta };
+			nxt::app::OnEvent(ev);
+			break;
+		}
 	}
 
 	return DefWindowProc(hwnd, msg, wparam, lparam);

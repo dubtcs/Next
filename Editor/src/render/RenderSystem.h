@@ -13,7 +13,7 @@ namespace nxt
 	{
 	public:
 		RenderSystem();
-		void OnUpdate(float& dt);
+		void OnUpdate(float& dt, World& world);
 		bool OnEvent(events::Event& ev);
 	protected:
 		bool OnWindowResize(events::WindowResized& ev);
@@ -26,7 +26,6 @@ namespace nxt
 		Shader mShader;
 
 		Shared<Texture> mTexture;
-		Model mModel;
 	};
 
 }

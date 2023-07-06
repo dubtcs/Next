@@ -13,9 +13,10 @@ namespace nxt::events
 		nxtEventType_MouseMove = BIT(2),
 		nxtEventType_MousePressed = BIT(3),
 		nxtEventType_MouseReleased = BIT(4),
-		nxtEventType_Keyboard = BIT(5),
-		nxtEventType_WindowResize = BIT(6),
-		nxtEventType_WindowClose = BIT(7)
+		nxtEventType_MouseScroll = BIT(5),
+		nxtEventType_Keyboard = BIT(6),
+		nxtEventType_WindowResize = BIT(7),
+		nxtEventType_WindowClose = BIT(8)
 	};
 
 }

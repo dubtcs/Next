@@ -19,6 +19,7 @@ namespace nxt
 		//bool OnWindowResize(events::WindowResized& ev);
 	protected:
 		RenderSystem mRender;
+		World mWorld;
 	};
 }
 
