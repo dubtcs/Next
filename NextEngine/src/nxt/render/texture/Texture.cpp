@@ -89,6 +89,7 @@ namespace nxt
 			case(nxtTextureFormat_RG): {mInternalFormat = nxtTextureFormatInternal_RG8; return; }
 			case(nxtTextureFormat_RGB): {mInternalFormat = nxtTextureFormatInternal_RGB8; return; }
 			case(nxtTextureFormat_RGBA): {mInternalFormat = nxtTextureFormatInternal_RGBA8; return; }
+			case(nxtTextureFormat_DepthStencil): {mInternalFormat = nxtTextureFormatInternal_Depth24Stencil8; return; }
 		}
 		NXT_LOG_CRIT("No internal format found for requested format");
 	}
@@ -109,5 +110,15 @@ namespace nxt
 		// GL_TEXTURE0 is 0x8... so it was way off
 		glBindTextureUnit(textureUnit, mID);
 	}
+
+	/*const uint32_t& Texture::GetRenderID() const
+	{
+		return mID;
+	}
+
+	const nxtTextureTarget& Texture::GetTextureTarget() const
+	{
+		return mTarget;
+	}*/
 
 }

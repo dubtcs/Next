@@ -13,6 +13,7 @@ namespace nxt::render::command
 	{
 		gladLoadGL();
 		glEnable(GL_DEPTH_TEST);
+		glEnable(GL_CULL_FACE);
 	}
 
 	void SetViewport(int32_t width, int32_t height)

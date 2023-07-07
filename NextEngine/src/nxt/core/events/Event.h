@@ -28,6 +28,19 @@ namespace nxt
 			static const nxtEventType StaticType;
 		};
 
+		/*template<typename T>
+		concept EnumDerivation = std::is_enum_v<nxtEventType>;
+
+		template<EnumDerivation E>
+		class NXT_API Event2
+		{
+		public:
+			nxtEventType GetType() { return Type; }
+		public:
+			nxtEventType Type{ E };
+			bool Handled{ false };
+		};*/
+
 		// dispatcher
 		class NXT_API Handler
 		{

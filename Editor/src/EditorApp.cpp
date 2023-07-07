@@ -3,12 +3,17 @@
 
 #include <necs/include.h>
 
+#include <nxt/core/events/ScriptEvents.h>
+
 namespace nxt
 {
 
 	Editor::Editor() :
 		mWorld{}
 	{
+
+		exp::TEST_SIGNALS(43);
+
 		SModel modelInstance{ Model::Create("assets/models/Avocado.gltf") };
 		for (float i{ 0 }; i < 1; i++)
 		{
