@@ -2,8 +2,9 @@
 #include "ScriptEvents.h"
 
 #include <nxt/core/log/Log.h>
+#include <vector>
 
-namespace nxt
+namespace nxt::exp
 {
 
 	void test1()
@@ -11,12 +12,47 @@ namespace nxt
 		NXT_LOG_CRIT("Called Test1");
 	}
 
-	void exp::TEST_SIGNALS(int param)
+	class testClass
+	{
+	public:
+		testClass(int32_t n) : number{ n } {}
+		void addTo(int32_t add)
+		{
+			NXT_LOG_DEBUG("I chose the  wrogn week to quit drinking.");
+			this->number += add;
+		}
+	protected:
+		int32_t number;
+	};
+
+	void TEST_SIGNALS(int param)
 	{
 
-		exp::Event<void()> ev{};
+		
+
+		//StaticSubcall<void()> s11{ &test1 };
+		////s11.Fire();
+
+		//testClass c1{ 7 };
+		//MethodSubcall<testClass, void()> m1{ &c1, &testClass::empty };
+		////m1.Fire();
+
+		//std::vector<ASubcall<void()>> subs{};
+		//subs.push_back(s11);
+		//subs.push_back(m1);
+
+		//for (ASubcall<void()>& call : subs)
+		//{
+		//	call.Fire();
+		//}
+
+		/*exp::Event<void()> ev{};
 		ev.Add(&test1);
-		ev.Fire();
+		exp::Event<void(const testClass&)> ev2{};
+		testClass j{ 56 };
+		ev2.Add(&testClass::bruh);
+		ev2.Fire(j);
+		ev.Fire();*/
 
 		/*exp::Action<int(int)> sig{ &t1 };
 		NXT_LOG_TRACE(sig.Fire(param));

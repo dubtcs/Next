@@ -24,8 +24,9 @@ namespace nxt
 		Shared<buffers::ElementBuffer> mElementBuffer;
 
 		Shader mShader;
+		Shader mSkyboxShader;
 
-		Shared<Texture> mTexture;
+		SCubemap mSkyboxCubemap;
 	};
 
 }

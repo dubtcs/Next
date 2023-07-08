@@ -4,6 +4,7 @@
 #include <necs/include.h>
 
 #include <nxt/core/events/ScriptEvents.h>
+#include <nxt/render/texture/Cubemap.h>
 
 namespace nxt
 {
@@ -11,11 +12,8 @@ namespace nxt
 	Editor::Editor() :
 		mWorld{}
 	{
-
-		exp::TEST_SIGNALS(43);
-
-		SModel modelInstance{ Model::Create("assets/models/Avocado.gltf") };
-		for (float i{ 0 }; i < 1; i++)
+		SModel modelInstance{ Model::Create("assets/models/BoxTextured.gltf") };
+		for (float i{ 0 }; i < 5; i++)
 		{
 			necs::Entity e{ mWorld.CreateEntity() };
 			mWorld.Attach<cmp::WorldModel>(e, modelInstance);

@@ -10,7 +10,8 @@ namespace nxt
 	{
 		nxtTextureTarget_1D = 0x0DE0,
 		nxtTextureTarget_2D = 0x0DE1,
-		nxtTextureTarget_3D = 0x806F
+		nxtTextureTarget_3D = 0x806F,
+		nxtTextureTarget_Cubemap = 0x8513
 	};
 
 	enum nxtTextureFormat : nxt_enum

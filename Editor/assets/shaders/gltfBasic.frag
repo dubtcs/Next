@@ -9,7 +9,6 @@ uniform sampler2D simpleTexture;
 void main()
 {
     
-
     outColor = texture(simpleTexture, pTexPos);
 
 }

@@ -13,6 +13,7 @@ namespace nxt::render::command
 	{
 		gladLoadGL();
 		glEnable(GL_DEPTH_TEST);
+		glDepthFunc(GL_LEQUAL);
 		glEnable(GL_CULL_FACE);
 	}
 
@@ -34,6 +35,16 @@ namespace nxt::render::command
 	void DrawElements(nxtDrawMode mode, uint32_t count, nxtDataType dataType, void* offset)
 	{
 		glDrawElements(mode, count, dataType, offset);
+	}
+
+	void SetFaceCullingMode(nxtCullingMode mode)
+	{
+		glCullFace(mode);
+	}
+
+	void SetRenderFeature(nxtRenderFeature feature, bool toggle)
+	{
+		toggle ? glEnable(feature) : glDisable(feature);
 	}
 
 	void SwapBuffers()
