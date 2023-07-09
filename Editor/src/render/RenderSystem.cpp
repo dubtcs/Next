@@ -54,6 +54,8 @@ namespace nxt
 		render::command::Clear();
 		mCamera.OnUpdate(dt);
 		
+		mSkyboxCubemap->Bind();
+
 		// translate vertices to world space
 		glm::mat4 ones{ 1.f };
 
@@ -80,7 +82,8 @@ namespace nxt
 			mShader.SetValue("normalMatrix", glm::transpose(glm::inverse(modelMatrix)));
 
 			cmp::WorldModel& wm{ world.GetComponent<cmp::WorldModel>(e) };
-			wm.ModelInstance->GetTextures().front()->Bind();
+			wm.ModelInstance->GetTextures().front()->Bind(1);
+			mShader.SetValue("simpleTexture", 1);
 			DrawModel(wm.ModelInstance);
 		}
 
@@ -91,7 +94,6 @@ namespace nxt
 		glm::mat4 skyboxMatrix{ mCamera.GetProjectionMatrix() * glm::mat4{glm::mat3{mCamera.GetViewMatrix()}} };
 		mSkyboxShader.Bind();
 		mSkyboxShader.SetValue("projectionView", skyboxMatrix);
-		mSkyboxCubemap->Bind();
 		DrawModel(cubeModel);
 
 	}
