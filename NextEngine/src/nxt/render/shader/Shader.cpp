@@ -135,6 +135,12 @@ namespace nxt
 		glUseProgram(mID);
 	}
 
+	void Shader::SetUniformBlock(const std::string& name, int32_t value)
+	{
+		uint32_t loc{ glGetUniformBlockIndex(mID, name.c_str()) };
+		glUniformBlockBinding(mID, loc, value);
+	}
+
 	void Shader::SetValue(const std::string& name, int32_t value)
 	{
 		int32_t loc{ glGetUniformLocation(mID, name.c_str()) };

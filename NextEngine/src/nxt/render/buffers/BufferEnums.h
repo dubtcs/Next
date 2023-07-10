@@ -28,7 +28,8 @@ namespace nxt
 	enum nxtBufferTarget : nxt_enum
 	{
 		nxtBufferTarget_ArrayBuffer = 0x8892,
-		nxtBufferTarget_ElementArray = 0x8893
+		nxtBufferTarget_ElementArray = 0x8893,
+		nxtBufferTarget_UniformBuffer = 0x8A11
 	};
 
 }

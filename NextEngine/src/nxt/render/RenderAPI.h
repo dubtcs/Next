@@ -20,6 +20,7 @@ namespace nxt
 	{
 		nxtRenderFeature_DepthTest = 0x0B71,
 		nxtRenderFeature_CullFace = 0x0B44,
+		nxtRenderFeature_PointSize = 0x8642,
 	};
 
 	namespace render::command

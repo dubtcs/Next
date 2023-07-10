@@ -27,6 +27,7 @@ namespace nxt
 		Shader mSkyboxShader;
 
 		SCubemap mSkyboxCubemap;
+		buffers::SDataBuffer mMatrixBuffer;
 	};
 
 }

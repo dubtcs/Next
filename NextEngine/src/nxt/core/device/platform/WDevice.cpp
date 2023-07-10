@@ -67,6 +67,8 @@ namespace nxt::device
 	}
 
 	// Maybe use high definition mouse movement. Raw input
+
+	// Returns window space coordinates
 	glm::vec2 GetMousePosition()
 	{
 		POINT p;
@@ -80,14 +82,37 @@ namespace nxt::device
 		return glm::vec2{ 0.f };
 	}
 
+	glm::vec2 GetMouseScreenPosition()
+	{
+		POINT p;
+		if (::GetCursorPos(&p))
+		{
+			return glm::vec2{ p.x, p.y };
+		}
+		return glm::vec2{ 0.f };
+	}
+
+	// Window space coordinates
+	int SetCursorPosition(glm::vec2 pos)
+	{
+		/*RECT windowBounds{};
+		if (::GetWindowRect(*gWindowHandle, &windowBounds))
+		{
+			return ::SetCursorPos(windowBounds.left + static_cast<int>(pos.x), windowBounds.top + static_cast<int>(pos.y));
+		}
+		return false;*/
+		return ::SetCursorPos(static_cast<int>(pos.x), static_cast<int>(pos.y));
+	}
+
 	void ShowCursor()
 	{
-		::ShowCursor(true);
+		while (::ShowCursor(true) < 0);
 	}
 
 	void HideCursor()
 	{
-		::ShowCursor(false);
+		//::ShowCursor(false);
+		while (::ShowCursor(false) > 0);
 	}
 
 }

@@ -18,7 +18,7 @@ namespace nxt
 	Camera::Camera(const glm::vec3& position, const glm::vec3& lookAtPosition) :
 		mPosition{ position },
 		mDirection{ glm::normalize(lookAtPosition - position) },
-		mMousePosition{ input::GetMousePosition() }
+		mMousePosition{ input::GetMouseScreenPosition() }
 	{
 		mYaw = -glm::degrees(std::acos(mDirection.x));
 		mPitch = glm::degrees(std::asin(mDirection.y));
@@ -33,12 +33,13 @@ namespace nxt
 		if (input::IsKeyDown(nxtKeycode_MouseRight))
 		{
 			// if usable check
-			glm::vec2 mousePosition{ input::GetMousePosition() };
+			glm::vec2 mousePosition{ input::GetMouseScreenPosition() };
 			glm::vec2 mouseDelta{ mMousePosition - mousePosition };
-			mMousePosition = mousePosition;
+			//mMousePosition = mousePosition;
 			Rotate(dt, mouseDelta);
 			Translate(dt);
 			BuildProjectionViewMatrix();
+			input::SetMouseScreenPosition(mMousePosition);
 		}
 	}
 
@@ -56,7 +57,7 @@ namespace nxt
 	{
 		if (ev.Keycode == nxtKeycode_MouseRight)
 		{
-			mMousePosition = input::GetMousePosition();
+			mMousePosition = input::GetMouseScreenPosition();
 			input::HideCursor();
 		}
 		return false;

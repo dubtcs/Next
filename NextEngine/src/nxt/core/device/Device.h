@@ -20,7 +20,9 @@ namespace nxt::device
 	bool Release();
 	void SwapBuffers();
 	bool IsKeyDown(nxtKeycode keycode);
-	glm::vec2 GetMousePosition();
+	glm::vec2 GetMousePosition(); // Returns window space coordinates
+	glm::vec2 GetMouseScreenPosition();
+	int SetCursorPosition(glm::vec2 newPosition); // Screen space coordinates
 	void ShowCursor();
 	void HideCursor();
 #else

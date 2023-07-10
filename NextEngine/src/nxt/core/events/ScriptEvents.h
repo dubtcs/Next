@@ -4,11 +4,51 @@
 
 #include <nxt/core/log/Log.h>
 
+#include <map>
+#include <functional>
 #include <vector>
 
 // exp == experimental
 namespace nxt::exp
 {
+
+	template<typename>
+	class NXT_API Connection;
+
+	template<typename>
+	class NXT_API Event2;
+
+	template<typename RV, typename... args>
+	class NXT_API Connection<RV(args...)>
+	{
+	public:
+		Connection(const std::function<RV(args...)>& function) : mFunction{ function } {}
+		Event2<RV(args...)> mEvent;
+		std::function<RV(args...)> mFunction;
+		void Disconnect()
+		{
+			mEvent.BreakConnection(this);
+		}
+	};
+
+	template<typename RV, typename... args>
+	class NXT_API Event2<RV(args...)>
+	{
+	public:
+		Event2() = default;
+		Connection<RV(args...)>& Connect(const std::initializer_list<Connection<RV(args...)>>& newConnection)
+		{
+			mConnections.push_back(newConnection);
+			return mConnections.back();
+		}
+		bool BreakConnection(Connection<RV(args...)>& removal)
+		{
+
+		}
+	protected:
+		std::vector<Connection<RV(args...)>> mConnections;
+		//std::unordered_map<Connection<RV(args...)>> mConnections;
+	};
 
 	// need to accept both class member method calls and global function calls
 

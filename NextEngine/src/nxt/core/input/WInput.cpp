@@ -20,6 +20,16 @@ namespace nxt::input
 		return device::GetMousePosition();
 	}
 
+	glm::vec2 GetMouseScreenPosition()
+	{
+		return device::GetMouseScreenPosition();
+	}
+
+	bool SetMouseScreenPosition(glm::vec2 pos)
+	{
+		return static_cast<bool>(device::SetCursorPosition(pos));
+	}
+
 	void ShowCursor()
 	{
 		device::ShowCursor();

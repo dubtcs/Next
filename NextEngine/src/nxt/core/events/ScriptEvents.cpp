@@ -28,7 +28,8 @@ namespace nxt::exp
 	void TEST_SIGNALS(int param)
 	{
 
-		
+		//Event2<void()> ev2{};
+		//ev2.Connect({ std::bind<void()>(&test1) });
 
 		//StaticSubcall<void()> s11{ &test1 };
 		////s11.Fire();

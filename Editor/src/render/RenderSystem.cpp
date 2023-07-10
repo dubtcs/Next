@@ -2,6 +2,7 @@
 #include "RenderSystem.h"
 
 #include <glm/gtc/matrix_transform.hpp>
+#include <glm/gtc/type_ptr.hpp>
 
 static nxt::SModel cubeModel;
 
@@ -9,7 +10,7 @@ namespace nxt
 {
 
 	RenderSystem::RenderSystem() :
-		mShader{ "assets/shaders/gltfShader.vert", "assets/shaders/gltfShader.frag" },
+		mShader{ "assets/shaders/gltfUBlock.vert", "assets/shaders/gltfShader.frag" },
 		mSkyboxShader{ "assets/shaders/skybox.vert", "assets/shaders/skybox.frag" },
 		mSkyboxCubemap{ Cubemap::Create({
 			"assets/textures/skybox/right.jpg",
@@ -20,9 +21,12 @@ namespace nxt
 			"assets/textures/skybox/back.jpg"
 			})
 		},
-		mCamera{ {-2.f, 1.f, 2.f} }
+		mCamera{ {-2.f, 1.f, 2.f} },
+		mMatrixBuffer{ buffers::DataBuffer::Create(64, nullptr, nxtBufferTarget_UniformBuffer) }
 	{
 		cubeModel = nxt::Model::Create( "assets/models/BoxTextured.gltf" );
+		mMatrixBuffer->BindIndexed(0);
+		//render::command::SetRenderFeature(nxtRenderFeature_PointSize, true);
 	}
 
 	static void DrawMesh(const Mesh& mesh)
@@ -53,22 +57,23 @@ namespace nxt
 	{
 		render::command::Clear();
 		mCamera.OnUpdate(dt);
+		mMatrixBuffer->SetSubData(64, 0, glm::value_ptr(mCamera.GetProjectionViewMatrix()));
 		
 		mSkyboxCubemap->Bind();
-
-		// translate vertices to world space
-		glm::mat4 ones{ 1.f };
 
 		//render::command::SetRenderFeature(nxtRenderFeature_DepthTest, true);
 		render::command::SetFaceCullingMode(nxtCullingMode_Back);
 
 		mShader.Bind();
-		mShader.SetValue("projectionViewMatrix", mCamera.GetProjectionViewMatrix());
+		//mShader.SetValue("projectionViewMatrix", mCamera.GetProjectionViewMatrix());
 		mShader.SetValue("cameraPosition", mCamera.GetPosition());
 
 		float ti{ clock::GetRunTime() };
 		glm::vec3 lightPosition{ 0.f, std::sin(ti) * 500.f, 300.f };
 		mShader.SetValue("lightPosition", lightPosition);
+
+		// translate vertices to world space
+		glm::mat4 ones{ 1.f };
 
 		necs::SceneView<cmp::WorldModel, cmp::Transform> view{ world.GetScene() };
 		for (const necs::Entity& e : view)

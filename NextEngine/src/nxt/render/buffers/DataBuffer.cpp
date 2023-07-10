@@ -28,6 +28,15 @@ namespace nxt::buffers
 		glBufferSubData(mTarget, byteOffset, byteSize, data);
 	}
 
+	void DataBuffer::CopyBufferData(SDataBuffer other, size_t readOffset, size_t writeOffset, size_t byteSize)
+	{
+		glBindBuffer(GL_COPY_READ_BUFFER, other->mID);
+		glBindBuffer(GL_COPY_WRITE_BUFFER, mID);
+		glCopyBufferSubData(GL_COPY_READ_BUFFER, GL_COPY_WRITE_BUFFER, readOffset, writeOffset, byteSize);
+		glBindBuffer(GL_COPY_READ_BUFFER, 0);
+		glBindBuffer(GL_COPY_WRITE_BUFFER, 0);
+	}
+
 	const nxtBufferTarget& DataBuffer::GetTarget() const
 	{
 		return mTarget;
@@ -41,6 +50,11 @@ namespace nxt::buffers
 	void DataBuffer::Bind() const
 	{
 		glBindBuffer(mTarget, mID);
+	}
+
+	void DataBuffer::BindIndexed(int32_t index) const
+	{
+		glBindBufferBase(mTarget, index, mID);
 	}
 
 	void DataBuffer::Unbind() const

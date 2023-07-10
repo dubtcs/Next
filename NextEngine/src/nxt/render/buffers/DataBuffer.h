@@ -16,7 +16,9 @@ namespace nxt::buffers
 		~DataBuffer();
 	public:
 		void SetSubData(size_t byteSize, size_t byteOffset, void* data);
+		void CopyBufferData(Shared<DataBuffer> otherBuffer, size_t readOffset, size_t writeOffset, size_t byteSize);
 		const nxtBufferTarget& GetTarget() const;
+		void BindIndexed(int32_t index) const;
 		void Bind() const;
 		void Unbind() const;
 	protected:
