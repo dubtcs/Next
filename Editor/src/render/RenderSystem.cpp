@@ -12,6 +12,7 @@ namespace nxt
 	RenderSystem::RenderSystem() :
 		mShader{ "assets/shaders/gltfUBlock.vert", "assets/shaders/gltfShader.frag" },
 		mSkyboxShader{ "assets/shaders/skybox.vert", "assets/shaders/skybox.frag" },
+		mNormalShader{"assets/shaders/normals.vert", "assets/shaders/normals.geom", "assets/shaders/normals.frag" },
 		mSkyboxCubemap{ Cubemap::Create({
 			"assets/textures/skybox/right.jpg",
 			"assets/textures/skybox/left.jpg",
@@ -61,11 +62,9 @@ namespace nxt
 		
 		mSkyboxCubemap->Bind();
 
-		//render::command::SetRenderFeature(nxtRenderFeature_DepthTest, true);
 		render::command::SetFaceCullingMode(nxtCullingMode_Back);
 
 		mShader.Bind();
-		//mShader.SetValue("projectionViewMatrix", mCamera.GetProjectionViewMatrix());
 		mShader.SetValue("cameraPosition", mCamera.GetPosition());
 
 		float ti{ clock::GetRunTime() };
@@ -83,6 +82,7 @@ namespace nxt
 			glm::mat4 modelMatrix{
 				glm::translate(ones, t.Position)
 			};
+			mShader.Bind();
 			mShader.SetValue("worldMatrix", modelMatrix);
 			mShader.SetValue("normalMatrix", glm::transpose(glm::inverse(modelMatrix)));
 
@@ -90,10 +90,17 @@ namespace nxt
 			wm.ModelInstance->GetTextures().front()->Bind(1);
 			mShader.SetValue("simpleTexture", 1);
 			DrawModel(wm.ModelInstance);
+
+			mNormalShader.Bind();
+			mNormalShader.SetValue("viewMatrix", mCamera.GetViewMatrix());
+			mNormalShader.SetValue("projectionMatrix", mCamera.GetProjectionMatrix());
+			mNormalShader.SetValue("worldMatrix", modelMatrix);
+			mNormalShader.SetValue("normalMatrix", glm::transpose(glm::inverse(mCamera.GetViewMatrix() * modelMatrix)));
+			DrawModel(wm.ModelInstance);
+
 		}
 
 		// Skybox
-		//render::command::SetRenderFeature(nxtRenderFeature_DepthTest, false);
 		render::command::SetFaceCullingMode(nxtCullingMode_Front);
 
 		glm::mat4 skyboxMatrix{ mCamera.GetProjectionMatrix() * glm::mat4{glm::mat3{mCamera.GetViewMatrix()}} };
@@ -105,7 +112,15 @@ namespace nxt
 
 	bool RenderSystem::OnEvent(events::Event& ev)
 	{
+		events::Handler handler{ ev };
+		handler.Fire<events::WindowResized>(NXT_CALLBACK(RenderSystem::OnWindowResize));
 		mCamera.OnEvent(ev);
+		return false;
+	}
+
+	bool RenderSystem::OnWindowResize(events::WindowResized& ev)
+	{
+		render::command::SetViewport(ev.Width, ev.Height);
 		return false;
 	}
 

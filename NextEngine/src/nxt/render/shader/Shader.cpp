@@ -17,17 +17,19 @@ namespace nxt
 	{
 		None = 0,
 		Vertex,
-		Pixel
+		Pixel,
+		Geometry
 	};
 
 	//using shader_pair = std::pair<std::string, nxtShaderType>;
 	using shader_pair = std::pair<std::string, nxtShaderType>;
 
-	static shader_pair ReadShaderFile(const std::filesystem::path& filepath)
+	static bool ReadShaderFile(shader_pair* pair, const std::filesystem::path& filepath)
 	{
-		std::string output;
 		std::ifstream file;
-		nxtShaderType t{ nxtShaderType::None };
+		std::string& output{ pair->first };
+		nxtShaderType& t{ pair->second };
+		t = nxtShaderType::None;
 		file.open(filepath);
 		NXT_ASSERT(file.good(), "Shader read failure: \"{0}\"", filepath.string());
 		if (file.good())
@@ -36,13 +38,18 @@ namespace nxt
 			stream << file.rdbuf();
 			output = stream.str();
 
-			if (filepath.extension().string() == ".vert")
+			std::string extension{ filepath.extension().string() };
+			if (extension == ".vert")
 			{
 				t = nxtShaderType::Vertex;
 			}
-			else if (filepath.extension().string() == ".frag")
+			else if (extension == ".frag")
 			{
 				t = nxtShaderType::Pixel;
+			}
+			else if (extension == ".geom")
+			{
+				t = nxtShaderType::Geometry;
 			}
 
 		}
@@ -51,7 +58,8 @@ namespace nxt
 			NXT_LOG_CRIT("Shader read failure: \"{0}\"", filepath.string());
 		}
 		file.close();
-		return { output, t};
+		return (t != nxtShaderType::None);
+		//return { output, t };
 	}
 	
 	Shader::Shader(const std::initializer_list<std::filesystem::path>& shader_locations)
@@ -59,7 +67,8 @@ namespace nxt
 		std::vector<uint32_t> shaderIds{};
 		for (const std::filesystem::path& path : shader_locations)
 		{
-			shader_pair subShader{ ReadShaderFile(path) };
+			shader_pair subShader{};
+			ReadShaderFile(&subShader, path);
 
 			uint32_t id{ 0 };
 			switch (subShader.second)
@@ -73,6 +82,11 @@ namespace nxt
 				case(nxtShaderType::Pixel):
 				{
 					id = glCreateShader(GL_FRAGMENT_SHADER);
+					break;
+				}
+				case(nxtShaderType::Geometry):
+				{
+					id = glCreateShader(GL_GEOMETRY_SHADER);
 					break;
 				}
 			}

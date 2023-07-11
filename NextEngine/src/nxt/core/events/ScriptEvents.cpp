@@ -25,8 +25,10 @@ namespace nxt::exp
 		int32_t number;
 	};
 
-	void TEST_SIGNALS(int param)
+	void TEST_SIGNALS()
 	{
+
+		
 
 		//Event2<void()> ev2{};
 		//ev2.Connect({ std::bind<void()>(&test1) });

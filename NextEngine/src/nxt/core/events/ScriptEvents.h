@@ -12,6 +12,11 @@
 namespace nxt::exp
 {
 
+	//void TEST_SIGNALS();
+
+	#define NXT_CTYPE(ev) decltype(ev)::CType
+	#define NXT_ETYPE(ev) decltype(ev)::EType
+
 	template<typename>
 	class NXT_API Connection;
 
@@ -22,32 +27,55 @@ namespace nxt::exp
 	class NXT_API Connection<RV(args...)>
 	{
 	public:
+		using CType = Connection<RV(args...)>;
+		using EType = Event2<RV(args...)>;
+
 		Connection(const std::function<RV(args...)>& function) : mFunction{ function } {}
-		Event2<RV(args...)> mEvent;
-		std::function<RV(args...)> mFunction;
+		RV Fire(args... params)
+		{
+			return mFunction(params...);
+		}
 		void Disconnect()
 		{
-			mEvent.BreakConnection(this);
+			mEvent->BreakConnection(this);
 		}
+	protected:
+		std::function<RV(args...)> mFunction;
+		Shared<EType> mEvent;
+		std::list<CType>::iterator mIter;
+		friend class EType;
 	};
 
 	template<typename RV, typename... args>
 	class NXT_API Event2<RV(args...)>
 	{
 	public:
+		using CType = Connection<RV(args...)>;
+		using EType = Event2<RV(args...)>;
+
 		Event2() = default;
-		Connection<RV(args...)>& Connect(const std::initializer_list<Connection<RV(args...)>>& newConnection)
+		CType& Connect(const std::function<RV(args...)> function)
 		{
-			mConnections.push_back(newConnection);
+			mConnections.push_back(function);
+			CType& rv{ mConnections.back() };
+			rv.mEvent = Shared<EType>{ this };
+			auto en{ mConnections.end() };
+			rv.mIter = --en;
 			return mConnections.back();
 		}
-		bool BreakConnection(Connection<RV(args...)>& removal)
+		void BreakConnection(CType& removal)
 		{
-
+			mConnections.erase(removal.mIter);
+		}
+		void Fire(args... params)
+		{
+			for (CType& c : mConnections)
+			{
+				c.Fire(params...);
+			}
 		}
 	protected:
-		std::vector<Connection<RV(args...)>> mConnections;
-		//std::unordered_map<Connection<RV(args...)>> mConnections;
+		std::list<CType> mConnections;
 	};
 
 	// need to accept both class member method calls and global function calls

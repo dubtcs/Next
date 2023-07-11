@@ -15,6 +15,7 @@ namespace nxt::render::command
 		glEnable(GL_DEPTH_TEST);
 		glDepthFunc(GL_LEQUAL);
 		glEnable(GL_CULL_FACE);
+		glLineWidth(5.f);
 	}
 
 	void SetViewport(int32_t width, int32_t height)
@@ -22,9 +23,10 @@ namespace nxt::render::command
 		glViewport(0, 0, width, height);
 	}
 
-	void Clear(int32_t buffer_bits)
+	void Clear(uint32_t bufferBits)
 	{
-		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+		//glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+		glClear(bufferBits);
 	}
 
 	void SetClearColor(float r, float g, float b, float a)

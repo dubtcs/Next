@@ -6,12 +6,15 @@
 #include <nxt/core/events/ScriptEvents.h>
 #include <nxt/render/texture/Cubemap.h>
 
+#include <nxt/core/events/ScriptEvents.h>
+
 namespace nxt
 {
 
 	Editor::Editor() :
 		mWorld{}
 	{
+
 		SModel modelInstance{ Model::Create("assets/models/BoxTextured.gltf") };
 		for (float i{ 0 }; i < 5; i++)
 		{
@@ -28,32 +31,12 @@ namespace nxt
 
 	bool Editor::OnEvent(nxt::events::Event& ev)
 	{
-		events::Handler handler{ ev };
-		handler.Fire<events::KeyboardPressed>(NXT_CALLBACK(Editor::OnKeyPressed));
-		handler.Fire<events::MouseButtonPressed>(NXT_CALLBACK(Editor::OnMouseButtonPressed));
-		handler.Fire<events::MouseButtonReleased>(NXT_CALLBACK(Editor::OnMouseButtonReleased));
+		//events::Handler handler{ ev };
+		//handler.Fire<events::KeyboardPressed>(NXT_CALLBACK(Editor::OnKeyPressed));
+		//handler.Fire<events::MouseButtonPressed>(NXT_CALLBACK(Editor::OnMouseButtonPressed));
+		//handler.Fire<events::MouseButtonReleased>(NXT_CALLBACK(Editor::OnMouseButtonReleased));
+		//handler.Fire<events::WindowResized>(NXT_CALLBACK(Editor::OnWindowResize));
 		mRender.OnEvent(ev);
-		return false;
-	}
-
-	bool Editor::OnKeyPressed(events::KeyboardPressed& ev)
-	{
-
-		return false;
-	}
-
-	bool Editor::OnMouseButtonPressed(events::MouseButtonPressed& ev)
-	{
-		//NXT_LOG_TRACE("MouseButton Pressed. Double click: {0}", ev.IsDoubleClick ? "yes" : "no");
-
-		//float rep[]{ 0.25f, 0.9f, 0.f };
-		//gVB->SetBufferSubData(sizeof(rep), 0, &rep);
-		return false;
-	}
-
-	bool Editor::OnMouseButtonReleased(events::MouseButtonReleased& ev)
-	{
-
 		return false;
 	}
 

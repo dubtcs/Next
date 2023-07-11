@@ -82,7 +82,8 @@ namespace nxt
 
 	bool Camera::OnMouseScroll(events::MouseScroll& ev)
 	{
-		gSpeed = std::max(5.f, gSpeed + ev.delta);
+		float adjusted{ ev.delta * 0.02f };
+		gSpeed = std::max(1.f, gSpeed + adjusted);
 		return false;
 	}
 

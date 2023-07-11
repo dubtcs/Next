@@ -20,6 +20,7 @@ namespace nxt
 		*/
 		void Launch(const std::string& appName, int32_t width = 1920, int32_t height = 1080);
 		void Run();
+		void Update();
 		bool OnEvent(events::Event& ev);
 		void AddInterface(const Shared<AppInterface>& appInterface);
 	}

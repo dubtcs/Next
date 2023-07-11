@@ -37,7 +37,7 @@ namespace nxt::app
 
 	static bool OnWindowResize(events::WindowResized& ev)
 	{
-		render::command::SetViewport(ev.Width, ev.Height);
+		//render::command::SetViewport(ev.Width, ev.Height);
 		return false;
 	}
 
@@ -63,12 +63,7 @@ namespace nxt::app
 			while (gRunning)
 			{
 				gWindow->ProcessMessages();
-				float dt{ clock::GetDuration(gPreviousTime, clock::GetTime()) };
-				for (Shared<AppInterface>& app : gInterfaces)
-				{
-					app->OnUpdate(dt);
-				}
-				gPreviousTime = clock::GetTime();
+				Update();
 				Sleep(10);
 			}
 		}
@@ -76,6 +71,16 @@ namespace nxt::app
 		{
 			NXT_LOG_CRIT("Attempted to run app more than once.");
 		}
+	}
+
+	void Update()
+	{
+		float dt{ clock::GetDuration(gPreviousTime, clock::GetTime()) };
+		for (Shared<AppInterface>& app : gInterfaces)
+		{
+			app->OnUpdate(dt);
+		}
+		gPreviousTime = clock::GetTime();
 	}
 
 	void AddInterface(const Shared<AppInterface>& appInter)
@@ -90,7 +95,7 @@ namespace nxt::app
 	{
 		events::Handler handler{ ev };
 		handler.Fire<events::WindowClosed>(NXT_CALLBACK_STATIC(app::OnWindowClose));
-		handler.Fire<events::WindowResized>(NXT_CALLBACK_STATIC(app::OnWindowResize));
+		//handler.Fire<events::WindowResized>(NXT_CALLBACK_STATIC(app::OnWindowResize));
 		gWindow->OnEvent(ev);
 
 		for (Shared<AppInterface>& app : gInterfaces)

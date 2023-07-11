@@ -32,13 +32,6 @@
 
 #define BIT(x) 1 << x
 
-// types
-#ifdef NXT_DEFINE_TYPES
-#define I32 int32_t
-#define U32 uint32_t
-#define F32 float
-#endif
-
 // Use for binding event callbacks
 #define NXT_CALLBACK(function_name) [this](auto&&... arg) { return this->function_name(std::forward<decltype(arg)>(arg)...); }
 #define NXT_CALLBACK_STATIC(function_name) [](auto&&... arg) { return function_name(std::forward<decltype(arg)>(arg)...); }

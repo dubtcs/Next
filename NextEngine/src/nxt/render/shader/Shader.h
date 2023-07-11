@@ -26,4 +26,6 @@ namespace nxt
 		uint32_t mID{ 0 };
 	};
 
+	using SShader = Shared<Shader>;
+
 }

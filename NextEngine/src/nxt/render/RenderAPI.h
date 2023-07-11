@@ -9,6 +9,13 @@ namespace nxt
 	// Direct RenderAPI calls
 	// eg. Set the viewport, clear color, clear the screen...
 
+	enum nxtBufferBit : nxt_enum
+	{
+		nxtBufferBit_Depth = 0x00000100,
+		nxtBufferBit_Stencil = 0x00000400,
+		nxtBufferBit_Color = 0x00004000
+	};
+
 	enum nxtCullingMode : nxt_enum
 	{
 		nxtCullingMode_Front = 0x0404,
@@ -29,7 +36,7 @@ namespace nxt
 		void Init();
 		void SetViewport(int32_t width, int32_t height);
 		void SetClearColor(float red, float green, float blue, float alpha = 1.f);
-		void Clear(int32_t buffer_bits = 0);
+		void Clear(uint32_t buffer_bits = nxtBufferBit_Color | nxtBufferBit_Depth);
 
 		void DrawElements(nxtDrawMode mode, uint32_t count, nxtDataType dataType = nxtDataType_Float, void* offset = nullptr);
 

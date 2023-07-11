@@ -16,7 +16,7 @@ namespace nxt
 		bool OnKeyPressed(events::KeyboardPressed& ev);
 		bool OnMouseButtonPressed(events::MouseButtonPressed& ev);
 		bool OnMouseButtonReleased(events::MouseButtonReleased& ev);
-		//bool OnWindowResize(events::WindowResized& ev);
+		bool OnWindowResize(events::WindowResized& ev);
 	protected:
 		RenderSystem mRender;
 		World mWorld;
