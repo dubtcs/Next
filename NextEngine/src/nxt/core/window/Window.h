@@ -20,7 +20,6 @@ namespace nxt
 		bool OnCreate();
 		bool OnUpdate(float dt);
 		bool OnEvent(events::Event& ev);
-		bool OnClose(events::WindowClosed& ev);
 		void SetEventCallback(std::function<bool(events::Event& ev)> func);
 		uint32_t GetWidth() const;
 		uint32_t GetHeight() const;

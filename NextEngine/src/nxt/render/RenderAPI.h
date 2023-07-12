@@ -27,6 +27,7 @@ namespace nxt
 	{
 		nxtRenderFeature_DepthTest = 0x0B71,
 		nxtRenderFeature_CullFace = 0x0B44,
+		nxtRenderFeature_Multisample = 0x809D,
 		nxtRenderFeature_PointSize = 0x8642,
 	};
 
@@ -39,6 +40,7 @@ namespace nxt
 		void Clear(uint32_t buffer_bits = nxtBufferBit_Color | nxtBufferBit_Depth);
 
 		void DrawElements(nxtDrawMode mode, uint32_t count, nxtDataType dataType = nxtDataType_Float, void* offset = nullptr);
+		void DrawInstances(nxtDrawMode mode, uint32_t count, uint32_t instanceCount, nxtDataType dataType = nxtDataType_Float, void* offset = nullptr);
 
 		void SetRenderFeature(nxtRenderFeature feature, bool toggle);
 		void SetFaceCullingMode(nxtCullingMode mode);

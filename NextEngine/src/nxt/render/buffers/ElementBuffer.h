@@ -8,6 +8,7 @@
 namespace nxt::buffers
 {
 
+	// Deprecated, try to use DataBuffer instead
 	class NXT_API ElementBuffer
 	{
 	public:

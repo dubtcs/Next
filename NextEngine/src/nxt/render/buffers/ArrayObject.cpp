@@ -22,15 +22,16 @@ namespace nxt::buffers
 		glDeleteVertexArrays(1, &mID);
 	}
 
-	void ArrayObject::SetLayoutPosition(uint32_t index, uint32_t amount, nxtDataType dataType, uint32_t byteStride, uint32_t byteOffset, bool normalized)
+	void ArrayObject::SetLayoutPosition(uint32_t index, uint32_t amount, nxtDataType dataType, uint32_t byteStride, uint32_t byteOffset, bool normalized, uint32_t instancesPerItem)
 	{
 		Bind();
 		switch (dataType)
 		{
 			case(nxtDataType_Float):
 			{
-				glVertexAttribPointer(index, amount, dataType, (normalized) ? GL_TRUE : GL_FALSE, byteStride, (void*)byteOffset);
 				glEnableVertexAttribArray(index);
+				glVertexAttribPointer(index, amount, dataType, (normalized) ? GL_TRUE : GL_FALSE, byteStride, (void*)byteOffset);
+				glVertexAttribDivisor(index, instancesPerItem);
 				break;
 			}
 			default:

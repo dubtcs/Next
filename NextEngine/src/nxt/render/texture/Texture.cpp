@@ -26,7 +26,7 @@ namespace nxt
 		mTarget{ target },
 		mFormat{ textureFormat }
 	{
-		SetInternalFormat();
+		SetInternalFormat(textureFormat, &mInternalFormat);
 		glCreateTextures(target, 1, &mID);
 		glTextureStorage2D(mID, 1, mInternalFormat, width, height);
 		glTextureParameteri(mID, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
@@ -81,15 +81,15 @@ namespace nxt
 		}
 	}
 
-	void Texture::SetInternalFormat()
+	void Texture::SetInternalFormat(nxtTextureFormat from, nxtTextureFormatInternal* target)
 	{
-		switch (mFormat)
+		switch (from)
 		{
-			case(nxtTextureFormat_R): {mInternalFormat = nxtTextureFormatInternal_R8; return; }
-			case(nxtTextureFormat_RG): {mInternalFormat = nxtTextureFormatInternal_RG8; return; }
-			case(nxtTextureFormat_RGB): {mInternalFormat = nxtTextureFormatInternal_RGB8; return; }
-			case(nxtTextureFormat_RGBA): {mInternalFormat = nxtTextureFormatInternal_RGBA8; return; }
-			case(nxtTextureFormat_DepthStencil): {mInternalFormat = nxtTextureFormatInternal_Depth24Stencil8; return; }
+			case(nxtTextureFormat_R): { *target = nxtTextureFormatInternal_R8; return; }
+			case(nxtTextureFormat_RG): { *target = nxtTextureFormatInternal_RG8; return; }
+			case(nxtTextureFormat_RGB): { *target = nxtTextureFormatInternal_RGB8; return; }
+			case(nxtTextureFormat_RGBA): { *target = nxtTextureFormatInternal_RGBA8; return; }
+			case(nxtTextureFormat_DepthStencil): { *target = nxtTextureFormatInternal_Depth24Stencil8; return; }
 		}
 		NXT_LOG_CRIT("No internal format found for requested format");
 	}
@@ -110,15 +110,5 @@ namespace nxt
 		// GL_TEXTURE0 is 0x8... so it was way off
 		glBindTextureUnit(textureUnit, mID);
 	}
-
-	/*const uint32_t& Texture::GetRenderID() const
-	{
-		return mID;
-	}
-
-	const nxtTextureTarget& Texture::GetTextureTarget() const
-	{
-		return mTarget;
-	}*/
 
 }

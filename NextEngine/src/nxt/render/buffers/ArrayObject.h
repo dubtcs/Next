@@ -18,7 +18,7 @@ namespace nxt::buffers
 		ArrayObject();
 		~ArrayObject();
 	public:
-		void SetLayoutPosition(uint32_t position, uint32_t amount, nxtDataType dataType, uint32_t byteStride = 0, uint32_t byteOffset = 0, bool normalized = false);
+		void SetLayoutPosition(uint32_t position, uint32_t amount, nxtDataType dataType, uint32_t byteStride = 0, uint32_t byteOffset = 0, bool normalized = false, uint32_t instancesPerItem = 0);
 		void Bind() const;
 		static void Unbind();
 	protected:

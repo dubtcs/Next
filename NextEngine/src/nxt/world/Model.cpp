@@ -168,7 +168,19 @@ namespace nxt
 		std::string msgError;
 		std::string msgWarn;
 		tinygltf::Model model;
-		bool pass{ loader.LoadASCIIFromFile(&model, &msgError, &msgWarn, filepath.string()) };
+		if (filepath.extension().string() == ".gltf")
+		{
+			bool pass{ loader.LoadASCIIFromFile(&model, &msgError, &msgWarn, filepath.string()) };
+		}
+		else if(filepath.extension().string() == ".glb")
+		{
+			bool pass{ loader.LoadBinaryFromFile(&model, &msgError, &msgWarn, filepath.string()) };
+		}
+		else
+		{
+			NXT_LOG_CRIT("Invalid file extension: {0}", filepath.extension().string());
+			return;
+		}
 		mMeshes = RegisterModel(mArrayObject, mTextures, model);
 	}
 

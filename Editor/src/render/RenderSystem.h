@@ -20,8 +20,7 @@ namespace nxt
 	protected:
 		Camera mCamera;
 
-		Shared<buffers::VertexBuffer> mVertexBuffer;
-		Shared<buffers::ElementBuffer> mElementBuffer;
+		buffers::SFrameBuffer mFrameBuffer;
 
 		Shader mShader;
 		Shader mSkyboxShader;

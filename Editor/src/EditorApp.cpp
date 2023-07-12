@@ -22,6 +22,7 @@ namespace nxt
 			mWorld.Attach<cmp::WorldModel>(e, modelInstance);
 			mWorld.Attach<cmp::Transform>(e, { glm::vec3{ i } });
 		}
+		
 	}
 
 	void Editor::OnUpdate(float& dt)

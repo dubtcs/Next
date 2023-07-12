@@ -102,13 +102,13 @@ namespace nxt
 		device::Init(&mWindowHandle);
 		render::command::Init();
 
+		mWidth = static_cast<uint32_t>(width);
+		mHeight = static_cast<uint32_t>(height);
+
 		ShowWindow(mWindowHandle, SW_SHOW);
 		UpdateWindow(mWindowHandle);
 
 		render::command::SetClearColor(0.25f, 0.25f, 0.25f, 1.f);
-
-		mWidth = static_cast<uint32_t>(width);
-		mHeight = static_cast<uint32_t>(height);
 
 		return true;
 	}
@@ -121,16 +121,7 @@ namespace nxt
 	bool Window::OnUpdate(float dt)
 	{
 		device::SwapBuffers();
-		//render::api::Clear();
-
 		return true;
-	}
-
-	bool Window::OnClose(events::WindowClosed& ev)
-	{
-		//events::WindowClosed ev{};
-		//app::OnEvent(ev);
-		return false;
 	}
 
 	bool Window::OnResize(events::WindowResized& ev)
@@ -148,10 +139,13 @@ namespace nxt
 
 	bool Window::OnEvent(events::Event& ev)
 	{
-		events::Handler handler{ ev };
-		handler.Fire<events::WindowResized>(NXT_CALLBACK(Window::OnResize));
-		//handler.Fire<events::WindowClosed>(NXT_CALLBACK(Window::OnClose));
-		return true;
+		if (this != nullptr)
+		{
+			events::Handler handler{ ev };
+			handler.Fire<events::WindowResized>(NXT_CALLBACK(Window::OnResize));
+			return true;
+		}
+		return false;
 	}
 
 	void Window::SetEventCallback(std::function<bool(events::Event& ev)> func)

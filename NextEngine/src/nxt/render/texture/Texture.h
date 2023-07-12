@@ -8,8 +8,6 @@
 namespace nxt
 {
 
-	// This is in namespace texture because I'm not sure if I'm going to have separate 2D/3D texture classes
-
 	namespace buffers
 	{
 		class FrameBuffer;
@@ -17,20 +15,16 @@ namespace nxt
 
 	class NXT_API Texture
 	{
-		// Is it worth the forward declare or the getter functions??
 		friend class buffers::FrameBuffer;
 	public:
 		static Shared<Texture> Create(const std::filesystem::path& filepath, nxtTextureTarget textureTarget = nxtTextureTarget_2D);
 		static Shared<Texture> Create(int32_t width, int32_t height, nxtTextureFormat textureFormat = nxtTextureFormat_RGB, nxtTextureTarget target = nxtTextureTarget_2D);
-		void SetData(nxtTextureFormat format, nxtDataType dataType, void* data);
-		void Bind(uint32_t textureUnit = 0) const;
-		/*const uint32_t& GetRenderID() const;
-		const nxtTextureTarget& GetTextureTarget() const;*/
 		Texture(const std::filesystem::path& filepath, nxtTextureTarget textureTarget = nxtTextureTarget_2D);
 		Texture(int32_t width, int32_t height, nxtTextureFormat textureFormat = nxtTextureFormat_RGB, nxtTextureTarget target = nxtTextureTarget_2D);
 		~Texture();
-	protected:
-		void SetInternalFormat();
+		void SetData(nxtTextureFormat format, nxtDataType dataType, void* data);
+		void Bind(uint32_t textureUnit = 0) const;
+		static void SetInternalFormat(nxtTextureFormat from, nxtTextureFormatInternal* target);
 	protected:
 		uint32_t mID{ 0 };
 		int32_t mWidth;

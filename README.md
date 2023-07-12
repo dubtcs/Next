@@ -5,6 +5,8 @@ In development rendering platform / game engine for Windows.
 
 Sample models taken from the [KhronosGroup GLTF sample repo.](https://github.com/KhronosGroup/glTF-Sample-Models/tree/master/2.0)
 
+Celestial models taken from the [NASA Solar System Exploration website.](https://solarsystem.nasa.gov/resources/all/?order=pub_date+desc&per_page=50&page=0&search=&condition_1=1%3Ais_in_resource_list&fs=&fc=324&ft=&dp=&category=324)
+
 ## Download + Build
 
 ### Requirements 

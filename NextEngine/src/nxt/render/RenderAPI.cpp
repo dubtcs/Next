@@ -13,8 +13,9 @@ namespace nxt::render::command
 	{
 		gladLoadGL();
 		glEnable(GL_DEPTH_TEST);
-		glDepthFunc(GL_LEQUAL);
 		glEnable(GL_CULL_FACE);
+		glEnable(GL_MULTISAMPLE);
+		glDepthFunc(GL_LEQUAL);
 		glLineWidth(5.f);
 	}
 
@@ -37,6 +38,11 @@ namespace nxt::render::command
 	void DrawElements(nxtDrawMode mode, uint32_t count, nxtDataType dataType, void* offset)
 	{
 		glDrawElements(mode, count, dataType, offset);
+	}
+
+	void DrawInstances(nxtDrawMode mode, uint32_t count, uint32_t instanceCount, nxtDataType dataType, void* offset)
+	{
+		glDrawElementsInstanced(mode, count, dataType, offset, instanceCount);
 	}
 
 	void SetFaceCullingMode(nxtCullingMode mode)

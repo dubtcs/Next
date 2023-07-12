@@ -6,6 +6,8 @@
 
 static nxt::SModel cubeModel;
 
+static constexpr uint32_t gSamples{ 4U };
+
 namespace nxt
 {
 
@@ -56,6 +58,7 @@ namespace nxt
 
 	void RenderSystem::OnUpdate(float& dt, World& world)
 	{
+		mFrameBuffer->Bind();
 		render::command::Clear();
 		mCamera.OnUpdate(dt);
 		mMatrixBuffer->SetSubData(64, 0, glm::value_ptr(mCamera.GetProjectionViewMatrix()));
@@ -108,6 +111,7 @@ namespace nxt
 		mSkyboxShader.SetValue("projectionView", skyboxMatrix);
 		DrawModel(cubeModel);
 
+		mFrameBuffer->PushData();
 	}
 
 	bool RenderSystem::OnEvent(events::Event& ev)
@@ -120,6 +124,7 @@ namespace nxt
 
 	bool RenderSystem::OnWindowResize(events::WindowResized& ev)
 	{
+		mFrameBuffer = buffers::FrameBuffer::Create(ev.Width, ev.Height, gSamples);
 		render::command::SetViewport(ev.Width, ev.Height);
 		return false;
 	}
