@@ -39,6 +39,11 @@ namespace nxt
 		nxtKeycode_Space = 0x20,
 		nxtKeycode_Delete = 0x2E,
 
+		nxtKeycode_Left = 0x25,
+		nxtKeycode_Up = 0x26,
+		nxtKeycode_Right = 0x27,
+		nxtKeycode_Down = 0x28,
+
 		nxtKeycode_CapsLock = nxtKeycode_Capital,
 		nxtKeycode_Alt = nxtKeycode_Menu,
 

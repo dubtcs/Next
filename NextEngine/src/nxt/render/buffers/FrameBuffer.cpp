@@ -8,14 +8,16 @@ namespace nxt::buffers
 {
 
 	FrameBuffer::FrameBuffer(uint32_t width, uint32_t height, uint32_t samples) :
-		mColorTexture{ FrameTexture::Create(width, height, samples, nxtTextureFormat_RGBA) },
-		//mDepthTexture{ Texture::Create(width, height, nxtTextureFormat_DepthStencil) },
-		mDepthTexture{ FrameTexture::Create(width, height, samples, nxtTextureFormat_DepthStencil, nxtTextureTarget_2DMS) },
 		mWidth{ width },
 		mHeight{ height }
 	{
 		glCreateFramebuffers(1, &mID);
 		glBindFramebuffer(GL_FRAMEBUFFER, mID);
+
+		nxtTextureTarget target{ samples > 1 ? nxtTextureTarget_2DMS : nxtTextureTarget_2D };
+		mColorTexture = FrameTexture::Create(width, height, samples, nxtTextureFormat_RGBA, target);
+		mDepthTexture = FrameTexture::Create(width, height, samples, nxtTextureFormat_DepthStencil, target);
+
 		glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, mColorTexture->mTarget, mColorTexture->mID, 0);
 		glFramebufferTexture2D(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, mDepthTexture->mTarget, mDepthTexture->mID, 0);
 		if (glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE)
@@ -29,7 +31,7 @@ namespace nxt::buffers
 		glDeleteFramebuffers(1, &mID);
 	}
 
-	void FrameBuffer::PushData() const
+	void FrameBuffer::PushToViewport() const
 	{
 		glBindFramebuffer(GL_READ_FRAMEBUFFER, mID);
 		glBindFramebuffer(GL_DRAW_FRAMEBUFFER, 0);

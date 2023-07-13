@@ -17,8 +17,12 @@ namespace nxt
 		bool OnEvent(events::Event& ev);
 	protected:
 		bool OnWindowResize(events::WindowResized& ev);
+		bool OnKeyPressed(events::KeyboardPressed& ev);
 	protected:
 		Camera mCamera;
+
+		uint32_t mWidth;
+		uint32_t mHeight;
 
 		buffers::SFrameBuffer mFrameBuffer;
 

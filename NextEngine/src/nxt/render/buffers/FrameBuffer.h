@@ -17,7 +17,7 @@ namespace nxt::buffers
 		FrameBuffer(uint32_t width, uint32_t height, uint32_t samples = 1);
 		~FrameBuffer();
 	public:
-		void PushData() const;
+		void PushToViewport() const;
 		void Bind() const;
 		static void Unbind();
 	protected:

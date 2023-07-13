@@ -20,6 +20,7 @@ namespace nxt
 		{
 			necs::Entity e{ mWorld.CreateEntity() };
 			mWorld.Attach<cmp::WorldModel>(e, modelInstance);
+			//mWorld.Attach<cmp::Transform>(e, { glm::vec3{ i * 5, 0.f, 0.f } });
 			mWorld.Attach<cmp::Transform>(e, { glm::vec3{ i } });
 		}
 		

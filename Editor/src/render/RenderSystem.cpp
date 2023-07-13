@@ -6,7 +6,9 @@
 
 static nxt::SModel cubeModel;
 
-static constexpr uint32_t gSamples{ 4U };
+static uint32_t gSamples{ 4 };
+static bool drawNormals{ true };
+static bool useBlinn{ true };
 
 namespace nxt
 {
@@ -29,6 +31,8 @@ namespace nxt
 	{
 		cubeModel = nxt::Model::Create( "assets/models/BoxTextured.gltf" );
 		mMatrixBuffer->BindIndexed(0);
+		mShader.Bind();
+		mShader.SetValue("useBlinn", useBlinn);
 		//render::command::SetRenderFeature(nxtRenderFeature_PointSize, true);
 	}
 
@@ -62,7 +66,7 @@ namespace nxt
 		render::command::Clear();
 		mCamera.OnUpdate(dt);
 		mMatrixBuffer->SetSubData(64, 0, glm::value_ptr(mCamera.GetProjectionViewMatrix()));
-		
+
 		mSkyboxCubemap->Bind();
 
 		render::command::SetFaceCullingMode(nxtCullingMode_Back);
@@ -71,7 +75,7 @@ namespace nxt
 		mShader.SetValue("cameraPosition", mCamera.GetPosition());
 
 		float ti{ clock::GetRunTime() };
-		glm::vec3 lightPosition{ 0.f, std::sin(ti) * 500.f, 300.f };
+		glm::vec3 lightPosition{ 0.f, (std::sin(ti)) * 25.f, 0.f };
 		mShader.SetValue("lightPosition", lightPosition);
 
 		// translate vertices to world space
@@ -84,6 +88,7 @@ namespace nxt
 
 			glm::mat4 modelMatrix{
 				glm::translate(ones, t.Position)
+				//* glm::scale(ones, glm::vec3{ 5.f, 0.1f, 5.f })
 			};
 			mShader.Bind();
 			mShader.SetValue("worldMatrix", modelMatrix);
@@ -94,12 +99,15 @@ namespace nxt
 			mShader.SetValue("simpleTexture", 1);
 			DrawModel(wm.ModelInstance);
 
-			mNormalShader.Bind();
-			mNormalShader.SetValue("viewMatrix", mCamera.GetViewMatrix());
-			mNormalShader.SetValue("projectionMatrix", mCamera.GetProjectionMatrix());
-			mNormalShader.SetValue("worldMatrix", modelMatrix);
-			mNormalShader.SetValue("normalMatrix", glm::transpose(glm::inverse(mCamera.GetViewMatrix() * modelMatrix)));
-			DrawModel(wm.ModelInstance);
+			if (drawNormals)
+			{
+				mNormalShader.Bind();
+				mNormalShader.SetValue("viewMatrix", mCamera.GetViewMatrix());
+				mNormalShader.SetValue("projectionMatrix", mCamera.GetProjectionMatrix());
+				mNormalShader.SetValue("worldMatrix", modelMatrix);
+				mNormalShader.SetValue("normalMatrix", glm::transpose(glm::inverse(mCamera.GetViewMatrix() * modelMatrix)));
+				DrawModel(wm.ModelInstance);
+			}
 
 		}
 
@@ -111,21 +119,80 @@ namespace nxt
 		mSkyboxShader.SetValue("projectionView", skyboxMatrix);
 		DrawModel(cubeModel);
 
-		mFrameBuffer->PushData();
+		mFrameBuffer->PushToViewport();
 	}
 
 	bool RenderSystem::OnEvent(events::Event& ev)
 	{
 		events::Handler handler{ ev };
 		handler.Fire<events::WindowResized>(NXT_CALLBACK(RenderSystem::OnWindowResize));
+		handler.Fire<events::KeyboardPressed>(NXT_CALLBACK(RenderSystem::OnKeyPressed));
 		mCamera.OnEvent(ev);
 		return false;
 	}
 
 	bool RenderSystem::OnWindowResize(events::WindowResized& ev)
 	{
+		mWidth = ev.Width;
+		mHeight = ev.Height;
 		mFrameBuffer = buffers::FrameBuffer::Create(ev.Width, ev.Height, gSamples);
 		render::command::SetViewport(ev.Width, ev.Height);
+		return false;
+	}
+
+	bool RenderSystem::OnKeyPressed(events::KeyboardPressed& ev)
+	{
+		bool rebuildBuffer{ false };
+		if (ev.Keycode == nxtKeycode_Left)
+		{
+			float newVal = std::max(1.f, gSamples * 0.5f);
+			if (newVal != gSamples)
+			{
+				gSamples = static_cast<uint32_t>(newVal);
+				rebuildBuffer = true;
+			}
+		}
+		else if (ev.Keycode == nxtKeycode_Right)
+		{
+			float newVal = std::min(4.f, gSamples * 2.f);
+			if (newVal != gSamples)
+			{
+				gSamples = static_cast<uint32_t>(newVal);
+				rebuildBuffer = true;
+			}
+		}
+
+		if (rebuildBuffer)
+		{
+			mFrameBuffer = buffers::FrameBuffer::Create(mWidth, mHeight, gSamples);
+			NXT_LOG_TRACE(gSamples);
+		}
+
+		if (ev.Keycode == nxtKeycode_N)
+		{
+			drawNormals = !drawNormals;
+		}
+
+		if (ev.Keycode == nxtKeycode_B)
+		{
+			useBlinn = !useBlinn;
+			NXT_LOG_TRACE("BlinnPhong model: {0}", useBlinn);
+			mShader.Bind();
+			mShader.SetValue("useBlinn", useBlinn);
+		}
+
+		// The enums are 2 off from eachother
+		//if (ev.Keycode == nxtKeycode_Left || ev.Keycode == nxtKeycode_Right)
+		//{
+		//	uint32_t newVal{ ev.Keycode - 35 };
+		//	if (newVal != gSamples)
+		//	{
+		//		// to stop making a framebuffer every time a key is pressed
+		//		gSamples = ev.Keycode - 35;
+		//		NXT_LOG_TRACE(gSamples);
+		//		mFrameBuffer = buffers::FrameBuffer::Create(mWidth, mHeight, gSamples);
+		//	}
+		//}
 		return false;
 	}
 

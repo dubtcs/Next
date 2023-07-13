@@ -9,11 +9,18 @@ namespace nxt
 {
 
 	FrameTexture::FrameTexture(uint32_t width, uint32_t height, uint32_t samples, nxtTextureFormat textureFormat, nxtTextureTarget target) :
-		mTarget{ nxtTextureTarget_2DMS }
+		mTarget{ target }
 	{
 		Texture::SetInternalFormat(textureFormat, &mInternalFormat);
 		glCreateTextures(target, 1, &mID);
-		glTextureStorage2DMultisample(mID, samples, mInternalFormat, width, height, true);
+		if (samples > 1)
+		{
+			glTextureStorage2DMultisample(mID, samples, mInternalFormat, width, height, true);
+		}
+		else
+		{
+			glTextureStorage2D(mID, 1, mInternalFormat, width, height);
+		}
 		glTextureParameteri(mID, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
 		glTextureParameteri(mID, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
 	}
