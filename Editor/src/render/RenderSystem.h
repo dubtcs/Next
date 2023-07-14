@@ -30,6 +30,8 @@ namespace nxt
 		Shader mSkyboxShader;
 		Shader mNormalShader;
 
+		STexture mWood;
+
 		SCubemap mSkyboxCubemap;
 		buffers::SDataBuffer mMatrixBuffer;
 	};

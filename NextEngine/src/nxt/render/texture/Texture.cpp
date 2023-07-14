@@ -90,8 +90,20 @@ namespace nxt
 			case(nxtTextureFormat_RGB): { *target = nxtTextureFormatInternal_RGB8; return; }
 			case(nxtTextureFormat_RGBA): { *target = nxtTextureFormatInternal_RGBA8; return; }
 			case(nxtTextureFormat_DepthStencil): { *target = nxtTextureFormatInternal_Depth24Stencil8; return; }
+			case(nxtTextureFormat_SRGB): { *target = nxtTextureFormatInternal_SRGB8; return; }
+			case(nxtTextureFormat_SRGBA): { *target = nxtTextureFormatInternal_SRGBA8; return; }
 		}
 		NXT_LOG_CRIT("No internal format found for requested format");
+	}
+
+	void Texture::GenerateMipmaps() const
+	{
+		glGenerateTextureMipmap(mID);
+	}
+
+	void Texture::SetParameter(nxtTextureParamName name, nxtTextureParam param)
+	{
+		glTextureParameteri(mID, name, param);
 	}
 
 	void Texture::SetData(nxtTextureFormat format, nxtDataType dataType, void* data)

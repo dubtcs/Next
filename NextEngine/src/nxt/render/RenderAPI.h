@@ -29,6 +29,7 @@ namespace nxt
 		nxtRenderFeature_CullFace = 0x0B44,
 		nxtRenderFeature_Multisample = 0x809D,
 		nxtRenderFeature_PointSize = 0x8642,
+		nxtRenderFeature_FrameBuffer_sRGB = 0x8DB9
 	};
 
 	namespace render::command

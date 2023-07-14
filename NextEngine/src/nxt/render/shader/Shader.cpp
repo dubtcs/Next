@@ -161,6 +161,12 @@ namespace nxt
 		glUniform1i(loc, value);
 	}
 
+	void Shader::SetValue(const std::string& name, float value)
+	{
+		int32_t loc{ glGetUniformLocation(mID, name.c_str()) };
+		glUniform1f(loc, value);
+	}
+
 	void Shader::SetValue(const std::string& name, const glm::mat4& matrix)
 	{
 		int32_t loc{ glGetUniformLocation(mID, name.c_str()) };

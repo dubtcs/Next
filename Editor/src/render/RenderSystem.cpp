@@ -15,25 +15,31 @@ namespace nxt
 
 	RenderSystem::RenderSystem() :
 		mShader{ "assets/shaders/gltfUBlock.vert", "assets/shaders/gltfShader.frag" },
-		mSkyboxShader{ "assets/shaders/skybox.vert", "assets/shaders/skybox.frag" },
+		//mSkyboxShader{ "assets/shaders/skybox.vert", "assets/shaders/skybox.frag" },
 		mNormalShader{"assets/shaders/normals.vert", "assets/shaders/normals.geom", "assets/shaders/normals.frag" },
-		mSkyboxCubemap{ Cubemap::Create({
-			"assets/textures/skybox/right.jpg",
-			"assets/textures/skybox/left.jpg",
-			"assets/textures/skybox/top.jpg",
-			"assets/textures/skybox/bottom.jpg",
-			"assets/textures/skybox/front.jpg",
-			"assets/textures/skybox/back.jpg"
-			})
-		},
+		//mSkyboxCubemap{ Cubemap::Create({
+		//	"assets/textures/skybox/right.jpg",
+		//	"assets/textures/skybox/left.jpg",
+		//	"assets/textures/skybox/top.jpg",
+		//	"assets/textures/skybox/bottom.jpg",
+		//	"assets/textures/skybox/front.jpg",
+		//	"assets/textures/skybox/back.jpg"
+		//	})
+		//},
 		mCamera{ {-2.f, 1.f, 2.f} },
-		mMatrixBuffer{ buffers::DataBuffer::Create(64, nullptr, nxtBufferTarget_UniformBuffer) }
+		mMatrixBuffer{ buffers::DataBuffer::Create(64, nullptr, nxtBufferTarget_UniformBuffer) },
+
+		mWood{ Texture::Create("assets/textures/wood.png") }
 	{
 		cubeModel = nxt::Model::Create( "assets/models/BoxTextured.gltf" );
 		mMatrixBuffer->BindIndexed(0);
 		mShader.Bind();
 		mShader.SetValue("useBlinn", useBlinn);
-		//render::command::SetRenderFeature(nxtRenderFeature_PointSize, true);
+
+		mWood->Bind();
+		mWood->SetParameter(nxtTextureParamName_MinimizeFilter, nxtTextureParam_MipLinearLinear);
+
+		mWood->GenerateMipmaps();
 	}
 
 	static void DrawMesh(const Mesh& mesh)
@@ -67,16 +73,20 @@ namespace nxt
 		mCamera.OnUpdate(dt);
 		mMatrixBuffer->SetSubData(64, 0, glm::value_ptr(mCamera.GetProjectionViewMatrix()));
 
-		mSkyboxCubemap->Bind();
+		//mSkyboxCubemap->Bind();
 
 		render::command::SetFaceCullingMode(nxtCullingMode_Back);
 
 		mShader.Bind();
 		mShader.SetValue("cameraPosition", mCamera.GetPosition());
+		mShader.SetValue("tiling", 15.f);
 
 		float ti{ clock::GetRunTime() };
-		glm::vec3 lightPosition{ 0.f, (std::sin(ti)) * 25.f, 0.f };
+		//glm::vec3 lightPosition{ 0.f, ((std::sin(ti)) * 5.f) + 5.25f, 0.f };
+		glm::vec3 lightPosition{ 0.f, 5.f, 0.f };
 		mShader.SetValue("lightPosition", lightPosition);
+
+		mWood->Bind(1);
 
 		// translate vertices to world space
 		glm::mat4 ones{ 1.f };
@@ -88,14 +98,14 @@ namespace nxt
 
 			glm::mat4 modelMatrix{
 				glm::translate(ones, t.Position)
-				//* glm::scale(ones, glm::vec3{ 5.f, 0.1f, 5.f })
+				* glm::scale(ones, glm::vec3{ 25.f, 0.1f, 25.f })
 			};
 			mShader.Bind();
 			mShader.SetValue("worldMatrix", modelMatrix);
 			mShader.SetValue("normalMatrix", glm::transpose(glm::inverse(modelMatrix)));
 
 			cmp::WorldModel& wm{ world.GetComponent<cmp::WorldModel>(e) };
-			wm.ModelInstance->GetTextures().front()->Bind(1);
+			//wm.ModelInstance->GetTextures().front()->Bind(1);
 			mShader.SetValue("simpleTexture", 1);
 			DrawModel(wm.ModelInstance);
 
@@ -114,12 +124,15 @@ namespace nxt
 		// Skybox
 		render::command::SetFaceCullingMode(nxtCullingMode_Front);
 
-		glm::mat4 skyboxMatrix{ mCamera.GetProjectionMatrix() * glm::mat4{glm::mat3{mCamera.GetViewMatrix()}} };
-		mSkyboxShader.Bind();
-		mSkyboxShader.SetValue("projectionView", skyboxMatrix);
-		DrawModel(cubeModel);
+		//glm::mat4 skyboxMatrix{ mCamera.GetProjectionMatrix() * glm::mat4{glm::mat3{mCamera.GetViewMatrix()}} };
+		//mSkyboxShader.Bind();
+		//mSkyboxShader.SetValue("projectionView", skyboxMatrix);
+		//DrawModel(cubeModel);
 
+		render::command::SetRenderFeature(nxtRenderFeature_FrameBuffer_sRGB, true);
 		mFrameBuffer->PushToViewport();
+		render::command::SetRenderFeature(nxtRenderFeature_FrameBuffer_sRGB, false);
+
 	}
 
 	bool RenderSystem::OnEvent(events::Event& ev)
@@ -165,7 +178,7 @@ namespace nxt
 		if (rebuildBuffer)
 		{
 			mFrameBuffer = buffers::FrameBuffer::Create(mWidth, mHeight, gSamples);
-			NXT_LOG_TRACE(gSamples);
+			NXT_LOG_TRACE("MSAA {0}", gSamples);
 		}
 
 		if (ev.Keycode == nxtKeycode_N)
@@ -179,6 +192,14 @@ namespace nxt
 			NXT_LOG_TRACE("BlinnPhong model: {0}", useBlinn);
 			mShader.Bind();
 			mShader.SetValue("useBlinn", useBlinn);
+		}
+
+		if (ev.Keycode == nxtKeycode_G)
+		{
+			static bool jj{ true };
+			jj = !jj;
+			NXT_LOG_TRACE("Gamma correction: {0}", jj);
+			render::command::SetRenderFeature(nxtRenderFeature_FrameBuffer_sRGB, jj);
 		}
 
 		// The enums are 2 off from eachother

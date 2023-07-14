@@ -21,7 +21,9 @@ namespace nxt
 		nxtTextureFormat_RG = 0x8227,
 		nxtTextureFormat_RGB = 0x1907,
 		nxtTextureFormat_RGBA = 0x1908,
-		nxtTextureFormat_DepthStencil = 0x84F9
+		nxtTextureFormat_DepthStencil = 0x84F9,
+		nxtTextureFormat_SRGB = 0x8C40,
+		nxtTextureFormat_SRGBA = 0x8C42
 	};
 
 	enum nxtTextureFormatInternal : nxt_enum
@@ -30,7 +32,28 @@ namespace nxt
 		nxtTextureFormatInternal_RG8 = 0x822B,
 		nxtTextureFormatInternal_RGB8 = 0x8051,
 		nxtTextureFormatInternal_RGBA8 = 0x8058,
-		nxtTextureFormatInternal_Depth24Stencil8 = 0x88F0
+		nxtTextureFormatInternal_Depth24Stencil8 = 0x88F0,
+		nxtTextureFormatInternal_SRGB8 = 0x8C41,
+		nxtTextureFormatInternal_SRGBA8 = 0x8C43,
+	};
+
+	enum nxtTextureParamName : nxt_enum
+	{
+		nxtTextureParamName_MaximizeFilter = 0x2800,
+		nxtTextureParamName_MinimizeFilter = 0x2801,
+		nxtTextureParamName_WrapS = 0x2802,
+		nxtTextureParamName_WrapT = 0x2803
+	};
+
+	enum nxtTextureParam : nxt_enum
+	{
+		nxtTextureParam_ = 0,
+		nxtTextureParam_Nearest = 0x2600,
+		nxtTextureParam_Linear = 0x2601,
+		nxtTextureParam_MipNearNear = 0x2700,
+		nxtTextureParam_MipLinearNear = 0x2701,
+		nxtTextureParam_MipNearLinear = 0x2702,
+		nxtTextureParam_MipLinearLinear = 0x2703
 	};
 
 }

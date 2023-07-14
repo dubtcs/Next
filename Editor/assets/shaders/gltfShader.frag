@@ -11,6 +11,7 @@ uniform samplerCube skybox;
 uniform mat4 normalMatrix;
 uniform vec3 lightPosition;
 uniform vec3 cameraPosition;
+uniform float tiling;
 
 uniform bool useBlinn;
 
@@ -18,7 +19,7 @@ float ambientStrength = 0.1;
 float specularStrength = 0.4;
 vec3 lightColor = vec3(1.0);
 
-float shine = 256.0;
+float shine = 64.0;
 float reflectionStrength = 0.2;
 
 // can do lighting in view space to remove lookvector variable
@@ -29,7 +30,7 @@ void main()
     vec3 viewDirection = normalize(cameraPosition - pWorldPos);
     vec3 normal = normalize(pNormal);
 
-    vec4 targetColor = texture(simpleTexture, pTexPos);
+    vec4 targetColor = texture(simpleTexture, pTexPos * tiling);
 
     // Reflection
     vec3 reflectionReflectVector = reflect(-viewDirection, normal);
@@ -62,7 +63,9 @@ void main()
     }
     vec3 specular = specularStrength * specularAmount * lightColor;
 
-    vec4 final = (vec4((ambient + diffuse + specular), 1.0) * targetColor) + reflectionColor;
+    float attenuation = 1 / (length(viewDirection));
+
+    vec4 final = (vec4((ambient + diffuse + specular), 1.0) * targetColor * attenuation) + reflectionColor;
     outColor = final;
 
 }

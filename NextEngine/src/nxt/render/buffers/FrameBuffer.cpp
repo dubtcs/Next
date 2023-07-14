@@ -15,7 +15,7 @@ namespace nxt::buffers
 		glBindFramebuffer(GL_FRAMEBUFFER, mID);
 
 		nxtTextureTarget target{ samples > 1 ? nxtTextureTarget_2DMS : nxtTextureTarget_2D };
-		mColorTexture = FrameTexture::Create(width, height, samples, nxtTextureFormat_RGBA, target);
+		mColorTexture = FrameTexture::Create(width, height, samples, nxtTextureFormat_SRGBA, target);
 		mDepthTexture = FrameTexture::Create(width, height, samples, nxtTextureFormat_DepthStencil, target);
 
 		glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, mColorTexture->mTarget, mColorTexture->mID, 0);
