@@ -111,4 +111,52 @@ namespace nxt
 
 	};
 
+	class NXT_API WorldEntity
+	{
+	public:
+		WorldEntity(Shared<World>& world) : mID{ world->CreateEntity() }, mWorld{ world } {}
+		~WorldEntity();
+		//WorldEntity(necs::Entity& id) : mID{ id } {}
+		//WorldEntity(const nxtid& guid);
+	public:
+		template<typename T>
+		T& Attach()
+		{
+			return mWorld->Attach<T>(mID);
+		}
+		template<typename T>
+		T& Attach(const T& other)
+		{
+			return mWorld->Attach<T>(mID, other);
+		}
+		template<typename T>
+		T& Attach(std::initializer_list<T>&& initializer)
+		{
+			return mWorld->Attach<T>(mID, initializer);
+		}
+
+		template<typename T>
+		void Detach()
+		{
+			return mWorld->Detach<T>(mID);
+		}
+
+		template<typename T>
+		bool HasComponent()
+		{
+			return mWorld->HasComponent<T>(mID);
+		}
+
+		template<typename T>
+		T& GetComponent()
+		{
+			return mWorld->GetComponent(mID);
+		}
+	protected:
+		necs::Entity mID;
+		Shared<World> mWorld;
+	};
+
+	using SWorld = Shared<World>;
+
 }

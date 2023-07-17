@@ -16,14 +16,15 @@ namespace nxt
 	{
 
 		SModel modelInstance{ Model::Create("assets/models/BoxTextured.gltf") };
-		for (float i{ 0 }; i < 1; i++)
-		{
-			necs::Entity e{ mWorld.CreateEntity() };
-			mWorld.Attach<cmp::WorldModel>(e, modelInstance);
-			mWorld.Attach<cmp::Transform>(e, { glm::vec3{ 0.f, 0.f, 0.f } });
-			//mWorld.Attach<cmp::Transform>(e, { glm::vec3{ i } });
-		}
+
+		necs::Entity e1{ mWorld.CreateEntity() };
+		mWorld.Attach<cmp::Transform>(e1, { .Position{ glm::vec3{2.f, 0.75f, 1.f} }, .Scale{ glm::vec3{1.f} } });
+		mWorld.Attach<cmp::WorldModel>(e1, modelInstance);
 		
+		necs::Entity e2{ mWorld.CreateEntity() };
+		mWorld.Attach<cmp::Transform>(e2, { .Position{ glm::vec3{0.f} }, .Scale{ glm::vec3{ 15.f, 0.5f, 15.f } } });
+		mWorld.Attach<cmp::WorldModel>(e2, modelInstance);
+
 	}
 
 	void Editor::OnUpdate(float& dt)

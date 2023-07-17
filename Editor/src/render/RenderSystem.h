@@ -5,6 +5,7 @@
 #include "Camera.h"
 
 #include <nxt/world/Model.h>
+#include <nxt/render/texture/PointShadowmap.h>
 
 namespace nxt
 {
@@ -31,6 +32,8 @@ namespace nxt
 		Shader mNormalShader;
 
 		STexture mWood;
+
+		Shared<PointShadowmap> mShadowmap;
 
 		SCubemap mSkyboxCubemap;
 		buffers::SDataBuffer mMatrixBuffer;

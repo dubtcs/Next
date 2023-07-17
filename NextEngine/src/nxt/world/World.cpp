@@ -122,4 +122,9 @@ namespace nxt
 
 	}*/
 
+	WorldEntity::~WorldEntity()
+	{
+		mWorld->DestroyEntity(mID);
+	}
+
 }

@@ -29,7 +29,8 @@ namespace nxt
 		mCamera{ {-2.f, 1.f, 2.f} },
 		mMatrixBuffer{ buffers::DataBuffer::Create(64, nullptr, nxtBufferTarget_UniformBuffer) },
 
-		mWood{ Texture::Create("assets/textures/wood.png") }
+		mWood{ Texture::Create("assets/textures/wood.png") },
+		mShadowmap{ NewShared<PointShadowmap>() }
 	{
 		cubeModel = nxt::Model::Create( "assets/models/BoxTextured.gltf" );
 		mMatrixBuffer->BindIndexed(0);
@@ -77,13 +78,31 @@ namespace nxt
 
 		render::command::SetFaceCullingMode(nxtCullingMode_Back);
 
+		// Shadowmap
+		glm::vec3 lightPosition{ 0.f, 5.f, 0.f };
+		mShadowmap->BindDepth();
+		//glm::mat4 shadowProjection{ glm::perspective(glm::radians(90.f), 1.f, 0.01f, 25.f) };
+		//std::vector<glm::mat4> shadowTransforms{};
+		//shadowTransforms.push_back(shadowProjection *
+		//	glm::lookAt(lightPosition, lightPosition + glm::vec3(1.0, 0.0, 0.0), glm::vec3(0.0, -1.0, 0.0));
+		//shadowTransforms.push_back(shadowProjection *
+		//	glm::lookAt(lightPosition, lightPosition + glm::vec3(-1.0, 0.0, 0.0), glm::vec3(0.0, -1.0, 0.0));
+		//shadowTransforms.push_back(shadowProjection *
+		//	glm::lookAt(lightPosition, lightPosition + glm::vec3(0.0, 1.0, 0.0), glm::vec3(0.0, 0.0, 1.0));
+		//shadowTransforms.push_back(shadowProjection *
+		//	glm::lookAt(lightPosition, lightPosition + glm::vec3(0.0, -1.0, 0.0), glm::vec3(0.0, 0.0, -1.0));
+		//shadowTransforms.push_back(shadowProjection *
+		//	glm::lookAt(lightPosition, lightPosition + glm::vec3(0.0, 0.0, 1.0), glm::vec3(0.0, -1.0, 0.0));
+		//shadowTransforms.push_back(shadowProjection *
+		//	glm::lookAt(lightPosition, lightPosition + glm::vec3(0.0, 0.0, -1.0), glm::vec3(0.0, -1.0, 0.0));
+
+
 		mShader.Bind();
 		mShader.SetValue("cameraPosition", mCamera.GetPosition());
 		mShader.SetValue("tiling", 15.f);
 
 		float ti{ clock::GetRunTime() };
 		//glm::vec3 lightPosition{ 0.f, ((std::sin(ti)) * 5.f) + 5.25f, 0.f };
-		glm::vec3 lightPosition{ 0.f, 5.f, 0.f };
 		mShader.SetValue("lightPosition", lightPosition);
 
 		mWood->Bind(1);
@@ -98,7 +117,7 @@ namespace nxt
 
 			glm::mat4 modelMatrix{
 				glm::translate(ones, t.Position)
-				* glm::scale(ones, glm::vec3{ 25.f, 0.1f, 25.f })
+				* glm::scale(ones, t.Scale)
 			};
 			mShader.Bind();
 			mShader.SetValue("worldMatrix", modelMatrix);
