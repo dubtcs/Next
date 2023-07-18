@@ -28,15 +28,15 @@ namespace nxt
 		buffers::SFrameBuffer mFrameBuffer;
 
 		Shader mShader;
-		Shader mSkyboxShader;
-		Shader mNormalShader;
+		Shader mShadowShader;
 
 		STexture mWood;
 
 		Shared<PointShadowmap> mShadowmap;
 
-		SCubemap mSkyboxCubemap;
-		buffers::SDataBuffer mMatrixBuffer;
+		buffers::SDataBuffer mCameraMatrixBuffer;
+		buffers::SDataBuffer mLightInfoBuffer;
+
 	};
 
 }

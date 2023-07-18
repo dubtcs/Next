@@ -6,5 +6,6 @@
 #include "Sprite.h"
 #include "WorldModel.h"
 #include "Transform.h"
+#include "Light.h"
 
 #include "GraphData.h"

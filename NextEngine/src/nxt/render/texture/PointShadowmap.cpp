@@ -2,6 +2,7 @@
 #include "PointShadowmap.h"
 
 #include "TextureEnums.h"
+#include <nxt/core/log/Log.h>
 
 #include <glad/glad.h>
 
@@ -10,7 +11,9 @@ static constexpr uint32_t gShadowResolution{ 1024U };
 namespace nxt
 {
 
-	PointShadowmap::PointShadowmap()
+	PointShadowmap::PointShadowmap() :
+		Width{ gShadowResolution },
+		Height{ gShadowResolution }
 	{
 
 		glCreateFramebuffers(1, &mBuffer);
@@ -31,12 +34,16 @@ namespace nxt
 		glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
 		glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_R, GL_CLAMP_TO_EDGE);
 
-
-		glDrawBuffer(GL_NONE);
-		glReadBuffer(GL_NONE);
-
+		glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, GL_NONE, 0);
 		glFramebufferTexture2D(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_TEXTURE_2D, mID, 0);
 
+		glDrawBuffer(0);
+		glReadBuffer(0);
+
+		if (glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE)
+		{
+			NXT_LOG_CRIT("FrameBuffer creation failure. Code {0}", (std::stringstream{} << std::hex << glCheckFramebufferStatus(GL_FRAMEBUFFER)).str());
+		}
 	}
 
 	void PointShadowmap::BindDepth() const

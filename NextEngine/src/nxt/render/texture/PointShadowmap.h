@@ -18,6 +18,8 @@ namespace nxt
 		void Bind() const;
 		static void UnbindDepth();
 		static void Unbind();
+		int32_t Width;
+		int32_t Height;
 	protected:
 		uint32_t mID;
 		uint32_t mBuffer;

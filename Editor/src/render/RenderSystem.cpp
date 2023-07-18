@@ -10,37 +10,52 @@ static uint32_t gSamples{ 4 };
 static bool drawNormals{ true };
 static bool useBlinn{ true };
 
+static constexpr uint32_t gMaxLights{ 10 };
+struct LightInfo // 16 Byte Aligned
+{
+	glm::vec3 Position;		// 0 Offset,  16 byte alignment
+	float Intensity;		// 12 Offset,  4 Byte alignment
+	glm::vec3 Direction;	// 16 Offset, 16 byte alignment
+	int32_t LightType;		// 28 Offset,  4 byte alignment
+	glm::vec3 Color;		// 32 Offset, 16 byte alignment
+	float Radius;			// 44 Offset,  4 byte alignment
+};							// Total 48 bytes, 16 byte alignment
+struct SceneLightData
+{
+	std::array<LightInfo, gMaxLights> LightData; // 0 Offset
+	uint32_t lightsUsed{ 0 }; // 480 Offset
+};
+
 namespace nxt
 {
 
 	RenderSystem::RenderSystem() :
-		mShader{ "assets/shaders/gltfUBlock.vert", "assets/shaders/gltfShader.frag" },
-		//mSkyboxShader{ "assets/shaders/skybox.vert", "assets/shaders/skybox.frag" },
-		mNormalShader{"assets/shaders/normals.vert", "assets/shaders/normals.geom", "assets/shaders/normals.frag" },
-		//mSkyboxCubemap{ Cubemap::Create({
-		//	"assets/textures/skybox/right.jpg",
-		//	"assets/textures/skybox/left.jpg",
-		//	"assets/textures/skybox/top.jpg",
-		//	"assets/textures/skybox/bottom.jpg",
-		//	"assets/textures/skybox/front.jpg",
-		//	"assets/textures/skybox/back.jpg"
-		//	})
-		//},
-		mCamera{ {-2.f, 1.f, 2.f} },
-		mMatrixBuffer{ buffers::DataBuffer::Create(64, nullptr, nxtBufferTarget_UniformBuffer) },
-
-		mWood{ Texture::Create("assets/textures/wood.png") },
-		mShadowmap{ NewShared<PointShadowmap>() }
+		mShader{ "assets/shaders/objects/obj4.vert", "assets/shaders/objects/obj4.frag" },
+		mCameraMatrixBuffer{ buffers::DataBuffer::Create(76, nullptr, nxtBufferTarget_UniformBuffer) },
+		mLightInfoBuffer{ buffers::DataBuffer::Create(sizeof(SceneLightData), nullptr, nxtBufferTarget_UniformBuffer)},
+		mCamera{ {-2.f, 1.f, 2.f} }
 	{
 		cubeModel = nxt::Model::Create( "assets/models/BoxTextured.gltf" );
-		mMatrixBuffer->BindIndexed(0);
 		mShader.Bind();
 		mShader.SetValue("useBlinn", useBlinn);
 
-		mWood->Bind();
-		mWood->SetParameter(nxtTextureParamName_MinimizeFilter, nxtTextureParam_MipLinearLinear);
+		mCameraMatrixBuffer->BindIndexed(0);
+		mLightInfoBuffer->BindIndexed(1);
 
-		mWood->GenerateMipmaps();
+		LightInfo light{};
+		light.Intensity = 0.2f;
+		light.Color = glm::vec3{ 0.25f, 1.f, 0.8f };
+		mLightInfoBuffer->SetSubData(sizeof(LightInfo), 0, &light);
+
+		LightInfo light2{};
+		light2.Intensity = 0.27f;
+		light2.Position = glm::vec3{ 1.f, -7.f, -6.f };
+		light2.Color = glm::vec3{ 0.8f, 1.f, 0.8f };
+		mLightInfoBuffer->SetSubData(sizeof(LightInfo), sizeof(LightInfo), &light2);
+
+		uint32_t i{ 2 };
+		mLightInfoBuffer->SetSubData(4, 480, &i);
+
 	}
 
 	static void DrawMesh(const Mesh& mesh)
@@ -70,87 +85,31 @@ namespace nxt
 	void RenderSystem::OnUpdate(float& dt, World& world)
 	{
 		mFrameBuffer->Bind();
+
 		render::command::Clear();
 		mCamera.OnUpdate(dt);
-		mMatrixBuffer->SetSubData(64, 0, glm::value_ptr(mCamera.GetProjectionViewMatrix()));
+		mCameraMatrixBuffer->SetSubData(64, 0, glm::value_ptr(mCamera.GetProjectionViewMatrix()));
+		mCameraMatrixBuffer->SetSubData(12, 64, (void*)glm::value_ptr(mCamera.GetPosition()));
 
-		//mSkyboxCubemap->Bind();
-
-		render::command::SetFaceCullingMode(nxtCullingMode_Back);
-
-		// Shadowmap
-		glm::vec3 lightPosition{ 0.f, 5.f, 0.f };
-		mShadowmap->BindDepth();
-		//glm::mat4 shadowProjection{ glm::perspective(glm::radians(90.f), 1.f, 0.01f, 25.f) };
-		//std::vector<glm::mat4> shadowTransforms{};
-		//shadowTransforms.push_back(shadowProjection *
-		//	glm::lookAt(lightPosition, lightPosition + glm::vec3(1.0, 0.0, 0.0), glm::vec3(0.0, -1.0, 0.0));
-		//shadowTransforms.push_back(shadowProjection *
-		//	glm::lookAt(lightPosition, lightPosition + glm::vec3(-1.0, 0.0, 0.0), glm::vec3(0.0, -1.0, 0.0));
-		//shadowTransforms.push_back(shadowProjection *
-		//	glm::lookAt(lightPosition, lightPosition + glm::vec3(0.0, 1.0, 0.0), glm::vec3(0.0, 0.0, 1.0));
-		//shadowTransforms.push_back(shadowProjection *
-		//	glm::lookAt(lightPosition, lightPosition + glm::vec3(0.0, -1.0, 0.0), glm::vec3(0.0, 0.0, -1.0));
-		//shadowTransforms.push_back(shadowProjection *
-		//	glm::lookAt(lightPosition, lightPosition + glm::vec3(0.0, 0.0, 1.0), glm::vec3(0.0, -1.0, 0.0));
-		//shadowTransforms.push_back(shadowProjection *
-		//	glm::lookAt(lightPosition, lightPosition + glm::vec3(0.0, 0.0, -1.0), glm::vec3(0.0, -1.0, 0.0));
-
-
-		mShader.Bind();
-		mShader.SetValue("cameraPosition", mCamera.GetPosition());
-		mShader.SetValue("tiling", 15.f);
-
-		float ti{ clock::GetRunTime() };
-		//glm::vec3 lightPosition{ 0.f, ((std::sin(ti)) * 5.f) + 5.25f, 0.f };
-		mShader.SetValue("lightPosition", lightPosition);
-
-		mWood->Bind(1);
-
-		// translate vertices to world space
 		glm::mat4 ones{ 1.f };
 
-		necs::SceneView<cmp::WorldModel, cmp::Transform> view{ world.GetScene() };
+		mShader.Bind();
+		necs::SceneView<cmp::Transform, cmp::WorldModel> view{ world.GetScene() };
 		for (const necs::Entity& e : view)
 		{
 			cmp::Transform& t{ world.GetComponent<cmp::Transform>(e) };
-
-			glm::mat4 modelMatrix{
-				glm::translate(ones, t.Position)
+			glm::mat4 worldMatrix{ glm::translate(ones, t.Position)
+				//* glm::rotate(ones, t.Scale) // quaternions required
 				* glm::scale(ones, t.Scale)
 			};
-			mShader.Bind();
-			mShader.SetValue("worldMatrix", modelMatrix);
-			mShader.SetValue("normalMatrix", glm::transpose(glm::inverse(modelMatrix)));
+			mShader.SetValue("worldMatrix", worldMatrix);
+			mShader.SetValue("normalMatrix", glm::transpose(glm::inverse(worldMatrix)));
 
-			cmp::WorldModel& wm{ world.GetComponent<cmp::WorldModel>(e) };
-			//wm.ModelInstance->GetTextures().front()->Bind(1);
-			mShader.SetValue("simpleTexture", 1);
-			DrawModel(wm.ModelInstance);
-
-			if (drawNormals)
-			{
-				mNormalShader.Bind();
-				mNormalShader.SetValue("viewMatrix", mCamera.GetViewMatrix());
-				mNormalShader.SetValue("projectionMatrix", mCamera.GetProjectionMatrix());
-				mNormalShader.SetValue("worldMatrix", modelMatrix);
-				mNormalShader.SetValue("normalMatrix", glm::transpose(glm::inverse(mCamera.GetViewMatrix() * modelMatrix)));
-				DrawModel(wm.ModelInstance);
-			}
-
+			cmp::WorldModel& m{ world.GetComponent<cmp::WorldModel>(e) };
+			DrawModel(m.ModelInstance);
 		}
 
-		// Skybox
-		render::command::SetFaceCullingMode(nxtCullingMode_Front);
-
-		//glm::mat4 skyboxMatrix{ mCamera.GetProjectionMatrix() * glm::mat4{glm::mat3{mCamera.GetViewMatrix()}} };
-		//mSkyboxShader.Bind();
-		//mSkyboxShader.SetValue("projectionView", skyboxMatrix);
-		//DrawModel(cubeModel);
-
-		render::command::SetRenderFeature(nxtRenderFeature_FrameBuffer_sRGB, true);
 		mFrameBuffer->PushToViewport();
-		render::command::SetRenderFeature(nxtRenderFeature_FrameBuffer_sRGB, false);
 
 	}
 
