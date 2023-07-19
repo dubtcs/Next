@@ -13,10 +13,13 @@ layout (std140, binding = 0) uniform SceneInfo
 uniform mat4 worldMatrix;
 uniform mat4 normalMatrix;
 
+uniform mat4 shadowMatrix;
+
 // Output
 out vec3 pWorldPosition;
 out vec3 pNormal;
 out vec2 pTexPos;
+out vec4 pShadowSpace;
 
 // Main
 void main()
@@ -25,4 +28,5 @@ void main()
     pWorldPosition = vec3(worldMatrix * vec4(vPos, 1.0));
     pNormal = mat3(normalMatrix) * vNormal;
     pTexPos = vTexPos;
+    pShadowSpace = shadowMatrix * vec4(pWorldPosition, 1.0);
 }

@@ -21,11 +21,16 @@ namespace nxt
 		mWorld.Attach<cmp::Transform>(e, {glm::vec3{0.f, -2.f, 0.f}});
 		mWorld.Attach<cmp::WorldModel>(e, modelInstance);
 
-		float rx{ random::GetNumber<float>(0.f, 5.f) };
-		float rz{ random::GetNumber<float>(0.f, 5.f) };
 		necs::Entity e2{ mWorld.CreateEntity() };
-		mWorld.Attach<cmp::Transform>(e2, { glm::vec3{ rx, 0.f, rz } });
+		mWorld.Attach<cmp::Transform>(e2, { glm::vec3{0.f, -0.6f, 0.f}, glm::vec3{0.f}, glm::vec3{20.f, 0.1f, 20.f} });
 		mWorld.Attach<cmp::WorldModel>(e2, modelInstance);
+
+		for (float i{ 0 }; i < 5; i++)
+		{
+			necs::Entity e3{ mWorld.CreateEntity() };
+			mWorld.Attach<cmp::Transform>(e3, { glm::vec3{ i * 3.f } });
+			mWorld.Attach<cmp::WorldModel>(e3, modelInstance);
+		}
 
 	}
 

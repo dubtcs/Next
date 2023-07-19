@@ -10,9 +10,13 @@
 namespace nxt
 {
 
+	// Add option to append precompile definitions to shader
+	// So we can change LIGHT_MAX or somn as we want
+
 	class NXT_API Shader
 	{
 	public:
+		static void SetGLSLVersion(uint32_t version);
 		Shader() = default;
 		Shader(const std::initializer_list<std::filesystem::path>& shader_locations);
 		~Shader();

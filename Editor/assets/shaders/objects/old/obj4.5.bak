@@ -1,0 +1,71 @@
+// Point Lights
+vec3 PGetDiffuse(uint index)
+{
+    vec3 lightDirection = normalize(lights[index].Position - pWorldPosition);
+    float angleDifference = max(dot(normal, lightDirection), 0.0);
+    vec3 diffuse = angleDifference * lights[index].Color;
+    return diffuse;
+}
+vec3 PGetSpecular(uint index)
+{
+    vec3 lightDirection = normalize(lights[index].Position - pWorldPosition);
+    vec3 viewDirection = normalize(cameraPosition - pWorldPosition);
+    vec3 reflectionDirection = reflect(-lightDirection, normal);
+    float specularHighlight = pow(max(dot(viewDirection, reflectionDirection), 0.0), specularIntensity);
+    return specularStrength * specularHighlight * lights[index].Color;
+}
+
+// Directional Lights
+vec3 DGetDiffuse(uint index)
+{
+    vec3 lightDirection = normalize(-lights[index].Direction);
+    float angleDifference = max(dot(normal, lightDirection), 0.0);
+    vec3 diffuse = angleDifference * lights[index].Color;
+    return diffuse;
+}
+vec3 DGetSpecular(uint index)
+{
+    vec3 lightDirection = normalize(-lights[index].Direction);
+    vec3 viewDirection = normalize(cameraPosition - pWorldPosition);
+    vec3 reflectionDirection = reflect(-lightDirection, normal);
+    float specularHighlight = pow(max(dot(viewDirection, reflectionDirection), 0.0), specularIntensity);
+    return specularStrength * specularHighlight * lights[index].Color;
+}
+
+// Spot Lights
+vec3 SGetDiffuse(uint index)
+{
+    vec3 directionToLight = normalize(lights[index].Position - pWorldPosition);
+    float angle = dot(directionToLight, normalize(-lights[index].Direction));
+    if(angle > lights[index].Radius)
+    {
+
+        float falloffStart = lights[index].Radius - (lights[index].Radius * 0.1); // 10% feather
+        float edge = (lights[index].Radius - falloffStart);
+        float feather = clamp((angle - lights[index].Radius) / edge, 0.0, 1.0);
+
+        float angleDifference = max(dot(normal, directionToLight), 0.0);
+        vec3 diffuse = angleDifference * lights[index].Color * feather;
+        return diffuse;
+    }
+    return vec3(0.0);
+}
+vec3 SGetSpecular(uint index)
+{
+    vec3 viewDirection = normalize(lights[index].Position - pWorldPosition);
+    vec3 lightDirection = normalize(-lights[index].Direction);
+
+    float angle = dot(viewDirection, normalize(-lights[index].Direction));
+    if(angle > lights[index].Radius)
+    {
+
+        float falloffStart = lights[index].Radius - (lights[index].Radius * 0.1); // 10% feather
+        float edge = (lights[index].Radius - falloffStart);
+        float feather = clamp((angle - lights[index].Radius) / edge, 0.0, 1.0);
+
+        vec3 reflectionDirection = reflect(-lightDirection, normal);
+        float specularHighlight = pow(max(dot(viewDirection, reflectionDirection), 0.0), specularIntensity);
+        return specularStrength * specularHighlight * lights[index].Color * feather;
+    }
+    return vec3(0.0);
+}

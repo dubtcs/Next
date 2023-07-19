@@ -10,8 +10,17 @@
 
 #include <glm/gtc/type_ptr.hpp>
 
+static uint32_t nxtGLSLVersion{ 460 };
+
 namespace nxt
 {
+
+	// for variable declaration before compilation?
+	template<typename... args>
+	std::string FormatShaderString(std::string& shader, args... params)
+	{
+		return std::format(shader, params...);
+	}
 
 	enum class nxtShaderType
 	{
@@ -23,6 +32,11 @@ namespace nxt
 
 	//using shader_pair = std::pair<std::string, nxtShaderType>;
 	using shader_pair = std::pair<std::string, nxtShaderType>;
+
+	void Shader::SetGLSLVersion(uint32_t version)
+	{
+		nxtGLSLVersion = version;
+	}
 
 	static bool ReadShaderFile(shader_pair* pair, const std::filesystem::path& filepath)
 	{

@@ -62,6 +62,7 @@ namespace nxt
 				mHeight = height;
 
 				glCreateTextures(textureTarget, 1, &mID);
+				glBindTexture(mTarget, mID);
 				glTextureStorage2D(mID, 1, internalFormat, width, height);
 				glTextureParameteri(mID, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
 				glTextureParameteri(mID, GL_TEXTURE_MAG_FILTER, GL_NEAREST);

@@ -13,18 +13,24 @@ static bool useBlinn{ true };
 static constexpr uint32_t gMaxLights{ 10 };
 struct LightInfo // 16 Byte Aligned
 {
-	glm::vec3 Position;		// 0 Offset,  16 byte alignment
-	float Intensity;		// 12 Offset,  4 Byte alignment
-	glm::vec3 Direction;	// 16 Offset, 16 byte alignment
-	int32_t LightType;		// 28 Offset,  4 byte alignment
-	glm::vec3 Color;		// 32 Offset, 16 byte alignment
-	float Radius;			// 44 Offset,  4 byte alignment
-};							// Total 48 bytes, 16 byte alignment
+	glm::vec3 Position{ 0.f };	// 0 Offset,  16 byte alignment
+	float Intensity{ 1.f };		// 12 Offset,  4 byte alignment
+	glm::vec3 Direction{ 0.f };	// 16 Offset, 16 byte alignment
+	uint32_t Type{ 0 };			// 28 Offset,  4 byte alignment
+	glm::vec3 Color{ 1.f };		// 32 Offset, 16 byte alignment
+	float Radius{ 0.f };		// 44 Offset,  4 byte alignment
+};								// Total 48 bytes, 16 byte alignment
 struct SceneLightData
 {
 	std::array<LightInfo, gMaxLights> LightData; // 0 Offset
 	uint32_t lightsUsed{ 0 }; // 480 Offset
 };
+
+#define POINT_LIGHT 0
+#define DIRECTIONAL_LIGHT 1
+#define SPOT_LIGHT 2
+#define AMBIENT_LIGHT 3
+
 
 namespace nxt
 {
@@ -33,6 +39,8 @@ namespace nxt
 		mShader{ "assets/shaders/objects/obj4.vert", "assets/shaders/objects/obj4.frag" },
 		mCameraMatrixBuffer{ buffers::DataBuffer::Create(76, nullptr, nxtBufferTarget_UniformBuffer) },
 		mLightInfoBuffer{ buffers::DataBuffer::Create(sizeof(SceneLightData), nullptr, nxtBufferTarget_UniformBuffer)},
+		mShadowmap{ 1024 },
+		mShadowShader{ "assets/shaders/shadows/shadow.vert", "assets/shaders/shadows/shadow.frag" },
 		mCamera{ {-2.f, 1.f, 2.f} }
 	{
 		cubeModel = nxt::Model::Create( "assets/models/BoxTextured.gltf" );
@@ -42,18 +50,44 @@ namespace nxt
 		mCameraMatrixBuffer->BindIndexed(0);
 		mLightInfoBuffer->BindIndexed(1);
 
+		uint32_t i{ 0 };
+
 		LightInfo light{};
-		light.Intensity = 0.2f;
+		light.Type = SPOT_LIGHT;
+		light.Intensity = 3.f;
+		light.Direction = glm::vec3{ 1.f, 0.f, 0.f };
+		light.Position = glm::vec3{ -1.f, 0.f, 0.f };
 		light.Color = glm::vec3{ 0.25f, 1.f, 0.8f };
-		mLightInfoBuffer->SetSubData(sizeof(LightInfo), 0, &light);
+		light.Radius = std::cos(glm::radians(25.f));
+		mLightInfoBuffer->SetSubData(sizeof(LightInfo), sizeof(LightInfo) * i, &light);
+		i++;
 
 		LightInfo light2{};
-		light2.Intensity = 0.27f;
-		light2.Position = glm::vec3{ 1.f, -7.f, -6.f };
+		light2.Type = DIRECTIONAL_LIGHT;
+		light2.Intensity = 1.f;
+		light2.Position = glm::vec3{ -2.f, 4.f, -1.f };
 		light2.Color = glm::vec3{ 0.8f, 1.f, 0.8f };
-		mLightInfoBuffer->SetSubData(sizeof(LightInfo), sizeof(LightInfo), &light2);
+		light2.Direction = glm::vec3{ 1.f, -1.f, 0.f };
+		mLightInfoBuffer->SetSubData(sizeof(LightInfo), sizeof(LightInfo) * i, &light2);
+		i++;
 
-		uint32_t i{ 2 };
+		// Premade lighting matrices
+		glm::mat4 shadowProjection{ glm::ortho(-10.f, 10.f, -10.f, 10.f, 0.01f, 25.f) };
+		glm::mat4 shadowView{ glm::lookAt(light2.Position, glm::vec3{0.f}, glm::vec3{ 0.f, 1.f, 0.f }) };
+		glm::mat4 lightSpaceMatrix{ shadowProjection * shadowView };
+
+		mShader.SetValue("shadowMatrix", lightSpaceMatrix);
+		mShader.SetValue("shadowMap", 0);
+		mShadowShader.Bind();
+		mShadowShader.SetValue("projectionViewMatrix", lightSpaceMatrix);
+
+		LightInfo light3{};
+		light3.Type = AMBIENT_LIGHT;
+		light3.Intensity = 0.05f;
+		light3.Color = glm::vec3(1.f, 0.f, 0.f);
+		mLightInfoBuffer->SetSubData(sizeof(LightInfo), sizeof(LightInfo) * i, &light3);
+		i++;
+
 		mLightInfoBuffer->SetSubData(4, 480, &i);
 
 	}
@@ -84,17 +118,42 @@ namespace nxt
 
 	void RenderSystem::OnUpdate(float& dt, World& world)
 	{
-		mFrameBuffer->Bind();
-
-		render::command::Clear();
+		
 		mCamera.OnUpdate(dt);
 		mCameraMatrixBuffer->SetSubData(64, 0, glm::value_ptr(mCamera.GetProjectionViewMatrix()));
 		mCameraMatrixBuffer->SetSubData(12, 64, (void*)glm::value_ptr(mCamera.GetPosition()));
+		
+		mLightInfoBuffer->SetSubData(sizeof(glm::vec3), 0, (void*)glm::value_ptr(mCamera.GetPosition()));
+		mLightInfoBuffer->SetSubData(sizeof(glm::vec3), 16, (void*)glm::value_ptr(mCamera.GetLookVector()));
 
 		glm::mat4 ones{ 1.f };
 
-		mShader.Bind();
+		// Lighting render pass
+		mShadowShader.Bind();
+		mShadowmap.BeginRenderPass();
+
 		necs::SceneView<cmp::Transform, cmp::WorldModel> view{ world.GetScene() };
+		for (const necs::Entity& e : view)
+		{
+			cmp::Transform& t{ world.GetComponent<cmp::Transform>(e) };
+			glm::mat4 worldMatrix{ glm::translate(ones, t.Position)
+				//* glm::rotate(ones, t.Scale) // quaternions required
+				* glm::scale(ones, t.Scale)
+			};
+			mShadowShader.SetValue("worldMatrix", worldMatrix);
+
+			cmp::WorldModel& m{ world.GetComponent<cmp::WorldModel>(e) };
+			DrawModel(m.ModelInstance);
+		}
+
+		mShadowmap.EndRenderPass(mWidth, mHeight);
+
+		// Visible render pass
+		mFrameBuffer->Bind();
+
+		render::command::Clear();
+		mShader.Bind();
+		mShadowmap.BindTextureMap(0);
 		for (const necs::Entity& e : view)
 		{
 			cmp::Transform& t{ world.GetComponent<cmp::Transform>(e) };
