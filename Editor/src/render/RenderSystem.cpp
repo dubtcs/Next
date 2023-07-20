@@ -31,16 +31,15 @@ struct SceneLightData
 #define SPOT_LIGHT 2
 #define AMBIENT_LIGHT 3
 
-
 namespace nxt
 {
 
 	RenderSystem::RenderSystem() :
-		mShader{ "assets/shaders/objects/obj4.vert", "assets/shaders/objects/obj4.frag" },
+		mShader{ "assets/shaders/objects/obj4.1.vert", "assets/shaders/objects/obj4.1.frag" },
 		mCameraMatrixBuffer{ buffers::DataBuffer::Create(76, nullptr, nxtBufferTarget_UniformBuffer) },
 		mLightInfoBuffer{ buffers::DataBuffer::Create(sizeof(SceneLightData), nullptr, nxtBufferTarget_UniformBuffer)},
 		mShadowmap{ 1024 },
-		mShadowShader{ "assets/shaders/shadows/shadow.vert", "assets/shaders/shadows/shadow.frag" },
+		mShadowShader{ "assets/shaders/shadows/shadowCube.vert", "assets/shaders/shadows/shadowCube.geom", "assets/shaders/shadows/shadowCube.frag" },
 		mCamera{ {-2.f, 1.f, 2.f} }
 	{
 		cubeModel = nxt::Model::Create( "assets/models/BoxTextured.gltf" );
@@ -54,7 +53,7 @@ namespace nxt
 
 		LightInfo light{};
 		light.Type = SPOT_LIGHT;
-		light.Intensity = 3.f;
+		light.Intensity = 0.f;
 		light.Direction = glm::vec3{ 1.f, 0.f, 0.f };
 		light.Position = glm::vec3{ -1.f, 0.f, 0.f };
 		light.Color = glm::vec3{ 0.25f, 1.f, 0.8f };
@@ -63,7 +62,7 @@ namespace nxt
 		i++;
 
 		LightInfo light2{};
-		light2.Type = DIRECTIONAL_LIGHT;
+		light2.Type = POINT_LIGHT;
 		light2.Intensity = 1.f;
 		light2.Position = glm::vec3{ -2.f, 4.f, -1.f };
 		light2.Color = glm::vec3{ 0.8f, 1.f, 0.8f };
@@ -72,14 +71,26 @@ namespace nxt
 		i++;
 
 		// Premade lighting matrices
-		glm::mat4 shadowProjection{ glm::ortho(-10.f, 10.f, -10.f, 10.f, 0.01f, 25.f) };
-		glm::mat4 shadowView{ glm::lookAt(light2.Position, glm::vec3{0.f}, glm::vec3{ 0.f, 1.f, 0.f }) };
-		glm::mat4 lightSpaceMatrix{ shadowProjection * shadowView };
+		glm::mat4 shadowProjection{ glm::perspective(glm::radians(90.f), 1.f, 0.01f, 25.f) };
+		//glm::mat4 shadowView{ glm::lookAt(light2.Position, glm::vec3{0.f}, glm::vec3{ 0.f, 1.f, 0.f }) };
+		//glm::mat4 lightSpaceMatrix{ shadowProjection * shadowView };
+		//mShader.SetValue("shadowMatrix", lightSpaceMatrix);
+		//mShader.SetValue("shadowMap", 0);
+		//mShadowShader.Bind();
+		//mShadowShader.SetValue("projectionViewMatrix", lightSpaceMatrix);
 
-		mShader.SetValue("shadowMatrix", lightSpaceMatrix);
+		std::vector<glm::mat4> shadowViewMatrices{
+			shadowProjection * glm::lookAt(light2.Position, light2.Position + glm::vec3{ 1.f,  0.f,  0.f}, glm::vec3{ 0.f,  -1.f,  0.f}),
+			shadowProjection * glm::lookAt(light2.Position, light2.Position + glm::vec3{-1.f,  0.f,  0.f}, glm::vec3{ 0.f,  -1.f,  0.f}),
+			shadowProjection * glm::lookAt(light2.Position, light2.Position + glm::vec3{ 0.f,  1.f,  0.f}, glm::vec3{ 0.f,  0.f,  1.f}),
+			shadowProjection * glm::lookAt(light2.Position, light2.Position + glm::vec3{ 0.f, -1.f,  0.f}, glm::vec3{ 0.f,  0.f, -1.f}),
+			shadowProjection * glm::lookAt(light2.Position, light2.Position + glm::vec3{ 0.f,  0.f,  1.f}, glm::vec3{ 0.f,  -1.f,  0.f}),
+			shadowProjection * glm::lookAt(light2.Position, light2.Position + glm::vec3{ 0.f,  0.f, -1.f}, glm::vec3{ 0.f, - 1.f,  0.f}),
+		};
+
 		mShader.SetValue("shadowMap", 0);
 		mShadowShader.Bind();
-		mShadowShader.SetValue("projectionViewMatrix", lightSpaceMatrix);
+		mShadowShader.SetArrayValue("projectionViewMatrices", shadowViewMatrices);
 
 		LightInfo light3{};
 		light3.Type = AMBIENT_LIGHT;

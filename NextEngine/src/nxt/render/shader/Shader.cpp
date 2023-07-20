@@ -169,6 +169,12 @@ namespace nxt
 		glUniformBlockBinding(mID, loc, value);
 	}
 
+	void Shader::SetArrayValue(const std::string& name, const std::vector<glm::mat4>& values)
+	{
+		int32_t loc{ glGetUniformLocation(mID, name.c_str()) };
+		glUniformMatrix4fv(loc, values.size(), GL_FALSE, glm::value_ptr(values.front()));
+	}
+
 	void Shader::SetValue(const std::string& name, int32_t value)
 	{
 		int32_t loc{ glGetUniformLocation(mID, name.c_str()) };

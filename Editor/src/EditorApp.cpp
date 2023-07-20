@@ -25,6 +25,22 @@ namespace nxt
 		mWorld.Attach<cmp::Transform>(e2, { glm::vec3{0.f, -0.6f, 0.f}, glm::vec3{0.f}, glm::vec3{20.f, 0.1f, 20.f} });
 		mWorld.Attach<cmp::WorldModel>(e2, modelInstance);
 
+		necs::Entity e3{ mWorld.CreateEntity() };
+		mWorld.Attach<cmp::Transform>(e3, { glm::vec3{-9.5f, 2.5f, 0.f}, glm::vec3{0.f}, glm::vec3{0.5f, 5.f, 20.f} });
+		mWorld.Attach<cmp::WorldModel>(e3, modelInstance);
+
+		necs::Entity e4{ mWorld.CreateEntity() };
+		mWorld.Attach<cmp::Transform>(e4, { glm::vec3{9.5f, 2.5f, 0.f}, glm::vec3{0.f}, glm::vec3{0.5f, 45.f, 20.f} });
+		mWorld.Attach<cmp::WorldModel>(e4, modelInstance);
+
+		necs::Entity eb{ mWorld.CreateEntity() };
+		mWorld.Attach<cmp::Transform>(eb, { glm::vec3{ -2.f, 2.f, 0.f } });
+		mWorld.Attach<cmp::WorldModel>(eb, modelInstance);
+
+		necs::Entity ea{ mWorld.CreateEntity() };
+		mWorld.Attach<cmp::Transform>(ea, { glm::vec3{ -5.f, 2.f, -1.f } });
+		mWorld.Attach<cmp::WorldModel>(ea, modelInstance);
+
 		for (float i{ 0 }; i < 5; i++)
 		{
 			necs::Entity e3{ mWorld.CreateEntity() };

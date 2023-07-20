@@ -11,6 +11,8 @@
 namespace nxt
 {
 
+	// Switch to cubemap for more flexibility and CSM
+
 	Shadowmap::Shadowmap(const uint32_t& resolution) :
 		mResolution{ resolution }
 	{
@@ -25,14 +27,14 @@ namespace nxt
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
 
+		glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_NONE, GL_NONE, 0);
 		glFramebufferTexture2D(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_TEXTURE_2D, mTextureID, 0);
-		glDrawBuffer(0);
-		glReadBuffer(0);
-		glBindFramebuffer(GL_FRAMEBUFFER, 0);
+
 		if (glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE)
 		{
 			NXT_LOG_CRIT("Shadowmap buffer creation failure. Code {0}", (std::stringstream{} << std::hex << glCheckFramebufferStatus(GL_FRAMEBUFFER)).str());
 		}
+		glBindFramebuffer(GL_FRAMEBUFFER, 0);
 	}
 
 	void Shadowmap::BeginRenderPass()

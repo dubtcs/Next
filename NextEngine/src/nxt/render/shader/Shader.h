@@ -25,6 +25,7 @@ namespace nxt
 		void SetValue(const std::string& name, float value);
 		void SetValue(const std::string& name, const glm::vec3& vector3);
 		void SetValue(const std::string& name, const glm::mat4& matrix);
+		void SetArrayValue(const std::string& name, const std::vector<glm::mat4>& values);
 		void SetUniformBlock(const std::string& name, int32_t value);
 	protected:
 		std::string mName;
