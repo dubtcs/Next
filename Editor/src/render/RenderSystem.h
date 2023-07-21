@@ -31,8 +31,10 @@ namespace nxt
 
 		STexture mWood;
 
-		buffers::SDataBuffer mCameraMatrixBuffer;
+		buffers::SDataBuffer mFrameInfoBuffer;
 		buffers::SDataBuffer mLightInfoBuffer;
+		buffers::SDataBuffer mObjectInfoBuffer;
+		buffers::SDataBuffer mMaterialInfoBuffer;
 
 		Shadowmap2 mShadowmap;
 		Shader mShadowShader;

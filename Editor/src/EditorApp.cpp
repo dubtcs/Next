@@ -16,6 +16,7 @@ namespace nxt
 	{
 
 		SModel modelInstance{ Model::Create("assets/models/BoxTextured.gltf") };
+		SModel avo{ Model::Create("assets/models/Avocado.gltf") };
 		
 		necs::Entity e{ mWorld.CreateEntity() };
 		mWorld.Attach<cmp::Transform>(e, {glm::vec3{0.f, -2.f, 0.f}});
@@ -40,6 +41,10 @@ namespace nxt
 		necs::Entity ea{ mWorld.CreateEntity() };
 		mWorld.Attach<cmp::Transform>(ea, { glm::vec3{ -5.f, 2.f, -1.f } });
 		mWorld.Attach<cmp::WorldModel>(ea, modelInstance);
+
+		necs::Entity ec{ mWorld.CreateEntity() };
+		mWorld.Attach<cmp::Transform>(ec, { glm::vec3{0.f, 5.f, 0.f}, glm::vec3{0.f}, glm::vec3{10.f} });
+		mWorld.Attach<cmp::WorldModel>(ec, avo);
 
 		for (float i{ 0 }; i < 5; i++)
 		{

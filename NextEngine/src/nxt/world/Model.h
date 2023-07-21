@@ -2,6 +2,8 @@
 
 #include <nxt/EngineCore.h>
 
+#include "materials/Material.h"
+
 #include <nxt/render/buffers/ArrayObject.h>
 #include <nxt/render/buffers/DataBuffer.h>
 
@@ -14,11 +16,12 @@ namespace nxt
 
 	struct NXT_API Primitive
 	{
-		buffers::SDataBuffer buffer;
-		nxtDrawMode mode;
 		uint32_t count;
+		int32_t material{ -1 };
 		size_t byteOffset;
+		nxtDrawMode mode;
 		nxtDataType componentType;
+		buffers::SDataBuffer buffer;
 	};
 
 	struct NXT_API Mesh // also a node
@@ -37,9 +40,11 @@ namespace nxt
 		void Bind() const;
 		const std::vector<Mesh>& GetMeshes() const;
 		const std::vector<STexture>& GetTextures() const;
+		const std::vector<SMaterial>& GetMaterials() const;
 	protected:
 		Shared<buffers::ArrayObject> mArrayObject{ buffers::ArrayObject::Create() };
 		std::vector<Mesh> mMeshes;
+		std::vector<SMaterial> mMaterials;
 		std::vector<STexture> mTextures;
 	};
 

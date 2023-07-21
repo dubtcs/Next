@@ -4,8 +4,6 @@
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/type_ptr.hpp>
 
-static nxt::SModel cubeModel;
-
 static uint32_t gSamples{ 4 };
 static bool drawNormals{ true };
 static bool useBlinn{ true };
@@ -25,6 +23,21 @@ struct SceneLightData
 	std::array<LightInfo, gMaxLights> LightData; // 0 Offset
 	uint32_t lightsUsed{ 0 }; // 480 Offset
 };
+struct ObjectBufferInfo
+{
+	glm::mat4 normalMatrix;
+	glm::mat4 worldMatrix;
+};
+struct MaterialBufferInfo
+{
+	glm::vec4 baseColor;
+	int32_t colorTextureIndex;
+	float roughness;
+	float metallic;
+	int32_t normalTexture;
+	int32_t emissionTexture;
+	int32_t occlusionTexture;
+};
 
 #define POINT_LIGHT 0
 #define DIRECTIONAL_LIGHT 1
@@ -35,28 +48,31 @@ namespace nxt
 {
 
 	RenderSystem::RenderSystem() :
-		mShader{ "assets/shaders/objects/obj4.1.vert", "assets/shaders/objects/obj4.1.frag" },
-		mCameraMatrixBuffer{ buffers::DataBuffer::Create(76, nullptr, nxtBufferTarget_UniformBuffer) },
+		mShader{ "assets/shaders/objects/obj5.vert", "assets/shaders/objects/obj5.frag" },
+		mFrameInfoBuffer{ buffers::DataBuffer::Create(76, nullptr, nxtBufferTarget_UniformBuffer) },
 		mLightInfoBuffer{ buffers::DataBuffer::Create(sizeof(SceneLightData), nullptr, nxtBufferTarget_UniformBuffer)},
+		mObjectInfoBuffer{ buffers::DataBuffer::Create(sizeof(ObjectBufferInfo), nullptr, nxtBufferTarget_UniformBuffer) },
+		mMaterialInfoBuffer{ buffers::DataBuffer::Create(sizeof(MaterialBufferInfo), nullptr, nxtBufferTarget_UniformBuffer) },
 		mShadowmap{ 1024 },
 		mShadowShader{ "assets/shaders/shadows/shadowCube.vert", "assets/shaders/shadows/shadowCube.geom", "assets/shaders/shadows/shadowCube.frag" },
 		mCamera{ {-2.f, 1.f, 2.f} }
 	{
-		cubeModel = nxt::Model::Create( "assets/models/BoxTextured.gltf" );
 		mShader.Bind();
 		mShader.SetValue("useBlinn", useBlinn);
 
-		mCameraMatrixBuffer->BindIndexed(0);
+		mFrameInfoBuffer->BindIndexed(0);
 		mLightInfoBuffer->BindIndexed(1);
+		mObjectInfoBuffer->BindIndexed(2);
+		mMaterialInfoBuffer->BindIndexed(3);
 
 		uint32_t i{ 0 };
 
 		LightInfo light{};
 		light.Type = SPOT_LIGHT;
-		light.Intensity = 0.f;
+		light.Intensity = 1.f;
 		light.Direction = glm::vec3{ 1.f, 0.f, 0.f };
 		light.Position = glm::vec3{ -1.f, 0.f, 0.f };
-		light.Color = glm::vec3{ 0.25f, 1.f, 0.8f };
+		light.Color = glm::vec3{ 1.f };
 		light.Radius = std::cos(glm::radians(25.f));
 		mLightInfoBuffer->SetSubData(sizeof(LightInfo), sizeof(LightInfo) * i, &light);
 		i++;
@@ -103,27 +119,41 @@ namespace nxt
 
 	}
 
-	static void DrawMesh(const Mesh& mesh)
+	static void DrawMesh(const SModel& model, const Mesh& mesh, buffers::SDataBuffer& objectInfo)
 	{
 		using namespace buffers;
 		for (const Primitive& p : mesh.primitives)
 		{
 			SDataBuffer buffer{ p.buffer };
+
+			const SMaterial& mat{ model->GetMaterials()[p.material] };
+			objectInfo->SetSubData(sizeof(glm::vec4), 0, glm::value_ptr(mat->Properties.Color.BaseColor));
+			objectInfo->SetSubData(sizeof(int32_t), 16, &mat->Properties.Color.Texture);
+
+			objectInfo->SetSubData(sizeof(int32_t), 28, &mat->Textures.Normal);
+			objectInfo->SetSubData(sizeof(int32_t), 32, &mat->Textures.Emissive);
+			objectInfo->SetSubData(sizeof(int32_t), 36, &mat->Textures.Occlusion);
+
 			buffer->Bind();
 			render::command::DrawElements(p.mode, p.count, p.componentType, (void*)(p.byteOffset));
 		}
 		for (const Mesh& otherMesh : mesh.children)
 		{
-			DrawMesh(otherMesh);
+			DrawMesh(model, otherMesh, objectInfo);
 		}
 	}
 
-	static void DrawModel(const SModel& model)
+	static void DrawModel(const SModel& model, buffers::SDataBuffer& objectInfo)
 	{
 		model->Bind();
+		int32_t i{ 0 };
+		for (const STexture& tex : model->GetTextures())
+		{
+			tex->Bind(i++);
+		}
 		for (const Mesh& m : model->GetMeshes())
 		{
-			DrawMesh(m);
+			DrawMesh(model, m, objectInfo);
 		}
 	}
 
@@ -131,8 +161,8 @@ namespace nxt
 	{
 		
 		mCamera.OnUpdate(dt);
-		mCameraMatrixBuffer->SetSubData(64, 0, glm::value_ptr(mCamera.GetProjectionViewMatrix()));
-		mCameraMatrixBuffer->SetSubData(12, 64, (void*)glm::value_ptr(mCamera.GetPosition()));
+		mFrameInfoBuffer->SetSubData(64, 0, glm::value_ptr(mCamera.GetProjectionViewMatrix()));
+		mFrameInfoBuffer->SetSubData(12, 64, (void*)glm::value_ptr(mCamera.GetPosition()));
 		
 		mLightInfoBuffer->SetSubData(sizeof(glm::vec3), 0, (void*)glm::value_ptr(mCamera.GetPosition()));
 		mLightInfoBuffer->SetSubData(sizeof(glm::vec3), 16, (void*)glm::value_ptr(mCamera.GetLookVector()));
@@ -151,10 +181,10 @@ namespace nxt
 				//* glm::rotate(ones, t.Scale) // quaternions required
 				* glm::scale(ones, t.Scale)
 			};
-			mShadowShader.SetValue("worldMatrix", worldMatrix);
+			mObjectInfoBuffer->SetSubData(sizeof(glm::mat4), 64, glm::value_ptr(worldMatrix));
 
 			cmp::WorldModel& m{ world.GetComponent<cmp::WorldModel>(e) };
-			DrawModel(m.ModelInstance);
+			DrawModel(m.ModelInstance, mObjectInfoBuffer);
 		}
 
 		mShadowmap.EndRenderPass(mWidth, mHeight);
@@ -172,11 +202,13 @@ namespace nxt
 				//* glm::rotate(ones, t.Scale) // quaternions required
 				* glm::scale(ones, t.Scale)
 			};
-			mShader.SetValue("worldMatrix", worldMatrix);
-			mShader.SetValue("normalMatrix", glm::transpose(glm::inverse(worldMatrix)));
+			glm::mat4 normalMatrix{ glm::transpose(glm::inverse(worldMatrix)) };
+
+			mObjectInfoBuffer->SetSubData(64, 0, glm::value_ptr(normalMatrix));
+			mObjectInfoBuffer->SetSubData(64, 64, glm::value_ptr(worldMatrix));
 
 			cmp::WorldModel& m{ world.GetComponent<cmp::WorldModel>(e) };
-			DrawModel(m.ModelInstance);
+			DrawModel(m.ModelInstance, mMaterialInfoBuffer);
 		}
 
 		mFrameBuffer->PushToViewport();

@@ -6,6 +6,8 @@
 
 #include <tiny_gltf.h>
 
+#include <glm/gtx/string_cast.hpp>
+
 namespace nxt
 {
 
@@ -27,6 +29,7 @@ namespace nxt
 			addPrimitive.count = static_cast<uint32_t>(indexAccessor.count);
 			addPrimitive.byteOffset = static_cast<uint32_t>(indexAccessor.byteOffset);
 			addPrimitive.componentType = static_cast<nxtDataType>(indexAccessor.componentType);
+			addPrimitive.material = primitive.material;
 
 			primitives.push_back(addPrimitive);
 
@@ -43,9 +46,10 @@ namespace nxt
 
 				int32_t layoutPosition{ -1 };
 
-				if (attribute.first == "POSITION") layoutPosition = 0;
-				else if (attribute.first == "NORMAL") layoutPosition = 1;
-				else if (attribute.first == "TEXCOORD_0") layoutPosition = 2;
+				if		(attribute.first == "POSITION")		layoutPosition = 0;
+				else if (attribute.first == "NORMAL")		layoutPosition = 1;
+				else if (attribute.first == "TANGENT")		layoutPosition = 2;
+				else if (attribute.first == "TEXCOORD_0")	layoutPosition = 3;
 				else NXT_LOG_DEBUG("Attribute found that is not supported: {0}", attribute.first);
 
 				if (layoutPosition >= 0)
@@ -75,7 +79,7 @@ namespace nxt
 		return mesh;
 	}
 
-	static std::vector<Mesh> RegisterModel(buffers::SArrayObject& arrayObject, std::vector<STexture>& textures, gltf::Model& model)
+	static std::vector<Mesh> RegisterModel(buffers::SArrayObject& arrayObject, std::vector<STexture>& textures, std::vector<SMaterial>& materials, gltf::Model& model)
 	{
 		using namespace buffers;
 		// Buffers
@@ -145,6 +149,27 @@ namespace nxt
 			}
 		}
 
+		// Materials
+		if (model.materials.size() > 0)
+		{
+			for (gltf::Material& material : model.materials)
+			{
+				std::vector<double>& colour{ material.pbrMetallicRoughness.baseColorFactor };
+				glm::vec4 baseColor{ colour[0], colour[1], colour[2], colour[3] };
+
+				PBRColorProperties colProp{ baseColor, material.pbrMetallicRoughness.baseColorTexture.index };
+				PBRRoughnessProperties roProp{ static_cast<float>(material.pbrMetallicRoughness.roughnessFactor), material.pbrMetallicRoughness.metallicRoughnessTexture.index };
+				PBRMetallicProperties metProp{ static_cast<float>(material.pbrMetallicRoughness.metallicFactor), material.pbrMetallicRoughness.metallicRoughnessTexture.index };
+
+				PBRProperties props{ colProp, roProp, metProp };
+
+				PBRTextures tex{ material.emissiveTexture.index, material.occlusionTexture.index, material.normalTexture.index };
+
+				SMaterial mat{ NewShared<Material>(props, tex) };
+				materials.push_back(mat);
+			}
+		}
+
 		// Cycle nodes
 		std::vector<Mesh> meshes;
 		for (int32_t& i : model.scenes[model.defaultScene].nodes)
@@ -181,7 +206,7 @@ namespace nxt
 			NXT_LOG_CRIT("Invalid file extension: {0}", filepath.extension().string());
 			return;
 		}
-		mMeshes = RegisterModel(mArrayObject, mTextures, model);
+		mMeshes = RegisterModel(mArrayObject, mTextures, mMaterials, model);
 	}
 
 	void Model::Bind() const
@@ -197,6 +222,11 @@ namespace nxt
 	const std::vector<STexture>& Model::GetTextures() const
 	{
 		return mTextures;
+	}
+
+	const std::vector<SMaterial>& Model::GetMaterials() const
+	{
+		return mMaterials;
 	}
 
 }
