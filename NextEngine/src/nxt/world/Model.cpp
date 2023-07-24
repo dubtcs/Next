@@ -16,7 +16,7 @@ namespace nxt
 	static std::vector<Primitive> RegisterMesh(buffers::SArrayObject& arrayObject, tinygltf::Model& model, tinygltf::Mesh& mesh, std::vector<buffers::SDataBuffer>& buffers)
 	{
 		using namespace buffers;
-		NXT_LOG_TRACE("Register Mesh");
+		//NXT_LOG_TRACE("Register Mesh");
 		std::vector<Primitive> primitives{};
 
 		for (tinygltf::Primitive& primitive : mesh.primitives)
@@ -54,7 +54,7 @@ namespace nxt
 
 				if (layoutPosition >= 0)
 				{
-					NXT_LOG_TRACE("Setting Layout Position: {0}", layoutPosition);
+					//NXT_LOG_TRACE("Setting Layout Position: {0}, amount {1}", layoutPosition, amount);
 					arrayObject->SetLayoutPosition(layoutPosition, amount, static_cast<nxtDataType>(accessor.componentType), stride, static_cast<uint32_t>(accessor.byteOffset), accessor.normalized);
 				}
 			}
@@ -66,7 +66,7 @@ namespace nxt
 
 	static Mesh RegisterNode(buffers::SArrayObject& arrayObject, tinygltf::Model& model, tinygltf::Node& node, std::vector<buffers::SDataBuffer>& buffers)
 	{
-		NXT_LOG_TRACE("Register Node");
+		//NXT_LOG_TRACE("Register Node");
 		Mesh mesh{};
 		if (node.mesh >= 0)
 		{
@@ -97,6 +97,7 @@ namespace nxt
 			for (tinygltf::Texture& texture : model.textures)
 			{
 				tinygltf::Image& image{ model.images[texture.source] };
+				NXT_LOG_TRACE("Model Texture URI: {0}", image.uri);
 
 				nxtTextureFormat format{ 0 };
 				switch (image.component)
@@ -143,6 +144,7 @@ namespace nxt
 				}
 
 				STexture tex{ Texture::Create(image.width, image.height, format) };
+				tex->NAME = image.uri;
 				tex->SetData(format, dataType, &image.image.at(0));
 				textures.push_back(tex);
 

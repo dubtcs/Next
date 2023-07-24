@@ -19,6 +19,7 @@ struct Light
 };
 
 uniform sampler2D textures[16];
+uniform bool useNormals;
 
 layout (std140, binding = 0) uniform FrameInfo
 {
@@ -78,8 +79,10 @@ vec3 PointLight(uint i)
     diffuse = angleDifference * lights[i].Color;
 
     vec3 viewDirection = normalize(cameraPosition - pWorldPosition);
-    vec3 reflectionDirection = reflect(-lightDirection, normal);
-    float specularHighlight = pow(max(dot(viewDirection, reflectionDirection), 0.0), specularIntensity);
+    //vec3 reflectionDirection = reflect(-lightDirection, normal);
+    //float specularHighlight = pow(max(dot(viewDirection, reflectionDirection), 0.0), specularIntensity);
+    vec3 halfwayNormal = normalize(lightDirection + viewDirection);
+    float specularHighlight = pow(max(dot(normal, halfwayNormal), 0.0), specularIntensity);
     specular = specularHighlight * lights[i].Color * specularDampening;
 
     return diffuse + specular;
@@ -137,10 +140,10 @@ void main()
 
     vec4 targetColor = texture(textures[colorTextureIndex], pTexPos) * baseColor;
 
-    if(normalTexture >= 0)
+    if(normalTexture >= 0 && useNormals == true)
     {
         normal = texture(textures[normalTexture], pTexPos).rgb;
-        normal = (normal * 2.0) - 1.0;
+        normal = normalize((normal * 2.0) - 1.0);
         normal = normalize(pTangentMatrix * normal);
     }
     else
@@ -183,5 +186,6 @@ void main()
     }
 
     outColor = vec4(lightingEffect, 1.0) * targetColor;
+    //outColor = texture(textures[0], pTexPos);
 
 }

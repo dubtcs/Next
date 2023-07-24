@@ -58,7 +58,11 @@ namespace nxt
 		mCamera{ {-2.f, 1.f, 2.f} }
 	{
 		mShader.Bind();
-		mShader.SetValue("useBlinn", useBlinn);
+		mShader.SetValue("useNormals", useBlinn);
+
+		// forgot to set the texture units for normals, so all textures were diverting to
+		// the color texture causing normals look horrible.
+		mShader.SetArrayValue("textures", { 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15 });
 
 		mFrameInfoBuffer->BindIndexed(0);
 		mLightInfoBuffer->BindIndexed(1);
@@ -80,7 +84,7 @@ namespace nxt
 		LightInfo light2{};
 		light2.Type = POINT_LIGHT;
 		light2.Intensity = 1.f;
-		light2.Position = glm::vec3{ -2.f, 4.f, -1.f };
+		light2.Position = glm::vec3{ 0, 5.f, -5.f };
 		light2.Color = glm::vec3{ 0.8f, 1.f, 0.8f };
 		light2.Direction = glm::vec3{ 1.f, -1.f, 0.f };
 		mLightInfoBuffer->SetSubData(sizeof(LightInfo), sizeof(LightInfo) * i, &light2);
@@ -151,6 +155,7 @@ namespace nxt
 		{
 			tex->Bind(i++);
 		}
+		//model->GetTextures()[2]->Bind(2);
 		for (const Mesh& m : model->GetMeshes())
 		{
 			DrawMesh(model, m, objectInfo);
@@ -170,24 +175,24 @@ namespace nxt
 		glm::mat4 ones{ 1.f };
 
 		// Lighting render pass
-		mShadowShader.Bind();
-		mShadowmap.BeginRenderPass();
+		//mShadowShader.Bind();
+		//mShadowmap.BeginRenderPass();
 
 		necs::SceneView<cmp::Transform, cmp::WorldModel> view{ world.GetScene() };
-		for (const necs::Entity& e : view)
-		{
-			cmp::Transform& t{ world.GetComponent<cmp::Transform>(e) };
-			glm::mat4 worldMatrix{ glm::translate(ones, t.Position)
-				//* glm::rotate(ones, t.Scale) // quaternions required
-				* glm::scale(ones, t.Scale)
-			};
-			mObjectInfoBuffer->SetSubData(sizeof(glm::mat4), 64, glm::value_ptr(worldMatrix));
+		//for (const necs::Entity& e : view)
+		//{
+		//	cmp::Transform& t{ world.GetComponent<cmp::Transform>(e) };
+		//	glm::mat4 worldMatrix{ glm::translate(ones, t.Position)
+		//		//* glm::rotate(ones, t.Scale) // quaternions required
+		//		* glm::scale(ones, t.Scale)
+		//	};
+		//	mObjectInfoBuffer->SetSubData(sizeof(glm::mat4), 64, glm::value_ptr(worldMatrix));
 
-			cmp::WorldModel& m{ world.GetComponent<cmp::WorldModel>(e) };
-			DrawModel(m.ModelInstance, mObjectInfoBuffer);
-		}
+		//	cmp::WorldModel& m{ world.GetComponent<cmp::WorldModel>(e) };
+		//	DrawModel(m.ModelInstance, mObjectInfoBuffer);
+		//}
 
-		mShadowmap.EndRenderPass(mWidth, mHeight);
+		//mShadowmap.EndRenderPass(mWidth, mHeight);
 
 		// Visible render pass
 		mFrameBuffer->Bind();
@@ -269,9 +274,9 @@ namespace nxt
 		if (ev.Keycode == nxtKeycode_B)
 		{
 			useBlinn = !useBlinn;
-			NXT_LOG_TRACE("BlinnPhong model: {0}", useBlinn);
+			NXT_LOG_TRACE("Normals: {0}", useBlinn);
 			mShader.Bind();
-			mShader.SetValue("useBlinn", useBlinn);
+			mShader.SetValue("useNormals", useBlinn);
 		}
 
 		if (ev.Keycode == nxtKeycode_G)

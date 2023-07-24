@@ -3,7 +3,7 @@
 
 layout (location = 0) in vec3 vPosition;
 layout (location = 1) in vec3 vNormal;
-layout (location = 2) in vec3 vTangent;
+layout (location = 2) in vec4 vTangent;
 layout (location = 3) in vec2 vTexturePosition;
 
 #define MAX_LIGHTS 10
@@ -57,9 +57,24 @@ void main()
     pNormal = mat3(normalMatrix) * vNormal;
     pTexPos = vTexturePosition;
 
-    vec3 t = normalize(vec3(worldMatrix * vec4(vTangent, 0.0)));
-    vec3 b = normalize(vec3(worldMatrix * vec4(cross(vNormal, vTangent), 0.0)));
+    vec3 t = normalize(vec3(worldMatrix * vec4(vTangent.xyz, 0.0)));
+    
+    vec3 bt = cross(vNormal, vTangent.xyz) * vTangent.w;
+    vec3 b = normalize(vec3(worldMatrix * vec4(bt, 0.0)));
+
     vec3 n = normalize(vec3(worldMatrix * vec4(vNormal, 0.0)));
 
-    pTangentMatrix = mat3(t,b,n);
+    pTangentMatrix = mat3(t, b, n);
+
 }
+
+/*
+
+vec3 t = normalize(pNormal);
+    vec3 n = normalize(mat3(normalMatrix) * vTangent.xyz);
+
+    vec3 b = normalize(cross(n, t)) * vTangent.w;
+
+    pTangentMatrix = mat3(t, b, n);
+
+    */

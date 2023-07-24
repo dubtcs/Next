@@ -43,7 +43,7 @@ namespace nxt
 		mWorld.Attach<cmp::WorldModel>(ea, modelInstance);
 
 		necs::Entity ec{ mWorld.CreateEntity() };
-		mWorld.Attach<cmp::Transform>(ec, { glm::vec3{0.f, 5.f, 0.f}, glm::vec3{0.f}, glm::vec3{10.f} });
+		mWorld.Attach<cmp::Transform>(ec, { glm::vec3{3.f, 0.f, 0.f}, glm::vec3{0.f}, glm::vec3{25.f} });
 		mWorld.Attach<cmp::WorldModel>(ec, avo);
 
 		for (float i{ 0 }; i < 5; i++)
