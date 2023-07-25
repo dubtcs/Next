@@ -27,7 +27,6 @@ namespace nxt
 		void GenerateMipmaps() const;
 		void Bind(uint32_t textureUnit = 0) const;
 		static void SetInternalFormat(nxtTextureFormat from, nxtTextureFormatInternal* target);
-		std::string NAME{ "NOT SET" };
 	protected:
 		uint32_t mID{ 0 };
 		int32_t mWidth;

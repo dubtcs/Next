@@ -143,8 +143,8 @@ namespace nxt
 					break;
 				}
 
+				NXT_LOG_TRACE("w{0} h{1}", image.width, image.height);
 				STexture tex{ Texture::Create(image.width, image.height, format) };
-				tex->NAME = image.uri;
 				tex->SetData(format, dataType, &image.image.at(0));
 				textures.push_back(tex);
 

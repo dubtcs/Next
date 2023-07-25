@@ -8,6 +8,8 @@ static uint32_t gSamples{ 4 };
 static bool drawNormals{ true };
 static bool useBlinn{ true };
 
+static nxt::STexture gDepthTexture;
+
 static constexpr uint32_t gMaxLights{ 10 };
 struct LightInfo // 16 Byte Aligned
 {
@@ -48,7 +50,8 @@ namespace nxt
 {
 
 	RenderSystem::RenderSystem() :
-		mShader{ "assets/shaders/objects/obj5.vert", "assets/shaders/objects/obj5.frag" },
+		//mShader{ "assets/shaders/objects/obj5.vert", "assets/shaders/objects/obj5.frag" },
+		mShader{ "assets/shaders/objects/para.vert", "assets/shaders/objects/para.frag" },
 		mFrameInfoBuffer{ buffers::DataBuffer::Create(76, nullptr, nxtBufferTarget_UniformBuffer) },
 		mLightInfoBuffer{ buffers::DataBuffer::Create(sizeof(SceneLightData), nullptr, nxtBufferTarget_UniformBuffer)},
 		mObjectInfoBuffer{ buffers::DataBuffer::Create(sizeof(ObjectBufferInfo), nullptr, nxtBufferTarget_UniformBuffer) },
@@ -59,6 +62,10 @@ namespace nxt
 	{
 		mShader.Bind();
 		mShader.SetValue("useNormals", useBlinn);
+		mShader.SetValue("depthTexture", 0b1111);
+
+		gDepthTexture = Texture::Create("assets/textures/depthtest.png");
+		gDepthTexture->Bind(15);
 
 		// forgot to set the texture units for normals, so all textures were diverting to
 		// the color texture causing normals look horrible.
