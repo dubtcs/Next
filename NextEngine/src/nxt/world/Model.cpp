@@ -6,12 +6,26 @@
 
 #include <tiny_gltf.h>
 
+#include <glm/glm.hpp>
 #include <glm/gtx/string_cast.hpp>
 
 namespace nxt
 {
 
 	namespace gltf = tinygltf;
+
+	struct TanBufferCache
+	{
+		buffers::SDataBuffer buffer;
+		int32_t amount;
+		int32_t stride;
+	};
+
+	static std::vector<glm::vec4> GenerateTangents(TanBufferCache& positions, TanBufferCache& normals)
+	{
+
+		return {};
+	}
 
 	static std::vector<Primitive> RegisterMesh(buffers::SArrayObject& arrayObject, tinygltf::Model& model, tinygltf::Mesh& mesh, std::vector<buffers::SDataBuffer>& buffers)
 	{
@@ -33,6 +47,11 @@ namespace nxt
 
 			primitives.push_back(addPrimitive);
 
+			bool tangentsFound{ false };
+			
+			//TanBufferCache positionData;
+			//TanBufferCache normalData;
+
 			for (auto& attribute : primitive.attributes)
 			{
 				// Binding buffers for attribute locationd data
@@ -46,18 +65,49 @@ namespace nxt
 
 				int32_t layoutPosition{ -1 };
 
-				if		(attribute.first == "POSITION")		layoutPosition = 0;
-				else if (attribute.first == "NORMAL")		layoutPosition = 1;
-				else if (attribute.first == "TANGENT")		layoutPosition = 2;
-				else if (attribute.first == "TEXCOORD_0")	layoutPosition = 3;
+				if (attribute.first == "POSITION")
+				{
+					layoutPosition = 0;
+					//positionData.buffer = dBuffer;
+					//positionData.amount = amount;
+					//positionData.stride = stride;
+				}
+				else if (attribute.first == "NORMAL")
+				{
+					layoutPosition = 1;
+				}
+				else if (attribute.first == "TANGENT") 
+				{	
+					layoutPosition = 2; 
+					tangentsFound = true; 
+					//normalData.buffer = dBuffer;
+					//normalData.amount = amount;
+					//normalData.stride = stride;
+				}
+				else if (attribute.first == "TEXCOORD_0") 
+				{
+					layoutPosition = 3;
+				}
 				else NXT_LOG_DEBUG("Attribute found that is not supported: {0}", attribute.first);
 
 				if (layoutPosition >= 0)
 				{
 					//NXT_LOG_TRACE("Setting Layout Position: {0}, amount {1}", layoutPosition, amount);
+					NXT_LOG_TRACE(stride);
 					arrayObject->SetLayoutPosition(layoutPosition, amount, static_cast<nxtDataType>(accessor.componentType), stride, static_cast<uint32_t>(accessor.byteOffset), accessor.normalized);
 				}
 			}
+
+			//if (!tangentsFound)
+			//{
+				//NXT_LOG_INFO("Tangents not found, generating.");
+				//std::vector<glm::vec4> tangentVectors{ GenerateTangents(positionData, normalData) };
+				//SDataBuffer tanBuffer{ buffers::DataBuffer::Create(sizeof(glm::vec4) * tangentVectors.size(), &tangentVectors) };
+				//tanBuffer->Bind();
+				//arrayObject->SetLayoutPosition(2, tangentVectors.size(), nxtDataType_Float, 0, 0, false);
+				//arrayObject->Unbind();
+			//}
+			//arrayObject->Bind();
 
 		}
 

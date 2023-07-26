@@ -51,20 +51,20 @@ namespace nxt
 
 	RenderSystem::RenderSystem() :
 		//mShader{ "assets/shaders/objects/obj5.vert", "assets/shaders/objects/obj5.frag" },
-		mShader{ "assets/shaders/objects/para.vert", "assets/shaders/objects/para.frag" },
+		mShader{ "assets/shaders/objects/parallax.vert", "assets/shaders/objects/parallax.frag" },
 		mFrameInfoBuffer{ buffers::DataBuffer::Create(76, nullptr, nxtBufferTarget_UniformBuffer) },
 		mLightInfoBuffer{ buffers::DataBuffer::Create(sizeof(SceneLightData), nullptr, nxtBufferTarget_UniformBuffer)},
 		mObjectInfoBuffer{ buffers::DataBuffer::Create(sizeof(ObjectBufferInfo), nullptr, nxtBufferTarget_UniformBuffer) },
 		mMaterialInfoBuffer{ buffers::DataBuffer::Create(sizeof(MaterialBufferInfo), nullptr, nxtBufferTarget_UniformBuffer) },
 		mShadowmap{ 1024 },
-		mShadowShader{ "assets/shaders/shadows/shadowCube.vert", "assets/shaders/shadows/shadowCube.geom", "assets/shaders/shadows/shadowCube.frag" },
+		//mShadowShader{ "assets/shaders/shadows/shadowCube.vert", "assets/shaders/shadows/shadowCube.geom", "assets/shaders/shadows/shadowCube.frag" },
 		mCamera{ {-2.f, 1.f, 2.f} }
 	{
 		mShader.Bind();
 		mShader.SetValue("useNormals", useBlinn);
-		mShader.SetValue("depthTexture", 0b1111);
+		mShader.SetValue("depthMap", 0b1111);
 
-		gDepthTexture = Texture::Create("assets/textures/depthtest.png");
+		gDepthTexture = Texture::Create("assets/textures/Avocado_depthMap.png");
 		gDepthTexture->Bind(15);
 
 		// forgot to set the texture units for normals, so all textures were diverting to
@@ -75,58 +75,6 @@ namespace nxt
 		mLightInfoBuffer->BindIndexed(1);
 		mObjectInfoBuffer->BindIndexed(2);
 		mMaterialInfoBuffer->BindIndexed(3);
-
-		uint32_t i{ 0 };
-
-		LightInfo light{};
-		light.Type = SPOT_LIGHT;
-		light.Intensity = 1.f;
-		light.Direction = glm::vec3{ 1.f, 0.f, 0.f };
-		light.Position = glm::vec3{ -1.f, 0.f, 0.f };
-		light.Color = glm::vec3{ 1.f };
-		light.Radius = std::cos(glm::radians(25.f));
-		mLightInfoBuffer->SetSubData(sizeof(LightInfo), sizeof(LightInfo) * i, &light);
-		i++;
-
-		LightInfo light2{};
-		light2.Type = POINT_LIGHT;
-		light2.Intensity = 1.f;
-		light2.Position = glm::vec3{ 0, 5.f, -5.f };
-		light2.Color = glm::vec3{ 0.8f, 1.f, 0.8f };
-		light2.Direction = glm::vec3{ 1.f, -1.f, 0.f };
-		mLightInfoBuffer->SetSubData(sizeof(LightInfo), sizeof(LightInfo) * i, &light2);
-		i++;
-
-		// Premade lighting matrices
-		glm::mat4 shadowProjection{ glm::perspective(glm::radians(90.f), 1.f, 0.01f, 25.f) };
-		//glm::mat4 shadowView{ glm::lookAt(light2.Position, glm::vec3{0.f}, glm::vec3{ 0.f, 1.f, 0.f }) };
-		//glm::mat4 lightSpaceMatrix{ shadowProjection * shadowView };
-		//mShader.SetValue("shadowMatrix", lightSpaceMatrix);
-		//mShader.SetValue("shadowMap", 0);
-		//mShadowShader.Bind();
-		//mShadowShader.SetValue("projectionViewMatrix", lightSpaceMatrix);
-
-		std::vector<glm::mat4> shadowViewMatrices{
-			shadowProjection * glm::lookAt(light2.Position, light2.Position + glm::vec3{ 1.f,  0.f,  0.f}, glm::vec3{ 0.f,  -1.f,  0.f}),
-			shadowProjection * glm::lookAt(light2.Position, light2.Position + glm::vec3{-1.f,  0.f,  0.f}, glm::vec3{ 0.f,  -1.f,  0.f}),
-			shadowProjection * glm::lookAt(light2.Position, light2.Position + glm::vec3{ 0.f,  1.f,  0.f}, glm::vec3{ 0.f,  0.f,  1.f}),
-			shadowProjection * glm::lookAt(light2.Position, light2.Position + glm::vec3{ 0.f, -1.f,  0.f}, glm::vec3{ 0.f,  0.f, -1.f}),
-			shadowProjection * glm::lookAt(light2.Position, light2.Position + glm::vec3{ 0.f,  0.f,  1.f}, glm::vec3{ 0.f,  -1.f,  0.f}),
-			shadowProjection * glm::lookAt(light2.Position, light2.Position + glm::vec3{ 0.f,  0.f, -1.f}, glm::vec3{ 0.f, - 1.f,  0.f}),
-		};
-
-		mShader.SetValue("shadowMap", 0);
-		mShadowShader.Bind();
-		mShadowShader.SetArrayValue("projectionViewMatrices", shadowViewMatrices);
-
-		LightInfo light3{};
-		light3.Type = AMBIENT_LIGHT;
-		light3.Intensity = 0.05f;
-		light3.Color = glm::vec3(1.f, 0.f, 0.f);
-		mLightInfoBuffer->SetSubData(sizeof(LightInfo), sizeof(LightInfo) * i, &light3);
-		i++;
-
-		mLightInfoBuffer->SetSubData(4, 480, &i);
 
 	}
 
@@ -162,7 +110,6 @@ namespace nxt
 		{
 			tex->Bind(i++);
 		}
-		//model->GetTextures()[2]->Bind(2);
 		for (const Mesh& m : model->GetMeshes())
 		{
 			DrawMesh(model, m, objectInfo);
@@ -181,25 +128,17 @@ namespace nxt
 
 		glm::mat4 ones{ 1.f };
 
-		// Lighting render pass
-		//mShadowShader.Bind();
-		//mShadowmap.BeginRenderPass();
-
-		necs::SceneView<cmp::Transform, cmp::WorldModel> view{ world.GetScene() };
-		//for (const necs::Entity& e : view)
-		//{
-		//	cmp::Transform& t{ world.GetComponent<cmp::Transform>(e) };
-		//	glm::mat4 worldMatrix{ glm::translate(ones, t.Position)
-		//		//* glm::rotate(ones, t.Scale) // quaternions required
-		//		* glm::scale(ones, t.Scale)
-		//	};
-		//	mObjectInfoBuffer->SetSubData(sizeof(glm::mat4), 64, glm::value_ptr(worldMatrix));
-
-		//	cmp::WorldModel& m{ world.GetComponent<cmp::WorldModel>(e) };
-		//	DrawModel(m.ModelInstance, mObjectInfoBuffer);
-		//}
-
-		//mShadowmap.EndRenderPass(mWidth, mHeight);
+		// Push light data to buffer
+		necs::SceneView<cmp::Light> lightView{ world.GetScene() };
+		int32_t i{ 0 };
+		cmp::Light& lc{ world.GetComponent<cmp::Light>(*lightView.begin()) };
+		float circleMagnitude{ 10.f };
+		lc.Position = glm::vec3{ -std::sin(clock::GetRunTime()) * circleMagnitude, 0.f, std::cos(clock::GetRunTime()) * circleMagnitude };
+		for (const necs::Entity& e : lightView)
+		{
+			mLightInfoBuffer->SetSubData(sizeof(cmp::Light), sizeof(cmp::Light) * i++, &world.GetComponent<cmp::Light>(e));
+		}
+		mLightInfoBuffer->SetSubData(4, 480, &i);
 
 		// Visible render pass
 		mFrameBuffer->Bind();
@@ -207,6 +146,8 @@ namespace nxt
 		render::command::Clear();
 		mShader.Bind();
 		mShadowmap.BindTextureMap(0);
+
+		necs::SceneView<cmp::Transform, cmp::WorldModel> view{ world.GetScene() };
 		for (const necs::Entity& e : view)
 		{
 			cmp::Transform& t{ world.GetComponent<cmp::Transform>(e) };
@@ -294,18 +235,6 @@ namespace nxt
 			render::command::SetRenderFeature(nxtRenderFeature_FrameBuffer_sRGB, jj);
 		}
 
-		// The enums are 2 off from eachother
-		//if (ev.Keycode == nxtKeycode_Left || ev.Keycode == nxtKeycode_Right)
-		//{
-		//	uint32_t newVal{ ev.Keycode - 35 };
-		//	if (newVal != gSamples)
-		//	{
-		//		// to stop making a framebuffer every time a key is pressed
-		//		gSamples = ev.Keycode - 35;
-		//		NXT_LOG_TRACE(gSamples);
-		//		mFrameBuffer = buffers::FrameBuffer::Create(mWidth, mHeight, gSamples);
-		//	}
-		//}
 		return false;
 	}
 

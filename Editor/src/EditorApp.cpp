@@ -15,43 +15,22 @@ namespace nxt
 		mWorld{}
 	{
 
-		SModel modelInstance{ Model::Create("assets/models/BoxTextured.gltf") };
+		// Lights
+		necs::Entity l1{ mWorld.CreateEntity() };
+		cmp::Light li1{ .Position{ 0.f, 5.f, 5.f }, .Intensity{3.f}, .LightType{cmp::nxtLightType_Point}, .Color{0.5, 0.7, 1.f} };
+		mWorld.Attach<cmp::Light>(l1, li1);
+
+		necs::Entity l2{ mWorld.CreateEntity() };
+		cmp::Light li2{ .Intensity{ 0.1f }, .LightType{ cmp::nxtLightType_Ambient }, .Color{ 1.f, 1.f, 1.f } };
+		mWorld.Attach<cmp::Light>(l2, li2);
+
+		// World Models
+		SModel modelInstance{ Model::Create("assets/models/stoneCube/Cube.gltf") };
 		SModel avo{ Model::Create("assets/models/Avocado.gltf") };
 		
-		necs::Entity e{ mWorld.CreateEntity() };
-		mWorld.Attach<cmp::Transform>(e, {glm::vec3{0.f, -2.f, 0.f}});
-		mWorld.Attach<cmp::WorldModel>(e, modelInstance);
-
-		necs::Entity e2{ mWorld.CreateEntity() };
-		mWorld.Attach<cmp::Transform>(e2, { glm::vec3{0.f, -0.6f, 0.f}, glm::vec3{0.f}, glm::vec3{20.f, 0.1f, 20.f} });
-		mWorld.Attach<cmp::WorldModel>(e2, modelInstance);
-
-		necs::Entity e3{ mWorld.CreateEntity() };
-		mWorld.Attach<cmp::Transform>(e3, { glm::vec3{-9.5f, 2.5f, 0.f}, glm::vec3{0.f}, glm::vec3{0.5f, 5.f, 20.f} });
-		mWorld.Attach<cmp::WorldModel>(e3, modelInstance);
-
-		necs::Entity e4{ mWorld.CreateEntity() };
-		mWorld.Attach<cmp::Transform>(e4, { glm::vec3{9.5f, 2.5f, 0.f}, glm::vec3{0.f}, glm::vec3{0.5f, 45.f, 20.f} });
-		mWorld.Attach<cmp::WorldModel>(e4, modelInstance);
-
-		necs::Entity eb{ mWorld.CreateEntity() };
-		mWorld.Attach<cmp::Transform>(eb, { glm::vec3{ -2.f, 2.f, 0.f } });
-		mWorld.Attach<cmp::WorldModel>(eb, modelInstance);
-
-		necs::Entity ea{ mWorld.CreateEntity() };
-		mWorld.Attach<cmp::Transform>(ea, { glm::vec3{ -5.f, 2.f, -1.f } });
-		mWorld.Attach<cmp::WorldModel>(ea, modelInstance);
-
-		necs::Entity ec{ mWorld.CreateEntity() };
-		mWorld.Attach<cmp::Transform>(ec, { glm::vec3{3.f, 0.f, 0.f}, glm::vec3{0.f}, glm::vec3{25.f} });
-		mWorld.Attach<cmp::WorldModel>(ec, avo);
-
-		for (float i{ 0 }; i < 5; i++)
-		{
-			necs::Entity e3{ mWorld.CreateEntity() };
-			mWorld.Attach<cmp::Transform>(e3, { glm::vec3{ i * 3.f } });
-			mWorld.Attach<cmp::WorldModel>(e3, modelInstance);
-		}
+		necs::Entity avocado{ mWorld.CreateEntity() };
+		mWorld.Attach<cmp::Transform>(avocado, { glm::vec3{0.f}, glm::vec3{0.f}, glm::vec3{1.f} });
+		mWorld.Attach<cmp::WorldModel>(avocado, modelInstance);
 
 	}
 
