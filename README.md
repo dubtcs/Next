@@ -32,6 +32,7 @@ NxtEngine is built with Win32 and OpenGL to get a better understanding of the co
    - MSAA
    - Normal and Parallax mapping
    - Shadow support
+   - Skyboxes
 
 ## How To Use
 
@@ -39,11 +40,11 @@ NxtEngine comes with a built in viewer, but if you want to use the raw render ap
 
 ### Viewer Controls
 
-**MSAA Sampling**
-    Use the right/left arrow keys to increase/drecrease MSAA sampling.
+**MSAA Sampling:**
+    Use the right/left arrow keys to increase/decrease MSAA sampling.
 
-**Normals**
-    Press N to toggle normal mapping.
+**Normals:**
+    Press *N* to toggle normal mapping.
 
 ### App Interface
 
