@@ -8,6 +8,8 @@
 
 #include <nxt/core/log/Log.h>
 
+#include <codecvt>
+
 #ifdef NXT_PLATFORM_WINDOWS
 
 constexpr const wchar_t* GWindowClassName{ L"NxtWindowClass" };
@@ -98,6 +100,8 @@ namespace nxt
 		{
 			return false;
 		}
+
+		//DragAcceptFiles(mWindowHandle, TRUE);
 
 		device::Init(&mWindowHandle);
 		render::command::Init();
@@ -192,6 +196,7 @@ void FireSizeEvent(LPARAM& lparam)
 
 void FireMouseDownEvent(nxt::nxtKeycode keycode, bool isDouble)
 {
+	NXT_LOG_TRACE("BRUH");
 	nxt::events::MouseButtonPressed ev{ keycode, isDouble };
 	nxt::app::OnEvent(ev);
 	return;
@@ -203,6 +208,9 @@ void FireMouseUpEvent(nxt::nxtKeycode keycode)
 	nxt::app::OnEvent(ev);
 	return;
 }
+
+// A lot of branches in here.
+// Maybe let the app even dispatcher handle it instead?
 
 LRESULT CALLBACK NxtWindowProcedure(HWND hwnd, UINT msg, WPARAM wparam, LPARAM lparam)
 {
@@ -273,49 +281,97 @@ LRESULT CALLBACK NxtWindowProcedure(HWND hwnd, UINT msg, WPARAM wparam, LPARAM l
 			PostQuitMessage(0);
 			break;
 		}
+		case(WM_DROPFILES):
+		{
+			//wchar_t nameBuffer[512];
+			//UINT charactersRequired{};
+			//UINT query{ DragQueryFile((HDROP)wparam, 0, nameBuffer, charactersRequired) };
+			//DragFinish((HDROP)wparam);
+			break;
+		}
+		case(WM_ACTIVATE):
+		{
+			WORD status{ LOWORD(wparam) };
+			//WORD desc{ HIWORD(wparam) };
+			nxt::Window* window{ reinterpret_cast<nxt::Window*>(GetWindowLongPtr(hwnd, GWLP_USERDATA)) };
+			window->isFocused = !(status == WA_INACTIVE);
+			NXT_LOG_TRACE(window->isFocused);
+			break;
+		}
 		case(WM_KEYDOWN):
 		{
 			nxt::Window* window{ reinterpret_cast<nxt::Window*>(GetWindowLongPtr(hwnd, GWLP_USERDATA)) };
-			nxt::events::KeyboardPressed ev{ static_cast<nxtKeycode>(wparam) };
-			nxt::app::OnEvent(ev);
+			if (window->isFocused)
+			{
+				nxt::events::KeyboardPressed ev{ static_cast<nxtKeycode>(wparam) };
+				nxt::app::OnEvent(ev);
+			}
 			break;
 		}
 		case(WM_LBUTTONDOWN):
 		{
 			// can also get x/y coords from lparam
-			FireMouseDownEvent(nxtKeycode_Mouse1, false);
+			nxt::Window* window{ reinterpret_cast<nxt::Window*>(GetWindowLongPtr(hwnd, GWLP_USERDATA)) };
+			if (window->isFocused)
+			{
+				FireMouseDownEvent(nxtKeycode_Mouse1, false);
+			}
 			break;
 		}
 		case(WM_LBUTTONUP):
 		{
-			FireMouseUpEvent(nxtKeycode_Mouse1);
+			nxt::Window* window{ reinterpret_cast<nxt::Window*>(GetWindowLongPtr(hwnd, GWLP_USERDATA)) };
+			if (window->isFocused)
+			{
+				FireMouseUpEvent(nxtKeycode_Mouse1);
+			}
 			break;
 		}
 		case(WM_LBUTTONDBLCLK):
 		{
-			FireMouseDownEvent(nxtKeycode_Mouse1, true);
+			nxt::Window* window{ reinterpret_cast<nxt::Window*>(GetWindowLongPtr(hwnd, GWLP_USERDATA)) };
+			if (window->isFocused)
+			{
+				FireMouseDownEvent(nxtKeycode_Mouse1, true);
+			}
 			break;
 		}
 		case(WM_RBUTTONDOWN):
 		{
-			FireMouseDownEvent(nxtKeycode_Mouse2, false);
+			nxt::Window* window{ reinterpret_cast<nxt::Window*>(GetWindowLongPtr(hwnd, GWLP_USERDATA)) };
+			if (window->isFocused)
+			{
+				FireMouseDownEvent(nxtKeycode_Mouse2, false);
+			}
 			break;
 		}
 		case(WM_RBUTTONUP):
 		{
-			FireMouseUpEvent(nxtKeycode_Mouse2);
+			nxt::Window* window{ reinterpret_cast<nxt::Window*>(GetWindowLongPtr(hwnd, GWLP_USERDATA)) };
+			if (window->isFocused)
+			{
+				FireMouseUpEvent(nxtKeycode_Mouse2);
+			}
 			break;
 		}
 		case(WM_RBUTTONDBLCLK):
 		{
-			FireMouseDownEvent(nxtKeycode_Mouse2, true);
+			nxt::Window* window{ reinterpret_cast<nxt::Window*>(GetWindowLongPtr(hwnd, GWLP_USERDATA)) };
+			if (window->isFocused)
+			{
+				FireMouseDownEvent(nxtKeycode_Mouse2, true);
+			}
 			break;
 		}
 		case(WM_MOUSEWHEEL):
 		{
 			float delta{ static_cast<float>(GET_WHEEL_DELTA_WPARAM(wparam)) };
-			nxt::events::MouseScroll ev{ delta };
-			nxt::app::OnEvent(ev);
+			nxt::Window* window{ reinterpret_cast<nxt::Window*>(GetWindowLongPtr(hwnd, GWLP_USERDATA)) };
+			if (window->isFocused)
+			{
+				nxt::events::MouseScroll ev{ delta };
+				nxt::app::OnEvent(ev);
+			}
 			break;
 		}
 	}

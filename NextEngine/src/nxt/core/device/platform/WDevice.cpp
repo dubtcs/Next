@@ -3,12 +3,17 @@
 
 #ifdef NXT_PLATFORM_WINDOWS
 
+#include "WDropTarget.h"
+
 #include <iostream>
+#include <shellapi.h>
 
 // rendering contexts
 static HWND* gWindowHandle{ nullptr };
 static HDC gDeviceContext;
 static HGLRC gRenderingContext;
+
+static nxt::device::DropTarget gDropTarget{};
 
 namespace nxt::device
 {
@@ -45,11 +50,16 @@ namespace nxt::device
 		gRenderingContext = wglCreateContext(gDeviceContext);
 		wglMakeCurrent(gDeviceContext, gRenderingContext);
 
+		HRESULT oleStatus{ OleInitialize(NULL) };
+		HRESULT dropStatus{ RegisterDragDrop(*gWindowHandle, &gDropTarget) };
+
 		return true;
 	}
 
 	bool Release()
 	{
+		RevokeDragDrop(*gWindowHandle);
+
 		ReleaseDC(*gWindowHandle, gDeviceContext);
 		wglDeleteContext(gRenderingContext);
 

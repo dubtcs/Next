@@ -37,6 +37,7 @@ namespace nxt
 
 		uint32_t mWidth{ 0 };
 		uint32_t mHeight{ 0 };
+		bool isFocused{ false };
 
 		//uint32_t mTrueWidth{ 0 };
 		//uint32_t mTrueHeight{ 0 };

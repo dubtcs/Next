@@ -8,6 +8,10 @@
 
 #include <nxt/core/events/ScriptEvents.h>
 
+static nxt::SModel modelInstance{ nullptr };
+static nxt::cmp::WorldModel worldModel{};
+static necs::Entity viewModel{};
+
 namespace nxt
 {
 
@@ -25,27 +29,41 @@ namespace nxt
 		mWorld.Attach<cmp::Light>(l2, li2);
 
 		// World Models
-		SModel modelInstance{ Model::Create("assets/models/stoneCube/Cube.gltf") };
-		SModel avo{ Model::Create("assets/models/Avocado.gltf") };
+		modelInstance = Model::Create("assets/models/stoneCube/Cube.gltf");
+		//SModel avo{ Model::Create("assets/models/Avocado.gltf") };
 		
-		necs::Entity avocado{ mWorld.CreateEntity() };
-		mWorld.Attach<cmp::Transform>(avocado, { glm::vec3{0.f}, glm::vec3{0.f}, glm::vec3{1.f} });
-		mWorld.Attach<cmp::WorldModel>(avocado, modelInstance);
+		worldModel.ModelInstance = modelInstance;
+
+		viewModel =  mWorld.CreateEntity();
+		mWorld.Attach<cmp::Transform>(viewModel, { glm::vec3{0.f}, glm::vec3{0.f}, glm::vec3{1.f} });
+		mWorld.Attach<cmp::WorldModel>(viewModel, worldModel);
 
 	}
 
-	void Editor::OnUpdate(float& dt)
+	void Editor::OnUpdate(float& dt, bool isFocused)
 	{
-		mRender.OnUpdate(dt, mWorld);
+		mRender.OnUpdate(dt, mWorld, isFocused);
+	}
+
+	bool Editor::OnDragReceived(events::DragFileReceived& ev)
+	{
+		if (ev.Path.extension().string() == ".gltf")
+		{
+			cmp::WorldModel& wm{ mWorld.GetComponent<cmp::WorldModel>(viewModel) };
+			modelInstance = Model::Create(ev.Path);
+			wm.ModelInstance = modelInstance;
+		}
+		return false;
 	}
 
 	bool Editor::OnEvent(nxt::events::Event& ev)
 	{
-		//events::Handler handler{ ev };
+		events::Handler handler{ ev };
 		//handler.Fire<events::KeyboardPressed>(NXT_CALLBACK(Editor::OnKeyPressed));
 		//handler.Fire<events::MouseButtonPressed>(NXT_CALLBACK(Editor::OnMouseButtonPressed));
 		//handler.Fire<events::MouseButtonReleased>(NXT_CALLBACK(Editor::OnMouseButtonReleased));
 		//handler.Fire<events::WindowResized>(NXT_CALLBACK(Editor::OnWindowResize));
+		handler.Fire<events::DragFileReceived>(NXT_CALLBACK(Editor::OnDragReceived));
 		mRender.OnEvent(ev);
 		return false;
 	}

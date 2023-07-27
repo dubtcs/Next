@@ -14,7 +14,7 @@ namespace nxt
 	{
 	public:
 		RenderSystem();
-		void OnUpdate(float& dt, World& world);
+		void OnUpdate(float& dt, World& world, bool isFocused);
 		bool OnEvent(events::Event& ev);
 	protected:
 		bool OnWindowResize(events::WindowResized& ev);

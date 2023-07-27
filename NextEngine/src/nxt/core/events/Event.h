@@ -8,6 +8,7 @@
 
 #include <vector>
 #include <functional>
+#include <filesystem>
 
 #include <iostream>
 
@@ -142,6 +143,19 @@ namespace nxt
 			virtual const char* GetName() const override { return "WINDOW_CLOSED"; }
 
 			static const nxtEventType StaticType{ nxtEventType_WindowClose };
+		};
+
+		class NXT_API DragFileReceived : public Event
+		{
+		public:
+			nxtEventType Type{ nxtEventType_DragReceived };
+			std::filesystem::path Path;
+
+			virtual nxtEventType GetType() const override { return Type; }
+			virtual const char* GetName() const override { return "DRAG_FILE_RECEIVED"; }
+
+			static const nxtEventType StaticType{ nxtEventType_DragReceived };
+			DragFileReceived(const std::filesystem::path& filepath) : Path{ filepath } {}
 		};
 
 	}

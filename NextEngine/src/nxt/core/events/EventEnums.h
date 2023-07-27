@@ -16,7 +16,8 @@ namespace nxt::events
 		nxtEventType_MouseScroll = BIT(5),
 		nxtEventType_Keyboard = BIT(6),
 		nxtEventType_WindowResize = BIT(7),
-		nxtEventType_WindowClose = BIT(8)
+		nxtEventType_WindowClose = BIT(8),
+		nxtEventType_DragReceived = BIT(9)
 	};
 
 }

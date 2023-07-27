@@ -116,10 +116,11 @@ namespace nxt
 		}
 	}
 
-	void RenderSystem::OnUpdate(float& dt, World& world)
+	void RenderSystem::OnUpdate(float& dt, World& world, bool isFocused)
 	{
-		
-		mCamera.OnUpdate(dt);
+		if(isFocused)
+			mCamera.OnUpdate(dt);
+
 		mFrameInfoBuffer->SetSubData(64, 0, glm::value_ptr(mCamera.GetProjectionViewMatrix()));
 		mFrameInfoBuffer->SetSubData(12, 64, (void*)glm::value_ptr(mCamera.GetPosition()));
 		

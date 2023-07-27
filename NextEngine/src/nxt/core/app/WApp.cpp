@@ -78,7 +78,7 @@ namespace nxt::app
 		float dt{ clock::GetDuration(gPreviousTime, clock::GetTime()) };
 		for (Shared<AppInterface>& app : gInterfaces)
 		{
-			app->OnUpdate(dt);
+			app->OnUpdate(dt, gWindow->isFocused);
 		}
 		gPreviousTime = clock::GetTime();
 	}
@@ -91,10 +91,17 @@ namespace nxt::app
 		gInterfaces.push_back(appInter);
 	}
 
+	bool OnDragReceived(const events::DragFileReceived& ev)
+	{
+		NXT_LOG_TRACE(ev.Path.string());
+		return false;
+	}
+
 	bool OnEvent(events::Event& ev)
 	{
 		events::Handler handler{ ev };
 		handler.Fire<events::WindowClosed>(NXT_CALLBACK_STATIC(app::OnWindowClose));
+		handler.Fire<events::DragFileReceived>(NXT_CALLBACK_STATIC(app::OnDragReceived));
 		//handler.Fire<events::WindowResized>(NXT_CALLBACK_STATIC(app::OnWindowResize));
 		gWindow->OnEvent(ev);
 

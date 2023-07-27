@@ -98,6 +98,10 @@ namespace nxt
 				}
 			}
 
+			// If no tangents are found:
+			// If no texture is found, use normals
+			// else, use texture coordinates, vertices, and indices to make them
+
 			//if (!tangentsFound)
 			//{
 				//NXT_LOG_INFO("Tangents not found, generating.");
@@ -279,6 +283,11 @@ namespace nxt
 	const std::vector<SMaterial>& Model::GetMaterials() const
 	{
 		return mMaterials;
+	}
+
+	Model::~Model()
+	{
+
 	}
 
 }

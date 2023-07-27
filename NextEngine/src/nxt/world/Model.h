@@ -35,6 +35,7 @@ namespace nxt
 	public:
 		static Shared<Model> Create(const std::filesystem::path& filepath);
 		Model(const std::filesystem::path& filepath);
+		~Model();
 
 		// TEMP FOR ECS
 		void Bind() const;

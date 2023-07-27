@@ -23,6 +23,7 @@ namespace nxt
 		void Update();
 		bool OnEvent(events::Event& ev);
 		void AddInterface(const Shared<AppInterface>& appInterface);
+		bool OnDragReceived(const events::DragFileReceived& ev);
 	}
 
 }
