@@ -21,29 +21,66 @@ namespace nxt::device
 
 	HRESULT DropTarget::DragEnter(IDataObject* dataObjectPtr, DWORD grfKeyState, POINTL pt, DWORD* pdwEffect)
 	{
-		
-		*pdwEffect &= DROPEFFECT_COPY;
+		FORMATETC format{ CF_HDROP, NULL, DVASPECT_CONTENT, -1, TYMED_HGLOBAL };
 
+		if (SUCCEEDED(dataObjectPtr->GetData(&format, &mMedium)))
+		{
+			HDROP drop{ static_cast<HDROP>(mMedium.hGlobal) };
+			UINT files{ DragQueryFile(drop, 0xFFFFFFFF, NULL, 0) };
+			std::cout << files << "\n";
+			if (files == 1)
+			{
+				wchar_t fileSize[MAX_PATH]{};
+				UINT amount{ DragQueryFile(drop, 0, fileSize, MAX_PATH) };
+				std::string extension{ std::filesystem::path{ nxt::WCharPtrToString(fileSize) }.extension().string() };
+				if (extension == ".gltf" || extension == ".glb")
+				{
+					*pdwEffect &= DROPEFFECT_COPY;
+					mUsable = true;
+				}
+			}
+			//ReleaseStgMedium(&medium);
+		}
+
+		if (!mUsable)
+			*pdwEffect &= DROPEFFECT_NONE;
 		return S_OK;
 	}
 
 	HRESULT DropTarget::DragLeave()
 	{
-
+		mUsable = false;
 		return S_OK;
 	}
 
 	HRESULT DropTarget::DragOver(DWORD grfKeyState, POINTL pt, DWORD* pdwEffect)
 	{
-
+		*pdwEffect &= (mUsable) ? DROPEFFECT_COPY : DROPEFFECT_NONE;
 		return S_OK;
 	}
 
 	HRESULT DropTarget::Drop(IDataObject* dataObjectPtr, DWORD grfKeyState, POINTL pt, DWORD* pdwEffect)
 	{
-		std::cout << "Dropped file\n";
-		
-		FORMATETC format{ CF_HDROP, NULL, DVASPECT_CONTENT, -1, TYMED_HGLOBAL };
+		if (mUsable)
+		{
+			HDROP drop{ static_cast<HDROP>(mMedium.hGlobal) };
+			UINT files{ DragQueryFile(drop, 0xFFFFFFFF, NULL, 0) };
+			if (files == 1)
+			{
+				wchar_t fileSize[MAX_PATH]{};
+				UINT amount{ DragQueryFile(drop, 0, fileSize, MAX_PATH) };
+
+				events::DragFileReceived ev{ nxt::WCharPtrToString(fileSize) };
+				nxt::app::OnEvent(ev);
+			}
+			ReleaseStgMedium(&mMedium);
+			*pdwEffect &= DROPEFFECT_COPY;
+		}
+
+		dataObjectPtr->Release();
+		return S_OK;
+
+		/*FORMATETC format{CF_HDROP, NULL, DVASPECT_CONTENT, -1, TYMED_HGLOBAL};
 		STGMEDIUM medium{};
 
 		if (SUCCEEDED(dataObjectPtr->GetData(&format, &medium)))
@@ -77,6 +114,7 @@ namespace nxt::device
 		*pdwEffect &= DROPEFFECT_COPY;
 		dataObjectPtr->Release();
 		return S_OK;
+		*/
 	}
 
 	HRESULT DropTarget::QueryInterface(REFIID riid, void** pp)

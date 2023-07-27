@@ -47,7 +47,7 @@ namespace nxt
 
 	bool Editor::OnDragReceived(events::DragFileReceived& ev)
 	{
-		if (ev.Path.extension().string() == ".gltf")
+		if (ev.Path.extension().string() == ".gltf" || ev.Path.extension().string() == ".glb")
 		{
 			cmp::WorldModel& wm{ mWorld.GetComponent<cmp::WorldModel>(viewModel) };
 			modelInstance = Model::Create(ev.Path);

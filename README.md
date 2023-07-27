@@ -1,16 +1,17 @@
 
 # Nxt Engine
 
-In development rendering platform / game engine for Windows.
+In development rendering platform / model viewer for Windows.
 
-Sample models taken from the [KhronosGroup GLTF sample repo.](https://github.com/KhronosGroup/glTF-Sample-Models/tree/master/2.0)
+Sample models supplied by [KhronosGroup GLTF sample repo.](https://github.com/KhronosGroup/glTF-Sample-Models/tree/master/2.0)
 
-Celestial models taken from the [NASA Solar System Exploration website.](https://solarsystem.nasa.gov/resources/all/?order=pub_date+desc&per_page=50&page=0&search=&condition_1=1%3Ais_in_resource_list&fs=&fc=324&ft=&dp=&category=324)
+![avocado c:](media/072723.png "Avocado :)")
 
 ## Download + Build
 
 ### Requirements 
 
+ - Windows OS
  - C++20
  - (Suggested) Visual Studio 2022
 
@@ -27,10 +28,25 @@ NxtEngine is built with Win32 and OpenGL to get a better understanding of the co
 
 ### Current Features 
    - [Custom ECS](https://github.com/dubtcs/nECS)
+   - Drag and Drop 3D GLTF Model loading
+   - MSAA
+   - Normal and Parallax mapping
+   - Shadow support
 
 ## How To Use
 
-NxtEngine comes with a built in editor, but if you want to use the raw render api or your own app, you can.
+NxtEngine comes with a built in viewer, but if you want to use the raw render api or your own app, you can.
+
+### Viewer Controls
+
+**MSAA Sampling**
+    Use the right/left arrow keys to increase/drecrease MSAA sampling.
+
+**Normals**
+    Press N to toggle normal mapping.
+
+### App Interface
+
 An interface is provided to hook into the main loop of the engine.
 
 Add ```NextEngine/src``` as an include directory.

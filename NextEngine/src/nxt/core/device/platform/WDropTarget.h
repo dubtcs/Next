@@ -18,6 +18,10 @@ namespace nxt::device
 		virtual HRESULT QueryInterface(REFIID riid, void** pp) override;
 		virtual ULONG AddRef() override;
 		virtual ULONG Release() override;
+	protected:
+		bool mUsable{ false };
+		STGMEDIUM mMedium{};
+		//IDataObject* ptr;
 	};
 
 }
