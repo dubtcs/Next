@@ -35,6 +35,11 @@ namespace nxt::render::command
 		glClearColor(r, g, b, a);
 	}
 
+	void DrawArrays(nxtDrawMode mode, uint32_t count, uint32_t firstItem)
+	{
+		glDrawArrays(mode, firstItem, count);
+	}
+
 	void DrawElements(nxtDrawMode mode, uint32_t count, nxtDataType dataType, void* offset)
 	{
 		glDrawElements(mode, count, dataType, offset);

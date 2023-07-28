@@ -21,6 +21,8 @@ namespace nxt::buffers
 		void BindIndexed(int32_t index) const;
 		void Bind() const;
 		void Unbind() const;
+	public:
+		const size_t mByteSize;
 	protected:
 		const nxtBufferTarget mTarget;
 		uint32_t mID;

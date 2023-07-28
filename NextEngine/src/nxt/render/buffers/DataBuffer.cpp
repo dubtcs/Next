@@ -15,7 +15,8 @@ namespace nxt::buffers
 
 	DataBuffer::DataBuffer(size_t byteSize, void* data,
 		nxtBufferTarget bufferTarget, nxtBufferUsage bufferUsage) :
-		mTarget{ bufferTarget }
+		mTarget{ bufferTarget },
+		mByteSize{ byteSize }
 	{
 		glCreateBuffers(1, &mID);
 		glBindBuffer(mTarget, mID);

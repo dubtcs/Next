@@ -21,6 +21,8 @@ namespace nxt
 		size_t byteOffset;
 		nxtDrawMode mode;
 		nxtDataType componentType;
+		bool hasTangents{ false };
+		bool hasIndices{ false };
 		buffers::SDataBuffer buffer;
 	};
 
@@ -50,5 +52,13 @@ namespace nxt
 	};
 
 	using SModel = Shared<Model>;
+
+	// Use a ModelInstance to switch the mesh of a model without needed to reassign multiple components
+	struct ModelInstance
+	{
+		SModel Model;
+	};
+
+	using SModelInstance = Shared<ModelInstance>;
 
 }

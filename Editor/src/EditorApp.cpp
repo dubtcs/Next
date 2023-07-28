@@ -8,7 +8,7 @@
 
 #include <nxt/core/events/ScriptEvents.h>
 
-static nxt::SModel modelInstance{ nullptr };
+static nxt::SModelInstance modelInstance{ nullptr };
 static nxt::cmp::WorldModel worldModel{};
 static necs::Entity viewModel{};
 
@@ -29,20 +29,21 @@ namespace nxt
 		mWorld.Attach<cmp::Light>(l2, li2);
 
 		// World Models
-		modelInstance = Model::Create("assets/models/stoneCube/Cube.gltf");
-		//SModel avo{ Model::Create("assets/models/Avocado.gltf") };
-		
-		worldModel.ModelInstance = modelInstance;
+		modelInstance = NewShared<ModelInstance>(Model::Create("assets/models/stoneCube/Cube.gltf"));
 
 		viewModel =  mWorld.CreateEntity();
 		mWorld.Attach<cmp::Transform>(viewModel, { glm::vec3{0.f}, glm::vec3{0.f}, glm::vec3{1.f} });
-		mWorld.Attach<cmp::WorldModel>(viewModel, worldModel);
+		mWorld.Attach<cmp::WorldModel>(viewModel, modelInstance);
 
 	}
 
 	void Editor::OnUpdate(float& dt, bool isFocused)
 	{
-		mRender.OnUpdate(dt, mWorld, isFocused);
+		World copy{ mWorld };
+		//necs::Entity vm{ copy.CreateEntity() };
+		//copy.Attach<cmp::Transform>(vm, { glm::vec3{2.f}, glm::vec3{0.f}, glm::vec3{1.f} });
+		//copy.Attach<cmp::WorldModel>(vm, modelInstance);
+		mRender.OnUpdate(dt, copy, isFocused);
 	}
 
 	bool Editor::OnDragReceived(events::DragFileReceived& ev)
@@ -50,8 +51,7 @@ namespace nxt
 		if (ev.Path.extension().string() == ".gltf" || ev.Path.extension().string() == ".glb")
 		{
 			cmp::WorldModel& wm{ mWorld.GetComponent<cmp::WorldModel>(viewModel) };
-			modelInstance = Model::Create(ev.Path);
-			wm.ModelInstance = modelInstance;
+			modelInstance->Model = Model::Create(ev.Path);
 		}
 		return false;
 	}

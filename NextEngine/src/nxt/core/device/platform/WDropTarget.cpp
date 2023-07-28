@@ -27,7 +27,6 @@ namespace nxt::device
 		{
 			HDROP drop{ static_cast<HDROP>(mMedium.hGlobal) };
 			UINT files{ DragQueryFile(drop, 0xFFFFFFFF, NULL, 0) };
-			std::cout << files << "\n";
 			if (files == 1)
 			{
 				wchar_t fileSize[MAX_PATH]{};

@@ -30,7 +30,7 @@ struct ObjectBufferInfo
 	glm::mat4 normalMatrix;
 	glm::mat4 worldMatrix;
 };
-struct MaterialBufferInfo
+struct PrimitiveBufferInfo
 {
 	glm::vec4 baseColor;
 	int32_t colorTextureIndex;
@@ -39,6 +39,8 @@ struct MaterialBufferInfo
 	int32_t normalTexture;
 	int32_t emissionTexture;
 	int32_t occlusionTexture;
+	int32_t hasTan;
+	int32_t hasMat;
 };
 
 #define POINT_LIGHT 0
@@ -51,11 +53,11 @@ namespace nxt
 
 	RenderSystem::RenderSystem() :
 		//mShader{ "assets/shaders/objects/obj5.vert", "assets/shaders/objects/obj5.frag" },
-		mShader{ "assets/shaders/objects/parallax.vert", "assets/shaders/objects/parallax.frag" },
+		mShader{ "assets/shaders/objects/compat.vert", "assets/shaders/objects/compat.frag" },
 		mFrameInfoBuffer{ buffers::DataBuffer::Create(76, nullptr, nxtBufferTarget_UniformBuffer) },
 		mLightInfoBuffer{ buffers::DataBuffer::Create(sizeof(SceneLightData), nullptr, nxtBufferTarget_UniformBuffer)},
 		mObjectInfoBuffer{ buffers::DataBuffer::Create(sizeof(ObjectBufferInfo), nullptr, nxtBufferTarget_UniformBuffer) },
-		mMaterialInfoBuffer{ buffers::DataBuffer::Create(sizeof(MaterialBufferInfo), nullptr, nxtBufferTarget_UniformBuffer) },
+		mMaterialInfoBuffer{ buffers::DataBuffer::Create(sizeof(PrimitiveBufferInfo), nullptr, nxtBufferTarget_UniformBuffer) },
 		mShadowmap{ 1024 },
 		//mShadowShader{ "assets/shaders/shadows/shadowCube.vert", "assets/shaders/shadows/shadowCube.geom", "assets/shaders/shadows/shadowCube.frag" },
 		mCamera{ {-2.f, 1.f, 2.f} }
@@ -85,16 +87,29 @@ namespace nxt
 		{
 			SDataBuffer buffer{ p.buffer };
 
-			const SMaterial& mat{ model->GetMaterials()[p.material] };
-			objectInfo->SetSubData(sizeof(glm::vec4), 0, glm::value_ptr(mat->Properties.Color.BaseColor));
-			objectInfo->SetSubData(sizeof(int32_t), 16, &mat->Properties.Color.Texture);
+			bool hasMats{ (p.material >= 0) };
+			objectInfo->SetSubData(sizeof(bool), 40, (void*)&p.hasTangents);
+			objectInfo->SetSubData(sizeof(bool), 44, &hasMats);
+			if (hasMats)
+			{
+				const SMaterial& mat{ model->GetMaterials()[p.material] };
+				objectInfo->SetSubData(sizeof(glm::vec4), 0, glm::value_ptr(mat->Properties.Color.BaseColor));
+				objectInfo->SetSubData(sizeof(int32_t), 16, &mat->Properties.Color.Texture);
 
-			objectInfo->SetSubData(sizeof(int32_t), 28, &mat->Textures.Normal);
-			objectInfo->SetSubData(sizeof(int32_t), 32, &mat->Textures.Emissive);
-			objectInfo->SetSubData(sizeof(int32_t), 36, &mat->Textures.Occlusion);
+				objectInfo->SetSubData(sizeof(int32_t), 28, &mat->Textures.Normal);
+				objectInfo->SetSubData(sizeof(int32_t), 32, &mat->Textures.Emissive);
+				objectInfo->SetSubData(sizeof(int32_t), 36, &mat->Textures.Occlusion);
+			}
 
 			buffer->Bind();
-			render::command::DrawElements(p.mode, p.count, p.componentType, (void*)(p.byteOffset));
+			if (p.hasIndices)
+			{
+				render::command::DrawElements(p.mode, p.count, p.componentType, (void*)(p.byteOffset));
+			}
+			else
+			{
+				render::command::DrawArrays(p.mode, p.count, 0);
+			}
 		}
 		for (const Mesh& otherMesh : mesh.children)
 		{
@@ -162,7 +177,7 @@ namespace nxt
 			mObjectInfoBuffer->SetSubData(64, 64, glm::value_ptr(worldMatrix));
 
 			cmp::WorldModel& m{ world.GetComponent<cmp::WorldModel>(e) };
-			DrawModel(m.ModelInstance, mMaterialInfoBuffer);
+			DrawModel(m.Instance->Model, mMaterialInfoBuffer);
 		}
 
 		mFrameBuffer->PushToViewport();

@@ -22,6 +22,8 @@ namespace nxt
 	public:
 		World();
 		World(const nxtid& worldRootID);
+		World(const World& other);
+		World(const Shared<World>& other);
 	protected:
 		void CreateRootNode(const nxtid& id);
 	public:
@@ -158,5 +160,11 @@ namespace nxt
 	};
 
 	using SWorld = Shared<World>;
+
+	struct WorldState
+	{
+		World world;
+		float timeDelta;
+	};
 
 }

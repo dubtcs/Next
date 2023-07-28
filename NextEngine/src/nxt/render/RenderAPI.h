@@ -40,6 +40,7 @@ namespace nxt
 		void SetClearColor(float red, float green, float blue, float alpha = 1.f);
 		void Clear(uint32_t buffer_bits = nxtBufferBit_Color | nxtBufferBit_Depth);
 
+		void DrawArrays(nxtDrawMode mode, uint32_t count, uint32_t firstItem);
 		void DrawElements(nxtDrawMode mode, uint32_t count, nxtDataType dataType = nxtDataType_Float, void* offset = nullptr);
 		void DrawInstances(nxtDrawMode mode, uint32_t count, uint32_t instanceCount, nxtDataType dataType = nxtDataType_Float, void* offset = nullptr);
 

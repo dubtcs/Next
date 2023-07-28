@@ -7,6 +7,8 @@
 #include <nxt/core/window/Window.h>
 #include <nxt/core/input/Input.h>
 
+#include <thread>
+
 static class nxtCursorCleaner
 {
 public:

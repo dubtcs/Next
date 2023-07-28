@@ -14,44 +14,30 @@ namespace nxt
 
 	namespace gltf = tinygltf;
 
-	struct TanBufferCache
-	{
-		buffers::SDataBuffer buffer;
-		int32_t amount;
-		int32_t stride;
-	};
-
-	static std::vector<glm::vec4> GenerateTangents(TanBufferCache& positions, TanBufferCache& normals)
-	{
-
-		return {};
-	}
-
 	static std::vector<Primitive> RegisterMesh(buffers::SArrayObject& arrayObject, tinygltf::Model& model, tinygltf::Mesh& mesh, std::vector<buffers::SDataBuffer>& buffers)
 	{
 		using namespace buffers;
-		//NXT_LOG_TRACE("Register Mesh");
 		std::vector<Primitive> primitives{};
 
 		for (tinygltf::Primitive& primitive : mesh.primitives)
 		{
-			tinygltf::Accessor& indexAccessor{ model.accessors[primitive.indices] };
 			Primitive addPrimitive{};
 
-			addPrimitive.buffer = buffers[primitive.indices];
+			// Check for indices;
+			if (primitive.indices >= 0)
+			{
+				tinygltf::Accessor& indexAccessor{ model.accessors[primitive.indices] };
+				addPrimitive.count = static_cast<uint32_t>(indexAccessor.count);
+				addPrimitive.byteOffset = static_cast<uint32_t>(indexAccessor.byteOffset);
+				addPrimitive.componentType = static_cast<nxtDataType>(indexAccessor.componentType);
+				addPrimitive.hasIndices = true;
+				addPrimitive.buffer = buffers[primitive.indices];
+			}
+
 			addPrimitive.mode = static_cast<nxtDrawMode>(primitive.mode);
-			addPrimitive.count = static_cast<uint32_t>(indexAccessor.count);
-			addPrimitive.byteOffset = static_cast<uint32_t>(indexAccessor.byteOffset);
-			addPrimitive.componentType = static_cast<nxtDataType>(indexAccessor.componentType);
 			addPrimitive.material = primitive.material;
-
-			primitives.push_back(addPrimitive);
-
-			bool tangentsFound{ false };
 			
-			//TanBufferCache positionData;
-			//TanBufferCache normalData;
-
+			bool tangentsFound{ false };
 			for (auto& attribute : primitive.attributes)
 			{
 				// Binding buffers for attribute locationd data
@@ -68,21 +54,23 @@ namespace nxt
 				if (attribute.first == "POSITION")
 				{
 					layoutPosition = 0;
-					//positionData.buffer = dBuffer;
-					//positionData.amount = amount;
-					//positionData.stride = stride;
+					if (!addPrimitive.hasIndices)
+					{
+						addPrimitive.buffer = dBuffer;
+						addPrimitive.byteOffset = accessor.byteOffset;
+						addPrimitive.componentType = static_cast<nxtDataType>(accessor.componentType);
+						addPrimitive.count = accessor.count;
+					}
 				}
 				else if (attribute.first == "NORMAL")
 				{
 					layoutPosition = 1;
 				}
 				else if (attribute.first == "TANGENT") 
-				{	
-					layoutPosition = 2; 
-					tangentsFound = true; 
-					//normalData.buffer = dBuffer;
-					//normalData.amount = amount;
-					//normalData.stride = stride;
+				{
+					layoutPosition = 2;
+					tangentsFound = true;
+					addPrimitive.hasTangents = true;
 				}
 				else if (attribute.first == "TEXCOORD_0") 
 				{
@@ -92,27 +80,11 @@ namespace nxt
 
 				if (layoutPosition >= 0)
 				{
-					//NXT_LOG_TRACE("Setting Layout Position: {0}, amount {1}", layoutPosition, amount);
-					NXT_LOG_TRACE(stride);
 					arrayObject->SetLayoutPosition(layoutPosition, amount, static_cast<nxtDataType>(accessor.componentType), stride, static_cast<uint32_t>(accessor.byteOffset), accessor.normalized);
 				}
 			}
 
-			// If no tangents are found:
-			// If no texture is found, use normals
-			// else, use texture coordinates, vertices, and indices to make them
-
-			//if (!tangentsFound)
-			//{
-				//NXT_LOG_INFO("Tangents not found, generating.");
-				//std::vector<glm::vec4> tangentVectors{ GenerateTangents(positionData, normalData) };
-				//SDataBuffer tanBuffer{ buffers::DataBuffer::Create(sizeof(glm::vec4) * tangentVectors.size(), &tangentVectors) };
-				//tanBuffer->Bind();
-				//arrayObject->SetLayoutPosition(2, tangentVectors.size(), nxtDataType_Float, 0, 0, false);
-				//arrayObject->Unbind();
-			//}
-			//arrayObject->Bind();
-
+			primitives.push_back(addPrimitive);
 		}
 
 		return primitives;

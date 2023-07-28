@@ -50,6 +50,28 @@ namespace nxt
 		CreateRootNode(worldRootID);
 	}
 
+	World::World(const World& other) :
+		mScene{ NewShared<Scene>(*(other.mScene.get())) },
+		mWorldRoot{ other.mWorldRoot },
+		mActiveCamera{ other.GetActiveCamera() },
+		mMap{ other.mMap },
+		mRootCreated{ true }
+	{
+		//NXT_LOG_TRACE("Copying world state, stack");
+
+	}
+
+	World::World(const Shared<World>& other) :
+		mScene{ NewShared<Scene>(*(other->GetScene().get())) },
+		mWorldRoot{ other->GetWorldRoot() },
+		mActiveCamera{ other->GetActiveCamera() },
+		mMap{ other->mMap },
+		mRootCreated{ true }
+	{
+		//NXT_LOG_TRACE("Copying world state, ptr");
+
+	}
+
 	Entity World::CreateEntity()
 	{
 		return CreateEntity(mWorldRoot);
