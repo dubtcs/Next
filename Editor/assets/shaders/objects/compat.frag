@@ -71,7 +71,7 @@ float attenuationQuadratic = 0.032;
 
 float GetAttenuation(uint i)
 {
-    float d = length(pTangentLightPositions[i] - pTangentWorldPosition);
+    float d = hasTangents ? length(pTangentLightPositions[i] - pTangentWorldPosition) : length(lights[i].Position - pWorldPosition);
     float at = 1.0 / (attenuationConstant + (attenuationLinear * d) + (attenuationQuadratic * (d * d)));
     return at;
 }
@@ -80,13 +80,22 @@ vec3 PointLight(uint i)
     vec3 diffuse = vec3(0.0);
     vec3 specular = vec3(0.0);
 
-    vec3 lightDirection = normalize(pTangentLightPositions[i] - pTangentWorldPosition);
+    vec3 lightDirection = vec3(0.0);
+    vec3 viewDirection = vec3(0.0);
+    if(hasTangents)
+    {
+        lightDirection = normalize(pTangentLightPositions[i] - pTangentWorldPosition);
+        viewDirection = normalize(pTangentCameraPosition - pTangentWorldPosition);
+    }
+    else
+    {
+        lightDirection = normalize(lights[i].Position - pWorldPosition);
+        viewDirection = normalize(cameraPosition - pWorldPosition);
+    }
+
     float angleDifference = max(dot(normal, lightDirection), 0.0);
     diffuse = angleDifference * lights[i].Color;
 
-    vec3 viewDirection = normalize(pTangentCameraPosition - pTangentWorldPosition);
-    //vec3 reflectionDirection = reflect(-lightDirection, normal);
-    //float specularHighlight = pow(max(dot(viewDirection, reflectionDirection), 0.0), specularIntensity);
     vec3 halfwayNormal = normalize(lightDirection + viewDirection);
     float specularHighlight = pow(max(dot(normal, halfwayNormal), 0.0), specularIntensity);
     specular = specularHighlight * lights[i].Color * specularDampening;
@@ -102,7 +111,7 @@ vec3 DirectionalLight(uint i)
     float angleDifference = max(dot(normal, lightDirection), 0.0);
     diffuse = angleDifference * lights[i].Color;
     
-    vec3 viewDirection = normalize(pTangentCameraPosition - pTangentWorldPosition);
+    vec3 viewDirection = hasTangents ? normalize(pTangentCameraPosition - pTangentWorldPosition) : normalize(cameraPosition - pWorldPosition);
     vec3 reflectionDirection = reflect(-lightDirection, normal);
     float specularHighlight = pow(max(dot(viewDirection, reflectionDirection), 0.0), specularIntensity);
     specular = specularHighlight * lights[i].Color * specularDampening;
@@ -114,7 +123,7 @@ vec3 SpotLight(uint i)
     vec3 diffuse = vec3(0.0);
     vec3 specular = vec3(0.0);
 
-    vec3 directionToLight = normalize(pTangentLightPositions[i] - pTangentWorldPosition);
+    vec3 directionToLight = hasTangents ? normalize(pTangentLightPositions[i] - pTangentWorldPosition) : normalize(lights[i].Position - pWorldPosition);
     float angle = dot(directionToLight, normalize(-lights[i].Direction));
 
     if(angle > lights[i].Radius)
@@ -145,7 +154,7 @@ const float HEIGHT_SCALE = 0.01;
 vec2 ApplyParallax()
 {
     float height = texture(depthMap, pTexPos).r;
-    vec3 viewDirection = normalize(pTangentCameraPosition - pTangentWorldPosition);
+    vec3 viewDirection = hasTangents ? normalize(pTangentCameraPosition - pTangentWorldPosition) : normalize(cameraPosition - pWorldPosition);
     vec2 p = viewDirection.xy / viewDirection.z * (height * HEIGHT_SCALE);
     return pTexPos - p;
 }
@@ -162,7 +171,7 @@ void main()
 
     vec4 targetColor = texture(textures[colorTextureIndex], texturePosition) * baseColor;
 
-    if(normalTexture >= 0 && useNormals == true)
+    if(normalTexture >= 0 && useNormals == true && hasTangents)
     {
         normal = texture(textures[normalTexture], texturePosition).rgb;
         normal = normalize((normal * 2.0) - 1.0);

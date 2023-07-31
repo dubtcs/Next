@@ -6,6 +6,7 @@
 
 #include <nxt/world/Model.h>
 #include <nxt/render/texture/Shadowmap2.h>
+#include <nxt/render/ScreenQuad.h>
 
 namespace nxt
 {
@@ -38,6 +39,8 @@ namespace nxt
 
 		Shadowmap2 mShadowmap;
 		Shader mShadowShader;
+
+		ScreenQuad mScreenQuad;
 	};
 
 }

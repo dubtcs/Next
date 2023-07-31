@@ -22,6 +22,8 @@ namespace nxt
 		void Unbind() const;
 	protected:
 		uint32_t mID;
+		int32_t mWidth;
+		int32_t mHeight;
 		nxtTextureTarget mTarget;
 		nxtTextureFormatInternal mInternalFormat;
 		friend class buffers::FrameBuffer;

@@ -66,7 +66,7 @@ namespace nxt::app
 			{
 				gWindow->ProcessMessages();
 				Update();
-				Sleep(10);
+				//Sleep(10);
 			}
 		}
 		else

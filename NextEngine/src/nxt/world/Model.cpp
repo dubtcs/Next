@@ -70,6 +70,7 @@ namespace nxt
 				{
 					layoutPosition = 2;
 					tangentsFound = true;
+					NXT_LOG_TRACE("TANGENTS!!");
 					addPrimitive.hasTangents = true;
 				}
 				else if (attribute.first == "TEXCOORD_0") 

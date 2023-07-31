@@ -24,7 +24,10 @@ namespace nxt
 		nxtTextureFormat_RGBA = 0x1908,
 		nxtTextureFormat_DepthStencil = 0x84F9,
 		nxtTextureFormat_SRGB = 0x8C40,
-		nxtTextureFormat_SRGBA = 0x8C42
+		nxtTextureFormat_SRGBA = 0x8C42,
+
+		nxtTextureFormat_RGBF = 0x9998,
+		nxtTextureFormat_RGBAF = 0x9999
 	};
 
 	enum nxtTextureFormatInternal : nxt_enum
@@ -33,6 +36,10 @@ namespace nxt
 		nxtTextureFormatInternal_RG8 = 0x822B,
 		nxtTextureFormatInternal_RGB8 = 0x8051,
 		nxtTextureFormatInternal_RGBA8 = 0x8058,
+		nxtTextureFormatInternal_RGBA32F = 0x8814,
+		nxtTextureFormatInternal_RGB32F = 0x8815,
+		nxtTextureFormatInternal_RGBA16F = 0x881A,
+		nxtTextureFormatInternal_RGB16F = 0x881B,
 		nxtTextureFormatInternal_Depth24Stencil8 = 0x88F0,
 		nxtTextureFormatInternal_SRGB8 = 0x8C41,
 		nxtTextureFormatInternal_SRGBA8 = 0x8C43,

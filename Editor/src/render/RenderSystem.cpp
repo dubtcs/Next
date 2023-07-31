@@ -4,11 +4,14 @@
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/type_ptr.hpp>
 
+#include <nxt/render/ScreenQuad.h>
+
 static uint32_t gSamples{ 4 };
 static bool drawNormals{ true };
 static bool useBlinn{ true };
 
 static nxt::STexture gDepthTexture;
+static nxt::STexture gHDR;
 
 static constexpr uint32_t gMaxLights{ 10 };
 struct LightInfo // 16 Byte Aligned
@@ -60,7 +63,9 @@ namespace nxt
 		mMaterialInfoBuffer{ buffers::DataBuffer::Create(sizeof(PrimitiveBufferInfo), nullptr, nxtBufferTarget_UniformBuffer) },
 		mShadowmap{ 1024 },
 		//mShadowShader{ "assets/shaders/shadows/shadowCube.vert", "assets/shaders/shadows/shadowCube.geom", "assets/shaders/shadows/shadowCube.frag" },
-		mCamera{ {-2.f, 1.f, 2.f} }
+		mCamera{ {-2.f, 1.f, 2.f} },
+
+		mScreenQuad{}
 	{
 		mShader.Bind();
 		mShader.SetValue("useNormals", useBlinn);
@@ -78,6 +83,7 @@ namespace nxt
 		mObjectInfoBuffer->BindIndexed(2);
 		mMaterialInfoBuffer->BindIndexed(3);
 
+		gHDR = Texture::Create(mWidth, mHeight, nxtTextureFormat_RGBAF, nxtTextureTarget_2D);
 	}
 
 	static void DrawMesh(const SModel& model, const Mesh& mesh, buffers::SDataBuffer& objectInfo)
@@ -180,8 +186,10 @@ namespace nxt
 			DrawModel(m.Instance->Model, mMaterialInfoBuffer);
 		}
 
-		mFrameBuffer->PushToViewport();
-
+		//mFrameBuffer->PushToViewport();
+		mFrameBuffer->BindTexture(0);
+		mFrameBuffer->Unbind();
+		mScreenQuad.Draw();
 	}
 
 	bool RenderSystem::OnEvent(events::Event& ev)
@@ -197,7 +205,10 @@ namespace nxt
 	{
 		mWidth = ev.Width;
 		mHeight = ev.Height;
-		mFrameBuffer = buffers::FrameBuffer::Create(ev.Width, ev.Height, gSamples);
+		SFrameTexture ca{ FrameTexture::Create(ev.Width, ev.Height, 1, nxtTextureFormat_RGBF, nxtTextureTarget_2D) };
+		SFrameTexture da{ FrameTexture::Create(ev.Width, ev.Height, 1, nxtTextureFormat_DepthStencil, nxtTextureTarget_2D) };
+		//mFrameBuffer = buffers::FrameBuffer::Create(ev.Width, ev.Height, gSamples);
+		mFrameBuffer = buffers::FrameBuffer::Create(ca, da);
 		render::command::SetViewport(ev.Width, ev.Height);
 		return false;
 	}

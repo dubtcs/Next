@@ -7,7 +7,7 @@
 namespace nxt::buffers
 {
 
-	FrameBuffer::FrameBuffer(uint32_t width, uint32_t height, uint32_t samples) :
+	FrameBuffer::FrameBuffer(int32_t width, int32_t height, uint32_t samples) :
 		mWidth{ width },
 		mHeight{ height }
 	{
@@ -20,6 +20,32 @@ namespace nxt::buffers
 
 		glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, mColorTexture->mTarget, mColorTexture->mID, 0);
 		glFramebufferTexture2D(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, mDepthTexture->mTarget, mDepthTexture->mID, 0);
+		if (glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE)
+		{
+			NXT_LOG_CRIT("FrameBuffer creation failure. Code {0}", (std::stringstream{} << std::hex << glCheckFramebufferStatus(GL_FRAMEBUFFER)).str());
+		}
+	}
+
+	FrameBuffer::FrameBuffer(SFrameTexture color, SFrameTexture depth):
+		mWidth{ color->mWidth },
+		mHeight{ color->mHeight }
+	{
+		glCreateFramebuffers(1, &mID);
+		glBindFramebuffer(GL_FRAMEBUFFER, mID);
+		
+		mColorTexture = color;
+		mDepthTexture = depth;
+
+		glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, mColorTexture->mTarget, mColorTexture->mID, 0);
+		if (depth != nullptr)
+		{
+			glFramebufferTexture2D(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, mDepthTexture->mTarget, mDepthTexture->mID, 0);
+		}
+		else
+		{
+			glFramebufferTexture2D(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_NONE, GL_NONE, 0);
+		}
+
 		if (glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE)
 		{
 			NXT_LOG_CRIT("FrameBuffer creation failure. Code {0}", (std::stringstream{} << std::hex << glCheckFramebufferStatus(GL_FRAMEBUFFER)).str());
@@ -43,14 +69,24 @@ namespace nxt::buffers
 		glBindFramebuffer(GL_FRAMEBUFFER, mID);
 	}
 
+	void FrameBuffer::BindTexture(uint32_t unit) const
+	{
+		glBindTextureUnit(unit, mColorTexture->mID);
+	}
+
 	void FrameBuffer::Unbind()
 	{
 		glBindFramebuffer(GL_FRAMEBUFFER, 0);
 	}
 
-	SFrameBuffer FrameBuffer::Create(uint32_t width, uint32_t height, uint32_t samples)
+	SFrameBuffer FrameBuffer::Create(int32_t width, int32_t height, uint32_t samples)
 	{
 		return NewShared<FrameBuffer>(width, height, samples);
+	}
+
+	SFrameBuffer FrameBuffer::Create(const SFrameTexture& color, const SFrameTexture& depth)
+	{
+		return NewShared<FrameBuffer>(color, depth);
 	}
 
 }

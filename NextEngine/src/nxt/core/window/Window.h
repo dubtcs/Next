@@ -3,7 +3,6 @@
 #include <nxt/EngineCore.h>
 
 #include "nxt/core/events/Event.h"
-#include "nxt/core/device/Device.h"
 #include <functional>
 
 #ifdef NXT_PLATFORM_WINDOWS
@@ -39,11 +38,10 @@ namespace nxt
 		uint32_t mHeight{ 0 };
 		bool isFocused{ false };
 
-		//uint32_t mTrueWidth{ 0 };
-		//uint32_t mTrueHeight{ 0 };
-
 		std::function<bool(events::Event&)> mCallback;
 	};
+
+	using SWindow = Shared<Window>;
 
 }
 

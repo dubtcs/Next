@@ -93,6 +93,8 @@ namespace nxt
 			case(nxtTextureFormat_DepthStencil): { *target = nxtTextureFormatInternal_Depth24Stencil8; return; }
 			case(nxtTextureFormat_SRGB): { *target = nxtTextureFormatInternal_SRGB8; return; }
 			case(nxtTextureFormat_SRGBA): { *target = nxtTextureFormatInternal_SRGBA8; return; }
+			case(nxtTextureFormat_RGBF): { *target = nxtTextureFormatInternal_RGB32F; return; } // Enforcing 32 bit for now.. Overkill
+			case(nxtTextureFormat_RGBAF): { *target = nxtTextureFormatInternal_RGBA32F; return; } // Enforcing 32 bit for now.. Overkill
 		}
 		NXT_LOG_CRIT("No internal format found for requested format");
 	}

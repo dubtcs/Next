@@ -60,11 +60,11 @@ void main()
 {
     gl_Position = projectionViewMatrix * worldMatrix * vec4(vPosition, 1.0);
     pWorldPosition = vec3(worldMatrix * vec4(vPosition, 1.0));
+    pNormal = mat3(normalMatrix) * vNormal;
+    pTexPos = vTexturePosition;
+    
     if(hasTangents)
     {
-        pNormal = mat3(normalMatrix) * vNormal;
-        pTexPos = vTexturePosition;
-
         vec3 t = normalize(vec3(worldMatrix * vec4(vTangent.xyz, 0.0)));
         
         vec3 bt = cross(vNormal, vTangent.xyz) * vTangent.w;

@@ -7,6 +7,7 @@
 #include <nxt/core/input/InputEnums.h>
 
 #include <nxt/core/log/Log.h>
+#include <nxt/core/device/Device.h>
 
 #include <codecvt>
 

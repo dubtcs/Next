@@ -43,6 +43,7 @@ namespace nxt
 		//necs::Entity vm{ copy.CreateEntity() };
 		//copy.Attach<cmp::Transform>(vm, { glm::vec3{2.f}, glm::vec3{0.f}, glm::vec3{1.f} });
 		//copy.Attach<cmp::WorldModel>(vm, modelInstance);
+		//std::thread t1{ mRender.OnUpdate, dt, copy, isFocused };
 		mRender.OnUpdate(dt, copy, isFocused);
 	}
 
