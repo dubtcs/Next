@@ -26,7 +26,7 @@ namespace nxt
 		uint32_t mWidth;
 		uint32_t mHeight;
 
-		buffers::SFrameBuffer mFrameBuffer;
+		SFrameBuffer mBuffer2;
 
 		Shader mShader;
 

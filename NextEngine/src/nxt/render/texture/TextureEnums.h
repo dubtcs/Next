@@ -61,7 +61,15 @@ namespace nxt
 		nxtTextureParam_MipNearNear = 0x2700,
 		nxtTextureParam_MipLinearNear = 0x2701,
 		nxtTextureParam_MipNearLinear = 0x2702,
-		nxtTextureParam_MipLinearLinear = 0x2703
+		nxtTextureParam_MipLinearLinear = 0x2703,
+		nxtTextureParam_ClampToEdge = 0x812F
+	};
+
+	enum nxtTextureAttachment : nxt_enum
+	{
+		nxtTextureAttachment_Color0 = 0x8CE0,
+		nxtTextureAttachment_Depth = 0x8D00,
+		nxtTextureAttachment_Stencil = 0x8D20
 	};
 
 }

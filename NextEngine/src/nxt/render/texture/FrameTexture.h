@@ -1,34 +1,37 @@
 #pragma once
 
 #include <nxt/EngineCore.h>
-
 #include "TextureEnums.h"
 
 namespace nxt
 {
 
-	namespace buffers
+	struct TextureParams
 	{
-		class FrameBuffer;
-	}
+		nxtTextureParam MinimizeFilter{ nxtTextureParam_Linear };
+		nxtTextureParam MagnifyFilter{ nxtTextureParam_Linear };
+		nxtTextureParam WrapFilterX{ nxtTextureParam_ClampToEdge };
+		nxtTextureParam WrapFilterY{ nxtTextureParam_ClampToEdge };
+	};
 
 	class NXT_API FrameTexture
 	{
 	public:
-		static Shared<FrameTexture> Create(uint32_t width, uint32_t height, uint32_t samples, nxtTextureFormat textureFormat = nxtTextureFormat_RGB, nxtTextureTarget target = nxtTextureTarget_2DMS);
-		FrameTexture(uint32_t width, uint32_t height, uint32_t samples, nxtTextureFormat textureFormat = nxtTextureFormat_RGB, nxtTextureTarget target = nxtTextureTarget_2DMS);
+		FrameTexture(int32_t width, int32_t height, uint32_t samples, nxtTextureFormat format, nxtTextureFormatInternal internalFormat, TextureParams params = {});
 		~FrameTexture();
-		void Bind() const;
-		void Unbind() const;
+		void BindToTarget(nxtTextureTarget target) const;
+		void BindToUnit(uint32_t unit) const;
 	protected:
 		uint32_t mID;
 		int32_t mWidth;
 		int32_t mHeight;
+		uint32_t mSamples;
 		nxtTextureTarget mTarget;
+		nxtTextureFormat mFormat;
 		nxtTextureFormatInternal mInternalFormat;
-		friend class buffers::FrameBuffer;
+	public:
+		friend class FrameBuffer;
 	};
-
 	using SFrameTexture = Shared<FrameTexture>;
 
 }

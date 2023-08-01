@@ -84,6 +84,8 @@ namespace nxt
 		mMaterialInfoBuffer->BindIndexed(3);
 
 		gHDR = Texture::Create(mWidth, mHeight, nxtTextureFormat_RGBAF, nxtTextureTarget_2D);
+
+		render::command::SetRenderFeature(nxtRenderFeature_Multisample, true);
 	}
 
 	static void DrawMesh(const SModel& model, const Mesh& mesh, buffers::SDataBuffer& objectInfo)
@@ -163,7 +165,7 @@ namespace nxt
 		mLightInfoBuffer->SetSubData(4, 480, &i);
 
 		// Visible render pass
-		mFrameBuffer->Bind();
+		mBuffer2->Bind();
 
 		render::command::Clear();
 		mShader.Bind();
@@ -186,10 +188,7 @@ namespace nxt
 			DrawModel(m.Instance->Model, mMaterialInfoBuffer);
 		}
 
-		//mFrameBuffer->PushToViewport();
-		mFrameBuffer->BindTexture(0);
-		mFrameBuffer->Unbind();
-		mScreenQuad.Draw();
+		mBuffer2->PushToViewport();
 	}
 
 	bool RenderSystem::OnEvent(events::Event& ev)
@@ -205,10 +204,7 @@ namespace nxt
 	{
 		mWidth = ev.Width;
 		mHeight = ev.Height;
-		SFrameTexture ca{ FrameTexture::Create(ev.Width, ev.Height, 1, nxtTextureFormat_RGBF, nxtTextureTarget_2D) };
-		SFrameTexture da{ FrameTexture::Create(ev.Width, ev.Height, 1, nxtTextureFormat_DepthStencil, nxtTextureTarget_2D) };
-		//mFrameBuffer = buffers::FrameBuffer::Create(ev.Width, ev.Height, gSamples);
-		mFrameBuffer = buffers::FrameBuffer::Create(ca, da);
+		mBuffer2 = NewShared<FrameBuffer>(ev.Width, ev.Height, gSamples);
 		render::command::SetViewport(ev.Width, ev.Height);
 		return false;
 	}
@@ -237,7 +233,7 @@ namespace nxt
 
 		if (rebuildBuffer)
 		{
-			mFrameBuffer = buffers::FrameBuffer::Create(mWidth, mHeight, gSamples);
+			mBuffer2 = NewShared<FrameBuffer>(mWidth, mHeight, gSamples);
 			NXT_LOG_TRACE("MSAA {0}", gSamples);
 		}
 

@@ -26,6 +26,7 @@ All functionaility is in namespace nxt
 #include <nxt/render/buffers/FrameBuffer.h>
 
 #include <nxt/render/texture/Texture.h>
+#include <nxt/render/texture/FrameTexture.h>
 #include <nxt/render/texture/Cubemap.h>
 #include <nxt/render/shader/Shader.h>
 

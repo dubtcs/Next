@@ -3,26 +3,30 @@
 
 #include <glad/glad.h>
 
-#include "Texture.h"
-
 namespace nxt
 {
 
-	FrameTexture::FrameTexture(uint32_t width, uint32_t height, uint32_t samples, nxtTextureFormat textureFormat, nxtTextureTarget target) :
-		mTarget{ target }
+	FrameTexture::FrameTexture(int32_t width, int32_t height, uint32_t samples, nxtTextureFormat format, nxtTextureFormatInternal internalFormat, TextureParams params) :
+		mWidth{ width },
+		mHeight{ height },
+		mSamples{ samples },
+		mFormat{ format },
+		mInternalFormat{ internalFormat }
 	{
-		Texture::SetInternalFormat(textureFormat, &mInternalFormat);
-		glCreateTextures(target, 1, &mID);
-		if (samples > 1)
+		mTarget = (mSamples > 1) ? nxtTextureTarget_2DMS : nxtTextureTarget_2D;
+		glCreateTextures(mTarget, 1, &mID);
+		if (mSamples > 1)
 		{
-			glTextureStorage2DMultisample(mID, samples, mInternalFormat, width, height, true);
+			glTextureStorage2DMultisample(mID, mSamples, mInternalFormat, mWidth, mHeight, true); // Allow final param as adjustable?
 		}
 		else
 		{
-			glTextureStorage2D(mID, 1, mInternalFormat, width, height);
+			glTextureStorage2D(mID, 1, mInternalFormat, mWidth, mHeight);
 		}
-		glTextureParameteri(mID, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-		glTextureParameteri(mID, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+		glTextureParameteri(mID, GL_TEXTURE_MIN_FILTER, params.MinimizeFilter);
+		glTextureParameteri(mID, GL_TEXTURE_MAG_FILTER, params.MagnifyFilter);
+		glTextureParameteri(mID, GL_TEXTURE_WRAP_S, params.WrapFilterX);
+		glTextureParameteri(mID, GL_TEXTURE_WRAP_T, params.WrapFilterY);
 	}
 
 	FrameTexture::~FrameTexture()
@@ -30,19 +34,14 @@ namespace nxt
 		glDeleteTextures(1, &mID);
 	}
 
-	void FrameTexture::Bind() const
+	void FrameTexture::BindToTarget(nxtTextureTarget target) const
 	{
-		glBindTexture(mTarget, mID);
+		glBindTexture(target, mID);
 	}
 
-	void FrameTexture::Unbind() const
+	void FrameTexture::BindToUnit(uint32_t unit) const
 	{
-		glBindTexture(mTarget, 0);
-	}
-
-	Shared<FrameTexture> FrameTexture::Create(uint32_t width, uint32_t height, uint32_t samples, nxtTextureFormat textureFormat, nxtTextureTarget target)
-	{
-		return NewShared<FrameTexture>(width, height, samples, textureFormat, target);
+		glBindTextureUnit(unit, mID);
 	}
 
 }

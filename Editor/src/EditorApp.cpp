@@ -28,8 +28,11 @@ namespace nxt
 		cmp::Light li2{ .Intensity{ 0.1f }, .LightType{ cmp::nxtLightType_Ambient }, .Color{ 1.f, 1.f, 1.f } };
 		mWorld.Attach<cmp::Light>(l2, li2);
 
+		necs::Entity l3{ mWorld.CreateEntity() };
+		cmp::Light li3{ .Position{2.4f, 6.5f, 2.f}, .Intensity{500.f}, .Color{1.f, 0.65f, 1.f} };
+
 		// World Models
-		modelInstance = NewShared<ModelInstance>(Model::Create("assets/models/stoneCube/Cube.gltf"));
+		modelInstance = NewShared<ModelInstance>(Model::Create("assets/models/BoxTextured.gltf"));
 
 		viewModel =  mWorld.CreateEntity();
 		mWorld.Attach<cmp::Transform>(viewModel, { glm::vec3{0.f}, glm::vec3{0.f}, glm::vec3{1.f} });

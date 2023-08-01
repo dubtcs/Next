@@ -51,4 +51,10 @@ namespace nxt
 
 	}
 
+	class NXT_API Render
+	{
+	public:
+		void Init();
+	};
+
 }

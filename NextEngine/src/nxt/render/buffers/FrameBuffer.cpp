@@ -2,10 +2,25 @@
 #include "FrameBuffer.h"
 
 #include <nxt/core/log/Log.h>
+
 #include <glad/glad.h>
 
-namespace nxt::buffers
+namespace nxt
 {
+
+	FrameBuffer::FrameBuffer(const SFrameTexture& color) :
+		mWidth{ color->mWidth },
+		mHeight{ color->mHeight }
+	{
+		glCreateFramebuffers(1, &mID);
+		glBindFramebuffer(GL_FRAMEBUFFER, mID);
+		mColorTextures.push_back(color);
+		glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, color->mTarget, color->mID, 0);
+		if (glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE)
+		{
+			NXT_LOG_CRIT("FrameBuffer creation failure. Code {0}", (std::stringstream{} << std::hex << glCheckFramebufferStatus(GL_FRAMEBUFFER)).str());
+		}
+	}
 
 	FrameBuffer::FrameBuffer(int32_t width, int32_t height, uint32_t samples) :
 		mWidth{ width },
@@ -13,48 +28,34 @@ namespace nxt::buffers
 	{
 		glCreateFramebuffers(1, &mID);
 		glBindFramebuffer(GL_FRAMEBUFFER, mID);
-
-		nxtTextureTarget target{ samples > 1 ? nxtTextureTarget_2DMS : nxtTextureTarget_2D };
-		mColorTexture = FrameTexture::Create(width, height, samples, nxtTextureFormat_SRGBA, target);
-		mDepthTexture = FrameTexture::Create(width, height, samples, nxtTextureFormat_DepthStencil, target);
-
-		glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, mColorTexture->mTarget, mColorTexture->mID, 0);
-		glFramebufferTexture2D(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, mDepthTexture->mTarget, mDepthTexture->mID, 0);
+		SFrameTexture color{ NewShared<FrameTexture>(width, height, samples, nxtTextureFormat_RGB, nxtTextureFormatInternal_RGB8) };
+		SFrameTexture depth{ NewShared<FrameTexture>(width, height, samples, nxtTextureFormat_DepthStencil, nxtTextureFormatInternal_Depth24Stencil8) };
+		AttachTexture(color, nxtTextureAttachment_Color0);
+		AttachTexture(depth, nxtTextureAttachment_Depth);
+		uint32_t s{ glCheckFramebufferStatus(GL_FRAMEBUFFER) };
 		if (glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE)
 		{
 			NXT_LOG_CRIT("FrameBuffer creation failure. Code {0}", (std::stringstream{} << std::hex << glCheckFramebufferStatus(GL_FRAMEBUFFER)).str());
 		}
 	}
 
-	FrameBuffer::FrameBuffer(SFrameTexture color, SFrameTexture depth):
-		mWidth{ color->mWidth },
-		mHeight{ color->mHeight }
+	void FrameBuffer::AttachTexture(const SFrameTexture& tex, nxt_enum attachment)
 	{
-		glCreateFramebuffers(1, &mID);
-		glBindFramebuffer(GL_FRAMEBUFFER, mID);
-		
-		mColorTexture = color;
-		mDepthTexture = depth;
-
-		glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, mColorTexture->mTarget, mColorTexture->mID, 0);
-		if (depth != nullptr)
+		if (attachment >= nxtTextureAttachment_Color0 && attachment < (nxtTextureAttachment_Color0 + 31))
 		{
-			glFramebufferTexture2D(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, mDepthTexture->mTarget, mDepthTexture->mID, 0);
+			mColorTextures.push_back(tex);
+		}
+		else if (attachment == nxtTextureAttachment_Depth)
+		{
+			mDepth = tex;
 		}
 		else
 		{
-			glFramebufferTexture2D(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_NONE, GL_NONE, 0);
+			NXT_LOG_WARN("Attempting to attach texture to out of bounds attachment.");
+			return;
 		}
-
-		if (glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE)
-		{
-			NXT_LOG_CRIT("FrameBuffer creation failure. Code {0}", (std::stringstream{} << std::hex << glCheckFramebufferStatus(GL_FRAMEBUFFER)).str());
-		}
-	}
-
-	FrameBuffer::~FrameBuffer()
-	{
-		glDeleteFramebuffers(1, &mID);
+		glFramebufferTexture2D(GL_FRAMEBUFFER, attachment, tex->mTarget, tex->mID, 0);
+		return;
 	}
 
 	void FrameBuffer::PushToViewport() const
@@ -69,24 +70,14 @@ namespace nxt::buffers
 		glBindFramebuffer(GL_FRAMEBUFFER, mID);
 	}
 
-	void FrameBuffer::BindTexture(uint32_t unit) const
-	{
-		glBindTextureUnit(unit, mColorTexture->mID);
-	}
-
 	void FrameBuffer::Unbind()
 	{
 		glBindFramebuffer(GL_FRAMEBUFFER, 0);
 	}
 
-	SFrameBuffer FrameBuffer::Create(int32_t width, int32_t height, uint32_t samples)
+	const SFrameTexture& FrameBuffer::GetTexture(uint32_t index) const
 	{
-		return NewShared<FrameBuffer>(width, height, samples);
-	}
-
-	SFrameBuffer FrameBuffer::Create(const SFrameTexture& color, const SFrameTexture& depth)
-	{
-		return NewShared<FrameBuffer>(color, depth);
+		return mColorTextures[index];
 	}
 
 }
