@@ -31,7 +31,7 @@ namespace nxt::device
 			{
 				wchar_t fileSize[MAX_PATH]{};
 				UINT amount{ DragQueryFile(drop, 0, fileSize, MAX_PATH) };
-				std::string extension{ std::filesystem::path{ nxt::WCharPtrToString(fileSize) }.extension().string() };
+				std::string extension{ std::filesystem::path{ nxt::ToString(fileSize) }.extension().string() };
 				if (extension == ".gltf" || extension == ".glb")
 				{
 					*pdwEffect &= DROPEFFECT_COPY;
@@ -69,7 +69,7 @@ namespace nxt::device
 				wchar_t fileSize[MAX_PATH]{};
 				UINT amount{ DragQueryFile(drop, 0, fileSize, MAX_PATH) };
 
-				events::DragFileReceived ev{ nxt::WCharPtrToString(fileSize) };
+				events::DragFileReceived ev{ nxt::ToString(fileSize) };
 				nxt::app::OnEvent(ev);
 			}
 			ReleaseStgMedium(&mMedium);

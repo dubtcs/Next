@@ -188,7 +188,17 @@ namespace nxt
 			DrawModel(m.Instance->Model, mMaterialInfoBuffer);
 		}
 
-		mBuffer2->PushToViewport();
+		if (drawNormals)
+		{
+			mBuffer2->PushToViewport();
+		}
+		else
+		{
+			mBuffer2->Unbind();
+			mBuffer2->GetTexture(1)->BindToUnit(0);
+			mScreenQuad.Draw();
+		}
+		
 	}
 
 	bool RenderSystem::OnEvent(events::Event& ev)
@@ -204,7 +214,12 @@ namespace nxt
 	{
 		mWidth = ev.Width;
 		mHeight = ev.Height;
-		mBuffer2 = NewShared<FrameBuffer>(ev.Width, ev.Height, gSamples);
+
+		SFrameTexture t1{ NewShared<FrameTexture>(mWidth, mHeight, gSamples, nxtTextureFormat_RGBA, nxtTextureFormatInternal_RGBA16F) };
+		SFrameTexture t2{ NewShared<FrameTexture>(mWidth, mHeight, gSamples, nxtTextureFormat_RGBA, nxtTextureFormatInternal_RGBA16F) };
+		mBuffer2 = NewShared<FrameBuffer>(t1);
+		mBuffer2->AttachTexture(t2, nxtTextureAttachment_Color0 + 1);
+
 		render::command::SetViewport(ev.Width, ev.Height);
 		return false;
 	}
@@ -233,22 +248,26 @@ namespace nxt
 
 		if (rebuildBuffer)
 		{
-			mBuffer2 = NewShared<FrameBuffer>(mWidth, mHeight, gSamples);
+			SFrameTexture t1{ NewShared<FrameTexture>(mWidth, mHeight, gSamples, nxtTextureFormat_RGBA, nxtTextureFormatInternal_RGBA16F) };
+			SFrameTexture t2{ NewShared<FrameTexture>(mWidth, mHeight, gSamples, nxtTextureFormat_RGBA, nxtTextureFormatInternal_RGBA16F) };
+			mBuffer2 = NewShared<FrameBuffer>(t1);
+			mBuffer2->AttachTexture(t2, nxtTextureAttachment_Color0 + 1);
 			NXT_LOG_TRACE("MSAA {0}", gSamples);
 		}
 
 		if (ev.Keycode == nxtKeycode_N)
 		{
 			drawNormals = !drawNormals;
+			NXT_LOG_TRACE("Blit viewport: {0}", drawNormals);
 		}
 
-		if (ev.Keycode == nxtKeycode_B)
+		/*if (ev.Keycode == nxtKeycode_B)
 		{
 			useBlinn = !useBlinn;
 			NXT_LOG_TRACE("Normals: {0}", useBlinn);
 			mShader.Bind();
 			mShader.SetValue("useNormals", useBlinn);
-		}
+		}*/
 
 		if (ev.Keycode == nxtKeycode_G)
 		{

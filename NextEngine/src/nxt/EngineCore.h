@@ -42,6 +42,12 @@
 // NXT Namespace
 #define NXT_NS nxt
 
+// Logging if you want that
+#define NXT_ENGINE_HEADER_INCLUDE_LOG
+#ifdef NXT_ENGINE_HEADER_INCLUDE_LOG
+#include <nxt/core/log/Log.h>
+#endif
+
 namespace nxt
 {
 

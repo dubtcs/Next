@@ -4,7 +4,7 @@
 namespace nxt
 {
 
-	std::string WCharPtrToString(wchar_t* ptr)
+	std::string ToString(wchar_t* ptr)
 	{
 		// +1 for null terminator
 		size_t ptrSize{ wcslen(ptr) + 1 };
@@ -21,6 +21,17 @@ namespace nxt
 		delete[] charPtr;
 
 		return rString;
+	}
+
+	std::wstring ToWideString(const std::string& str)
+	{
+		size_t ptrSize{ strlen(str.c_str()) + 1 };
+		size_t converted{ 0 };
+		wchar_t* wChar{ new wchar_t[ptrSize] };
+		mbstowcs_s(&converted, wChar, ptrSize, str.c_str(), _TRUNCATE);
+		std::wstring rStr{ wChar };
+		delete[] wChar;
+		return rStr;
 	}
 
 }

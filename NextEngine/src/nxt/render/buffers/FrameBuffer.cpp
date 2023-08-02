@@ -16,6 +16,7 @@ namespace nxt
 		glBindFramebuffer(GL_FRAMEBUFFER, mID);
 		mColorTextures.push_back(color);
 		glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, color->mTarget, color->mID, 0);
+		mDrawBuffers.push_back(GL_COLOR_ATTACHMENT0);
 		if (glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE)
 		{
 			NXT_LOG_CRIT("FrameBuffer creation failure. Code {0}", (std::stringstream{} << std::hex << glCheckFramebufferStatus(GL_FRAMEBUFFER)).str());
@@ -28,7 +29,7 @@ namespace nxt
 	{
 		glCreateFramebuffers(1, &mID);
 		glBindFramebuffer(GL_FRAMEBUFFER, mID);
-		SFrameTexture color{ NewShared<FrameTexture>(width, height, samples, nxtTextureFormat_RGB, nxtTextureFormatInternal_RGB8) };
+		SFrameTexture color{ NewShared<FrameTexture>(width, height, samples, nxtTextureFormat_RGBA, nxtTextureFormatInternal_RGBA8) };
 		SFrameTexture depth{ NewShared<FrameTexture>(width, height, samples, nxtTextureFormat_DepthStencil, nxtTextureFormatInternal_Depth24Stencil8) };
 		AttachTexture(color, nxtTextureAttachment_Color0);
 		AttachTexture(depth, nxtTextureAttachment_Depth);
@@ -44,6 +45,8 @@ namespace nxt
 		if (attachment >= nxtTextureAttachment_Color0 && attachment < (nxtTextureAttachment_Color0 + 31))
 		{
 			mColorTextures.push_back(tex);
+			mDrawBuffers.push_back(attachment);
+			glDrawBuffers(mDrawBuffers.size(), &mDrawBuffers.at(0));
 		}
 		else if (attachment == nxtTextureAttachment_Depth)
 		{

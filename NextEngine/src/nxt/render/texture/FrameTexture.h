@@ -3,6 +3,8 @@
 #include <nxt/EngineCore.h>
 #include "TextureEnums.h"
 
+#include <filesystem>
+
 namespace nxt
 {
 
@@ -14,13 +16,19 @@ namespace nxt
 		nxtTextureParam WrapFilterY{ nxtTextureParam_ClampToEdge };
 	};
 
+	// This CAN replace both FrameTexture, TextureMultiSample, and Texture
+
 	class NXT_API FrameTexture
 	{
 	public:
 		FrameTexture(int32_t width, int32_t height, uint32_t samples, nxtTextureFormat format, nxtTextureFormatInternal internalFormat, TextureParams params = {});
 		~FrameTexture();
-		void BindToTarget(nxtTextureTarget target) const;
 		void BindToUnit(uint32_t unit) const;
+		void BindToTarget(nxtTextureTarget target) const;
+		void SetParameter(nxtTextureParamName name, nxtTextureParam value);
+		void SetData(nxtTextureFormat format, nxtDataType dataType, void* dataPointer);
+
+		FrameTexture(const std::filesystem::path& filepath, nxtTextureTarget target = nxtTextureTarget_2D);
 	protected:
 		uint32_t mID;
 		int32_t mWidth;

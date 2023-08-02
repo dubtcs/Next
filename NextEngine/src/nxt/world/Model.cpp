@@ -124,7 +124,6 @@ namespace nxt
 			for (tinygltf::Texture& texture : model.textures)
 			{
 				tinygltf::Image& image{ model.images[texture.source] };
-				NXT_LOG_TRACE("Model Texture URI: {0}", image.uri);
 
 				nxtTextureFormat format{ 0 };
 				switch (image.component)
@@ -170,7 +169,6 @@ namespace nxt
 					break;
 				}
 
-				NXT_LOG_TRACE("w{0} h{1}", image.width, image.height);
 				STexture tex{ Texture::Create(image.width, image.height, format) };
 				tex->SetData(format, dataType, &image.image.at(0));
 				textures.push_back(tex);
@@ -207,6 +205,7 @@ namespace nxt
 		}
 
 		// MUST Unbind VAO before the buffers are deleted
+		NXT_LOG_DEBUG("Buffers: {0}, Textures: {1}", buffers.size(), textures.size());
 		arrayObject->Unbind();
 		return meshes;
 	}
@@ -235,6 +234,7 @@ namespace nxt
 			NXT_LOG_CRIT("Invalid file extension: {0}", filepath.extension().string());
 			return;
 		}
+		NXT_LOG_DEBUG("MODEL: {0}", filepath.string());
 		mMeshes = RegisterModel(mArrayObject, mTextures, mMaterials, model);
 	}
 

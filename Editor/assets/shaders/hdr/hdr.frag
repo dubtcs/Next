@@ -1,10 +1,14 @@
 #version 460
 
-out vec4 outColor;
+layout (location = 0) out vec4 outColor;
 
 in vec2 pPosition;
 
 uniform sampler2D hdr;
+
+//uniform sampler2DMS hdr;
+//uniform int samples;
+// Use these and texelFetch() to render ms textures
 
 const float g = 2.2;
 const float exposure = 0.5;

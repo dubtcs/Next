@@ -55,7 +55,8 @@ layout (std140, binding = 3) uniform PrimitiveInfo
 };
 
 // Output
-out vec4 outColor;
+layout (location = 0) out vec4 outColor;
+layout (location = 1) out vec4 hdrColor;
 
 // LIGHTING
 vec3 normal = vec3(0.0);
@@ -217,5 +218,15 @@ void main()
 
     outColor = vec4(lightingEffect, 1.0) * targetColor;
     //outColor = texture(textures[0], pTexPos);
+
+    float brightness = dot(outColor.rgb, vec3(0.21, 0.71, 0.07));
+    if(brightness > 1.0)
+    {
+        hdrColor = vec4(outColor.rgb, 1.0);
+    }
+    else
+    {
+        hdrColor = vec4(0.0, 0.0, 0.0, 1.0);
+    }
 
 }

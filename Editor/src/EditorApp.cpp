@@ -9,7 +9,6 @@
 #include <nxt/core/events/ScriptEvents.h>
 
 static nxt::SModelInstance modelInstance{ nullptr };
-static nxt::cmp::WorldModel worldModel{};
 static necs::Entity viewModel{};
 
 namespace nxt
@@ -43,10 +42,6 @@ namespace nxt
 	void Editor::OnUpdate(float& dt, bool isFocused)
 	{
 		World copy{ mWorld };
-		//necs::Entity vm{ copy.CreateEntity() };
-		//copy.Attach<cmp::Transform>(vm, { glm::vec3{2.f}, glm::vec3{0.f}, glm::vec3{1.f} });
-		//copy.Attach<cmp::WorldModel>(vm, modelInstance);
-		//std::thread t1{ mRender.OnUpdate, dt, copy, isFocused };
 		mRender.OnUpdate(dt, copy, isFocused);
 	}
 
@@ -54,7 +49,6 @@ namespace nxt
 	{
 		if (ev.Path.extension().string() == ".gltf" || ev.Path.extension().string() == ".glb")
 		{
-			cmp::WorldModel& wm{ mWorld.GetComponent<cmp::WorldModel>(viewModel) };
 			modelInstance->Model = Model::Create(ev.Path);
 		}
 		return false;
@@ -63,10 +57,6 @@ namespace nxt
 	bool Editor::OnEvent(nxt::events::Event& ev)
 	{
 		events::Handler handler{ ev };
-		//handler.Fire<events::KeyboardPressed>(NXT_CALLBACK(Editor::OnKeyPressed));
-		//handler.Fire<events::MouseButtonPressed>(NXT_CALLBACK(Editor::OnMouseButtonPressed));
-		//handler.Fire<events::MouseButtonReleased>(NXT_CALLBACK(Editor::OnMouseButtonReleased));
-		//handler.Fire<events::WindowResized>(NXT_CALLBACK(Editor::OnWindowResize));
 		handler.Fire<events::DragFileReceived>(NXT_CALLBACK(Editor::OnDragReceived));
 		mRender.OnEvent(ev);
 		return false;

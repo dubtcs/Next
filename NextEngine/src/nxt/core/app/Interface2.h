@@ -19,8 +19,10 @@ namespace nxt
 		virtual void OnUpdate(float dt) = 0;
 		virtual void OnEvent(events::Event& ev) = 0;
 	protected:
-		SWindow mWindow;
+		SWindow mWindow;	// Interface window
 		Render mRender;		// Rendering Context for thread
 	};
+
+	// 
 
 }

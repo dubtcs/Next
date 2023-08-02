@@ -24,6 +24,7 @@ namespace nxt
 		int32_t mWidth;
 		int32_t mHeight;
 		std::vector<SFrameTexture> mColorTextures;
+		std::vector<nxt_enum> mDrawBuffers;
 		SFrameTexture mDepth;
 		//SFrameTexture2 mStencil; // could use a map and enums for textures and targets??
 	};

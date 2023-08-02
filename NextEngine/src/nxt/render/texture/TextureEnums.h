@@ -26,8 +26,8 @@ namespace nxt
 		nxtTextureFormat_SRGB = 0x8C40,
 		nxtTextureFormat_SRGBA = 0x8C42,
 
-		nxtTextureFormat_RGBF = 0x9998,
-		nxtTextureFormat_RGBAF = 0x9999
+		nxtTextureFormat_RGBF = nxtTextureFormat_RGB,
+		nxtTextureFormat_RGBAF = nxtTextureFormat_RGBA
 	};
 
 	enum nxtTextureFormatInternal : nxt_enum
