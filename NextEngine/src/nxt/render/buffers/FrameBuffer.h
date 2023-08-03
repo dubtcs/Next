@@ -14,6 +14,7 @@ namespace nxt
 	public:
 		FrameBuffer(const SFrameTexture& color);
 		FrameBuffer(int32_t width, int32_t height, uint32_t samples);
+		~FrameBuffer();
 		void AttachTexture(const SFrameTexture& text, nxt_enum attachment);
 		void PushToViewport() const;
 		void Bind() const;

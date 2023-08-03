@@ -28,7 +28,10 @@ namespace nxt
 
 		SFrameBuffer mBuffer2;
 
+		std::array<SFrameBuffer, 2> mBlurs;
+
 		Shader mShader;
+		Shader mBlurShader;
 
 		STexture mWood;
 

@@ -83,4 +83,9 @@ namespace nxt
 		return mColorTextures[index];
 	}
 
+	FrameBuffer::~FrameBuffer()
+	{
+		glDeleteFramebuffers(1, &mID);
+	}
+
 }

@@ -20,7 +20,7 @@ namespace nxt
 
 		// Lights
 		necs::Entity l1{ mWorld.CreateEntity() };
-		cmp::Light li1{ .Position{ 0.f, 5.f, 5.f }, .Intensity{3.f}, .LightType{cmp::nxtLightType_Point}, .Color{0.5, 0.7, 1.f} };
+		cmp::Light li1{ .Position{ 0.f, 5.f, 5.f }, .Intensity{3000.f}, .LightType{cmp::nxtLightType_Point}, .Color{0.5, 0.7, 1.f} };
 		mWorld.Attach<cmp::Light>(l1, li1);
 
 		necs::Entity l2{ mWorld.CreateEntity() };

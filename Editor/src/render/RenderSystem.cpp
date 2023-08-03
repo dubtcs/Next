@@ -65,6 +65,7 @@ namespace nxt
 		//mShadowShader{ "assets/shaders/shadows/shadowCube.vert", "assets/shaders/shadows/shadowCube.geom", "assets/shaders/shadows/shadowCube.frag" },
 		mCamera{ {-2.f, 1.f, 2.f} },
 
+		mBlurShader{ "assets/shaders/hdr/blur.vert", "assets/shaders/hdr/blur.frag" },
 		mScreenQuad{}
 	{
 		mShader.Bind();
@@ -84,6 +85,9 @@ namespace nxt
 		mMaterialInfoBuffer->BindIndexed(3);
 
 		gHDR = Texture::Create(mWidth, mHeight, nxtTextureFormat_RGBAF, nxtTextureTarget_2D);
+
+		mBlurShader.Bind();
+		mBlurShader.SetValue("blurredTexture", 0);
 
 		render::command::SetRenderFeature(nxtRenderFeature_Multisample, true);
 	}
@@ -188,6 +192,30 @@ namespace nxt
 			DrawModel(m.Instance->Model, mMaterialInfoBuffer);
 		}
 
+		for (int32_t i{ 0 }; i < 10; i++)
+		{
+			int32_t b{ i % 2 };
+			mBlurs[b]->Bind();
+			mBlurShader.SetValue("lateral", b);
+			mBlurs[1 - b]->GetTexture(0)->BindToUnit(0);
+
+			for (const necs::Entity& e : view)
+			{
+				cmp::Transform& t{ world.GetComponent<cmp::Transform>(e) };
+				glm::mat4 worldMatrix{ glm::translate(ones, t.Position)
+					//* glm::rotate(ones, t.Scale) // quaternions required
+					* glm::scale(ones, t.Scale)
+				};
+				glm::mat4 normalMatrix{ glm::transpose(glm::inverse(worldMatrix)) };
+
+				mObjectInfoBuffer->SetSubData(64, 0, glm::value_ptr(normalMatrix));
+				mObjectInfoBuffer->SetSubData(64, 64, glm::value_ptr(worldMatrix));
+
+				cmp::WorldModel& m{ world.GetComponent<cmp::WorldModel>(e) };
+				DrawModel(m.Instance->Model, mMaterialInfoBuffer);
+			}
+		}
+
 		if (drawNormals)
 		{
 			mBuffer2->PushToViewport();
@@ -196,6 +224,7 @@ namespace nxt
 		{
 			mBuffer2->Unbind();
 			mBuffer2->GetTexture(1)->BindToUnit(0);
+			//mBlurs[0]->GetTexture(0)->BindToUnit(0);
 			mScreenQuad.Draw();
 		}
 		
@@ -219,6 +248,12 @@ namespace nxt
 		SFrameTexture t2{ NewShared<FrameTexture>(mWidth, mHeight, gSamples, nxtTextureFormat_RGBA, nxtTextureFormatInternal_RGBA16F) };
 		mBuffer2 = NewShared<FrameBuffer>(t1);
 		mBuffer2->AttachTexture(t2, nxtTextureAttachment_Color0 + 1);
+
+		SFrameTexture b1{ NewShared<FrameTexture>(mWidth, mHeight, 1, nxtTextureFormat_RGBA, nxtTextureFormatInternal_RGB16F) };
+		mBlurs[0] = NewShared<FrameBuffer>(b1);
+
+		SFrameTexture b2{ NewShared<FrameTexture>(mWidth, mHeight, 1, nxtTextureFormat_RGBA, nxtTextureFormatInternal_RGB16F) };
+		mBlurs[1] = NewShared<FrameBuffer>(b2);
 
 		render::command::SetViewport(ev.Width, ev.Height);
 		return false;
@@ -252,6 +287,13 @@ namespace nxt
 			SFrameTexture t2{ NewShared<FrameTexture>(mWidth, mHeight, gSamples, nxtTextureFormat_RGBA, nxtTextureFormatInternal_RGBA16F) };
 			mBuffer2 = NewShared<FrameBuffer>(t1);
 			mBuffer2->AttachTexture(t2, nxtTextureAttachment_Color0 + 1);
+
+			SFrameTexture b1{ NewShared<FrameTexture>(mWidth, mHeight, 1, nxtTextureFormat_RGBA, nxtTextureFormatInternal_RGB16F) };
+			mBlurs[0] = NewShared<FrameBuffer>(b1);
+
+			SFrameTexture b2{ NewShared<FrameTexture>(mWidth, mHeight, 1, nxtTextureFormat_RGBA, nxtTextureFormatInternal_RGB16F) };
+			mBlurs[1] = NewShared<FrameBuffer>(b2);
+
 			NXT_LOG_TRACE("MSAA {0}", gSamples);
 		}
 

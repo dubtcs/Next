@@ -15,7 +15,7 @@ public:
 	nxtCursorCleaner() = default;
 	~nxtCursorCleaner()
 	{
-		std::cout << "Showing cursor.";
+		//std::cout << "Showing cursor.";
 		nxt::input::ShowCursor();
 	}
 } gCleaner{};
