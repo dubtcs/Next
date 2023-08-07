@@ -32,6 +32,7 @@ layout (std140, binding = 2) uniform ObjectInfo
 {
     mat4 normalMatrix;  // 0    Offset
     mat4 worldMatrix;   // 64   Offset
+    int lightingMask;   // 128  Offset, bit 1: useTextures, bit 2: useLighting
 };
 layout (std140, binding = 3) uniform PrimitiveInfo
 {

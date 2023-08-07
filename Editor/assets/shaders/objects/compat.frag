@@ -1,6 +1,8 @@
 #version 460
 #define MAX_LIGHTS 10
 
+#define BITCHECK(var, index) ((var >> index) & 1U) == 1
+
 // Input
 in vec3 pWorldPosition;
 in vec3 pNormal;
@@ -40,6 +42,7 @@ layout (std140, binding = 2) uniform ObjectInfo
 {
     mat4 normalMatrix;  // 0    Offset
     mat4 worldMatrix;   // 64   Offset
+    int lightingMask;   // 128  Offset, bit 1: useTextures, bit 2: useLighting
 };
 layout (std140, binding = 3) uniform PrimitiveInfo
 {
@@ -170,54 +173,65 @@ void main()
     
     vec2 texturePosition = ApplyParallax();
 
-    vec4 targetColor = texture(textures[colorTextureIndex], texturePosition) * baseColor;
-
-    if(normalTexture >= 0 && useNormals == true && hasTangents)
+    vec4 targetColor = vec4(0.5, 0.07, 1.0, 1.0); // purple
+    if(BITCHECK(lightingMask, 0))
     {
-        normal = texture(textures[normalTexture], texturePosition).rgb;
-        normal = normalize((normal * 2.0) - 1.0);
+        targetColor = texture(textures[colorTextureIndex], texturePosition) * baseColor;
+    }
+    //vec4 targetColor = texture(textures[colorTextureIndex], texturePosition) * baseColor;
+
+    if(BITCHECK(lightingMask, 1))
+    {
+        if(normalTexture >= 0 && useNormals == true && hasTangents)
+        {
+            normal = texture(textures[normalTexture], texturePosition).rgb;
+            normal = normalize((normal * 2.0) - 1.0);
+        }
+        else
+        {
+            normal = normalize(pNormal);
+        }
+
+        vec3 lightingEffect = vec3(0.0);
+        for(uint i = 0; i < lightsUsed; i++)
+        {
+            float at = GetAttenuation(i);
+            float amnt = lights[i].Intensity;
+            vec3 currentLightEffect = vec3(0.0);
+            switch(lights[i].Type)
+            {
+                case(0): // Point
+                {
+                    currentLightEffect = PointLight(i);
+                    break;
+                }
+                case(1): // Directional
+                {
+                    currentLightEffect = DirectionalLight(i);
+                    at = 1.0;
+                    break;
+                }
+                case(2): // Spot
+                {
+                    currentLightEffect = SpotLight(i);
+                    break;
+                }
+                case(3): // Ambient
+                {
+                    currentLightEffect = AmbientLight(i);
+                    at = 1.0;
+                    break;
+                }
+            }
+            lightingEffect += (currentLightEffect * at * amnt);
+        }
+
+        outColor = vec4(lightingEffect, 1.0) * targetColor;
     }
     else
     {
-        normal = normalize(pNormal);
+        outColor = targetColor;
     }
-
-    vec3 lightingEffect = vec3(0.0);
-    for(uint i = 0; i < lightsUsed; i++)
-    {
-        float at = GetAttenuation(i);
-        float amnt = lights[i].Intensity;
-        vec3 currentLightEffect = vec3(0.0);
-        switch(lights[i].Type)
-        {
-            case(0): // Point
-            {
-                currentLightEffect = PointLight(i);
-                break;
-            }
-            case(1): // Directional
-            {
-                currentLightEffect = DirectionalLight(i);
-                at = 1.0;
-                break;
-            }
-            case(2): // Spot
-            {
-                currentLightEffect = SpotLight(i);
-                break;
-            }
-            case(3): // Ambient
-            {
-                currentLightEffect = AmbientLight(i);
-                at = 1.0;
-                break;
-            }
-        }
-        lightingEffect += (currentLightEffect * at * amnt);
-    }
-
-    outColor = vec4(lightingEffect, 1.0) * targetColor;
-    //outColor = texture(textures[0], pTexPos);
 
     float brightness = dot(outColor.rgb, vec3(0.21, 0.71, 0.07));
     if(brightness > 1.0)
@@ -228,5 +242,4 @@ void main()
     {
         hdrColor = vec4(0.0, 0.0, 0.0, 1.0);
     }
-
 }

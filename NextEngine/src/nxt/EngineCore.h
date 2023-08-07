@@ -30,7 +30,18 @@
 
 #include <memory>
 
-#define BIT(x) 1 << x
+/*
+No bits?
+*insert megamind no-bitches? meme*
+
+* This will self implode if someone flags this
+* so I just made it default
+* It made me laugh too hard to remove :)
+*/
+//#ifndef NXT_NO_BITS
+	#define BIT(x) 1 << x
+	#define SETBIT(value, index) value << index
+//#endif
 
 // Use for binding event callbacks
 #define NXT_CALLBACK(function_name) [this](auto&&... arg) { return this->function_name(std::forward<decltype(arg)>(arg)...); }

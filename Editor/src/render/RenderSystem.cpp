@@ -32,6 +32,7 @@ struct ObjectBufferInfo
 {
 	glm::mat4 normalMatrix;
 	glm::mat4 worldMatrix;
+	int32_t lightingMask;
 };
 struct PrimitiveBufferInfo
 {
@@ -45,11 +46,6 @@ struct PrimitiveBufferInfo
 	int32_t hasTan;
 	int32_t hasMat;
 };
-
-#define POINT_LIGHT 0
-#define DIRECTIONAL_LIGHT 1
-#define SPOT_LIGHT 2
-#define AMBIENT_LIGHT 3
 
 namespace nxt
 {
@@ -161,7 +157,7 @@ namespace nxt
 		int32_t i{ 0 };
 		cmp::Light& lc{ world.GetComponent<cmp::Light>(*lightView.begin()) };
 		float circleMagnitude{ 10.f };
-		lc.Position = glm::vec3{ -std::sin(clock::GetRunTime()) * circleMagnitude, 0.f, std::cos(clock::GetRunTime()) * circleMagnitude };
+		//lc.Position = glm::vec3{ -std::sin(clock::GetRunTime()) * circleMagnitude, 0.f, std::cos(clock::GetRunTime()) * circleMagnitude };
 		for (const necs::Entity& e : lightView)
 		{
 			mLightInfoBuffer->SetSubData(sizeof(cmp::Light), sizeof(cmp::Light) * i++, &world.GetComponent<cmp::Light>(e));
@@ -185,20 +181,27 @@ namespace nxt
 			};
 			glm::mat4 normalMatrix{ glm::transpose(glm::inverse(worldMatrix)) };
 
+			int32_t mask{ 0 };
+			mask |= SETBIT((!world.HasComponent<cmp::Light>(e)), 0);
+			mask |= SETBIT((!world.HasComponent<cmp::Light>(e)), 1);
 			mObjectInfoBuffer->SetSubData(64, 0, glm::value_ptr(normalMatrix));
 			mObjectInfoBuffer->SetSubData(64, 64, glm::value_ptr(worldMatrix));
+			mObjectInfoBuffer->SetSubData(4, 128, &mask);
 
 			cmp::WorldModel& m{ world.GetComponent<cmp::WorldModel>(e) };
 			DrawModel(m.Instance->Model, mMaterialInfoBuffer);
 		}
 
+		bool vert{ false };
+		mBlurShader.Bind();
 		for (int32_t i{ 0 }; i < 10; i++)
 		{
 			int32_t b{ i % 2 };
 			mBlurs[b]->Bind();
+			mBlurShader.SetValue("vert", vert);
 			mBlurShader.SetValue("lateral", b);
 			mBlurs[1 - b]->GetTexture(0)->BindToUnit(0);
-
+			render::command::Clear();
 			for (const necs::Entity& e : view)
 			{
 				cmp::Transform& t{ world.GetComponent<cmp::Transform>(e) };
@@ -214,19 +217,10 @@ namespace nxt
 				cmp::WorldModel& m{ world.GetComponent<cmp::WorldModel>(e) };
 				DrawModel(m.Instance->Model, mMaterialInfoBuffer);
 			}
+			vert = !vert;
 		}
 
-		if (drawNormals)
-		{
-			mBuffer2->PushToViewport();
-		}
-		else
-		{
-			mBuffer2->Unbind();
-			mBuffer2->GetTexture(1)->BindToUnit(0);
-			//mBlurs[0]->GetTexture(0)->BindToUnit(0);
-			mScreenQuad.Draw();
-		}
+		mBuffer2->PushToViewport();
 		
 	}
 
@@ -300,7 +294,7 @@ namespace nxt
 		if (ev.Keycode == nxtKeycode_N)
 		{
 			drawNormals = !drawNormals;
-			NXT_LOG_TRACE("Blit viewport: {0}", drawNormals);
+			NXT_LOG_TRACE("{0} using framebuffer texture.", drawNormals ? "Now" : "No longer");
 		}
 
 		/*if (ev.Keycode == nxtKeycode_B)

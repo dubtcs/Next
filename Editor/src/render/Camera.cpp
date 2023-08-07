@@ -7,7 +7,9 @@
 #include <glm/gtx/string_cast.hpp>
 
 static float gSens{ 0.5f };
-static float gSpeed{ 5.f }; // movement speed
+static float gSpeed{ 50.f }; // movement speed
+
+static constexpr float gScrollModifier{ 1.f };
 
 static constexpr float gNearClip{ 0.01f };
 static constexpr float gFarClip{ 1'000.f };
@@ -82,7 +84,7 @@ namespace nxt
 
 	bool Camera::OnMouseScroll(events::MouseScroll& ev)
 	{
-		float adjusted{ ev.delta * 0.02f };
+		float adjusted{ ev.delta * gScrollModifier };
 		gSpeed = std::max(1.f, gSpeed + adjusted);
 		return false;
 	}

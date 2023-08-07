@@ -20,8 +20,9 @@ namespace nxt
 
 		// Lights
 		necs::Entity l1{ mWorld.CreateEntity() };
-		cmp::Light li1{ .Position{ 0.f, 5.f, 5.f }, .Intensity{3000.f}, .LightType{cmp::nxtLightType_Point}, .Color{0.5, 0.7, 1.f} };
+		cmp::Light li1{ .Position{ 0.f, 3.f, 5.f }, .Intensity{3.f}, .LightType{cmp::nxtLightType_Point}, .Color{0.5, 0.7, 1.f} };
 		mWorld.Attach<cmp::Light>(l1, li1);
+		mWorld.Attach<cmp::Transform>(l1, { .Position{0.f, 3.f, 5.f} });
 
 		necs::Entity l2{ mWorld.CreateEntity() };
 		cmp::Light li2{ .Intensity{ 0.1f }, .LightType{ cmp::nxtLightType_Ambient }, .Color{ 1.f, 1.f, 1.f } };
@@ -36,6 +37,8 @@ namespace nxt
 		viewModel =  mWorld.CreateEntity();
 		mWorld.Attach<cmp::Transform>(viewModel, { glm::vec3{0.f}, glm::vec3{0.f}, glm::vec3{1.f} });
 		mWorld.Attach<cmp::WorldModel>(viewModel, modelInstance);
+
+		mWorld.Attach<cmp::WorldModel>(l1, modelInstance);
 
 	}
 

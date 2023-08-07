@@ -13,6 +13,7 @@ namespace nxt
 		using namespace buffers;
 		mArrayObject->Bind();
 		mShader->SetValue("hdr", 0);
+		mShader->SetValue("blur", 1);
 		
 		float verts[12]
 		{
