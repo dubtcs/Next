@@ -15,15 +15,16 @@ namespace nxt
 		mShader->SetValue("hdr", 0);
 		mShader->SetValue("blur", 1);
 		
-		float verts[12]
+		float verts[20]
 		{
-			-1.f, -1.f, 0.f,
-			1.f, -1.f, 0.f,
-			1.f, 1.f, 0.f,
-			-1.f, 1.f, 0.f
+			-1.f, -1.f, 0.f,	0.f, 0.f,
+			1.f, -1.f, 0.f,		1.f, 0.f,
+			1.f, 1.f, 0.f,		1.f, 1.f,
+			-1.f, 1.f, 0.f,		0.f, 1.f
 		};
 		SDataBuffer db{ DataBuffer::Create(sizeof(verts), verts, nxtBufferTarget_ArrayBuffer)};
-		mArrayObject->SetLayoutPosition(0, 3, nxtDataType_Float, 12);
+		mArrayObject->SetLayoutPosition(0, 3, nxtDataType_Float, 20);
+		mArrayObject->SetLayoutPosition(3, 2, nxtDataType_Float, 20, 12);
 
 		uint32_t ind[6]
 		{
