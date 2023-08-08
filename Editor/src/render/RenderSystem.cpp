@@ -192,51 +192,22 @@ namespace nxt
 			DrawModel(m.Instance->Model, mMaterialInfoBuffer);
 		}
 
-		bool vert{ false };
-		mBlurShader.Bind();
+		// Bloom
 		mBlurs[0]->Bind();
-		mBlurShader.SetValue("vert", vert);
-		mBlurShader.SetValue("lateral", 0);
+		mBlurShader.Bind();
+		mBlurShader.SetValue("vert", 0);
 		mBuffer2->GetTexture(1)->BindToUnit(0);
-		for (const necs::Entity& e : view)
-		{
-			cmp::Transform& t{ world.GetComponent<cmp::Transform>(e) };
-			glm::mat4 worldMatrix{ glm::translate(ones, t.Position)
-				//* glm::rotate(ones, t.Scale) // quaternions required
-				* glm::scale(ones, t.Scale)
-			};
-			glm::mat4 normalMatrix{ glm::transpose(glm::inverse(worldMatrix)) };
-
-			mObjectInfoBuffer->SetSubData(64, 0, glm::value_ptr(normalMatrix));
-			mObjectInfoBuffer->SetSubData(64, 64, glm::value_ptr(worldMatrix));
-
-			cmp::WorldModel& m{ world.GetComponent<cmp::WorldModel>(e) };
-			DrawModel(m.Instance->Model, mMaterialInfoBuffer);
-		}
-		vert = !vert;
-
+		render::command::Clear();
+		mScreenQuad.DrawNoShader();
+		
 		for (int32_t i{ 1 }; i < 10; i++)
 		{
 			int32_t b{ i % 2 };
 			mBlurs[b]->Bind();
-			mBlurShader.SetValue("vert", vert);
+			mBlurShader.SetValue("vert", b);
 			mBlurs[1 - b]->GetTexture(0)->BindToUnit(0);
-			for (const necs::Entity& e : view)
-			{
-				cmp::Transform& t{ world.GetComponent<cmp::Transform>(e) };
-				glm::mat4 worldMatrix{ glm::translate(ones, t.Position)
-					//* glm::rotate(ones, t.Scale) // quaternions required
-					* glm::scale(ones, t.Scale)
-				};
-				glm::mat4 normalMatrix{ glm::transpose(glm::inverse(worldMatrix)) };
-
-				mObjectInfoBuffer->SetSubData(64, 0, glm::value_ptr(normalMatrix));
-				mObjectInfoBuffer->SetSubData(64, 64, glm::value_ptr(worldMatrix));
-
-				cmp::WorldModel& m{ world.GetComponent<cmp::WorldModel>(e) };
-				DrawModel(m.Instance->Model, mMaterialInfoBuffer);
-			}
-			vert = !vert;
+			render::command::Clear();
+			mScreenQuad.DrawNoShader();
 		}
 
 		if (drawNormals)
@@ -245,11 +216,9 @@ namespace nxt
 		}
 		else
 		{
-			//mBuffer2->Unbind();
-			//mBlurs[1]->GetTexture(0)->BindToUnit(0);
-			//mScreenQuad.Draw();
 			mBuffer2->Unbind();
-			mBuffer2->GetTexture(1)->BindToUnit(0);
+			mBuffer2->GetTexture(0)->BindToUnit(0);
+			mBlurs[1]->GetTexture(0)->BindToUnit(1);
 			mScreenQuad.Draw();
 		}
 		

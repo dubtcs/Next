@@ -1,11 +1,13 @@
+
 #version 460
 
-layout (location = 0) in vec3 vPosition;
+layout (location = 0) in vec3 vPos;
+layout (location = 3) in vec2 vTexturePosition;
 
-out vec2 pPosition;
+out vec2 texturePosition;
 
 void main()
 {
-    gl_Position = vec4(vPosition, 1.0);
-    pPosition = ((vPosition + 1) / 2).xy;
+    gl_Position = vec4(vPos, 1.0);
+    texturePosition = vTexturePosition;
 }

@@ -12,8 +12,9 @@ namespace nxt
 	{
 		using namespace buffers;
 		mArrayObject->Bind();
-		mShader->SetValue("hdr", 0);
-		mShader->SetValue("blur", 1);
+		mShader->Bind();
+		std::vector<int32_t> ts{ 0, 1 };
+		mShader->SetArrayValue("ts", ts);
 		
 		float verts[20]
 		{
@@ -41,6 +42,12 @@ namespace nxt
 		render::command::Clear();
 		mArrayObject->Bind();
 		mShader->Bind();
+		render::command::DrawElements(nxtDrawMode_Triangles, 6, nxtDataType_UInt);
+	}
+
+	void ScreenQuad::DrawNoShader() const
+	{
+		mArrayObject->Bind();
 		render::command::DrawElements(nxtDrawMode_Triangles, 6, nxtDataType_UInt);
 	}
 

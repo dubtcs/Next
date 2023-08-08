@@ -15,6 +15,7 @@ namespace nxt
 	public:
 		ScreenQuad();
 		void Draw() const;
+		void DrawNoShader() const;
 	protected:
 		buffers::SArrayObject mArrayObject;
 		SShader mShader;

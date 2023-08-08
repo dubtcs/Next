@@ -3,7 +3,7 @@
 
 layout (location = 0) out vec4 outColor;
 
-uniform bool vert = false;
+uniform int vert;
 uniform sampler2D blurredImage;
 in vec2 texturePosition;
 
@@ -14,7 +14,7 @@ void main()
 {
     vec2 offset = 1.0 / textureSize(blurredImage, 0);
     vec3 target = texture(blurredImage, texturePosition).rgb * weights[0];
-    if(vert)
+    if(vert > 0)
     {
         for (int i = 1; i < 5; i++)
         {
