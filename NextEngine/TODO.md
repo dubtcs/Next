@@ -1,6 +1,7 @@
 
 ## TODO
-
+ - Ability to remove textures from framebuffers
+ - Spotlight broke
  - Make ScreenQuad support multisampled textures with texelFetch
  - Multiple windows
  - Automatically generate tangents if none are available

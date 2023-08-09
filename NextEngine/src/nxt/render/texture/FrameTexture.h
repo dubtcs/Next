@@ -16,7 +16,7 @@ namespace nxt
 		nxtTextureParam WrapFilterY{ nxtTextureParam_ClampToEdge };
 	};
 
-	// This CAN replace both FrameTexture, TextureMultiSample, and Texture
+	// This CAN replace both TextureMultiSample and Texture
 
 	class NXT_API FrameTexture
 	{

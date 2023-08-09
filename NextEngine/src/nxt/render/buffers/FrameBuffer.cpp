@@ -4,6 +4,7 @@
 #include <nxt/core/log/Log.h>
 
 #include <glad/glad.h>
+#include <algorithm>
 
 namespace nxt
 {
@@ -59,6 +60,21 @@ namespace nxt
 		}
 		glFramebufferTexture2D(GL_FRAMEBUFFER, attachment, tex->mTarget, tex->mID, 0);
 		return;
+	}
+
+	void FrameBuffer::DetachTexture(nxt_enum attachment)
+	{
+		mAttachmentsToTextures.erase(attachment);
+		if (attachment >= nxtTextureAttachment_Color0 && attachment < (nxtTextureAttachment_Color0 + 31))
+		{
+			// linear :(
+			std::vector<nxt_enum>::iterator iter{ std::find(mDrawBuffers.begin(), mDrawBuffers.end(), attachment) };
+			if (iter != mDrawBuffers.end())
+			{
+				*iter = mDrawBuffers.back();
+				mDrawBuffers.pop_back();
+			}
+		}
 	}
 
 	void FrameBuffer::PushToViewport() const

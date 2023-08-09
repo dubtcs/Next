@@ -8,13 +8,13 @@ namespace nxt
 
 	ScreenQuad::ScreenQuad() :
 		mArrayObject{ buffers::ArrayObject::Create() },
-		mShader{ new Shader{"assets/shaders/hdr/hdr.vert", "assets/shaders/hdr/hdr.frag"} }
+		mShader{ new Shader{"assets/shaders/def.vert", "assets/shaders/def.frag"} }
 	{
 		using namespace buffers;
 		mArrayObject->Bind();
 		mShader->Bind();
-		std::vector<int32_t> ts{ 0, 1 };
-		mShader->SetArrayValue("ts", ts);
+		std::vector<int32_t> ts{ 0, 1, 2 };
+		mShader->SetArrayValue("gTextures", ts);
 		
 		float verts[20]
 		{

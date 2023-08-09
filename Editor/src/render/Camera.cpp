@@ -9,7 +9,7 @@
 static float gSens{ 0.5f };
 static float gSpeed{ 50.f }; // movement speed
 
-static constexpr float gScrollModifier{ 1.f };
+static constexpr float gScrollModifier{ 0.1f };
 
 static constexpr float gNearClip{ 0.01f };
 static constexpr float gFarClip{ 1'000.f };

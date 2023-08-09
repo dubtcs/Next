@@ -3,6 +3,7 @@
 
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/type_ptr.hpp>
+#include <glm/gtx/string_cast.hpp>
 
 #include <nxt/render/ScreenQuad.h>
 
@@ -52,7 +53,7 @@ namespace nxt
 
 	RenderSystem::RenderSystem() :
 		//mShader{ "assets/shaders/objects/obj5.vert", "assets/shaders/objects/obj5.frag" },
-		mShader{ "assets/shaders/objects/compat.vert", "assets/shaders/objects/compat.frag" },
+		mShader{ "assets/shaders/objects/deferred.vert", "assets/shaders/objects/deferred.frag" },
 		mFrameInfoBuffer{ buffers::DataBuffer::Create(76, nullptr, nxtBufferTarget_UniformBuffer) },
 		mLightInfoBuffer{ buffers::DataBuffer::Create(sizeof(SceneLightData), nullptr, nxtBufferTarget_UniformBuffer)},
 		mObjectInfoBuffer{ buffers::DataBuffer::Create(sizeof(ObjectBufferInfo), nullptr, nxtBufferTarget_UniformBuffer) },
@@ -154,18 +155,25 @@ namespace nxt
 
 		// Push light data to buffer
 		necs::SceneView<cmp::Light> lightView{ world.GetScene() };
+
 		int32_t i{ 0 };
 		cmp::Light& lc{ world.GetComponent<cmp::Light>(*lightView.begin()) };
 		float circleMagnitude{ 10.f };
-		//lc.Position = glm::vec3{ -std::sin(clock::GetRunTime()) * circleMagnitude, 0.f, std::cos(clock::GetRunTime()) * circleMagnitude };
+		lc.Position = glm::vec3{ -std::sin(clock::GetRunTime()) * circleMagnitude, 0.f, std::cos(clock::GetRunTime()) * circleMagnitude };
 		for (const necs::Entity& e : lightView)
 		{
+			cmp::Light& l{ world.GetComponent<cmp::Light>(e) };
+			if (l.LightType == cmp::nxtLightType_Spot)
+			{
+				l.Direction = mCamera.GetLookVector();
+				l.Position = mCamera.GetPosition();
+			}
 			mLightInfoBuffer->SetSubData(sizeof(cmp::Light), sizeof(cmp::Light) * i++, &world.GetComponent<cmp::Light>(e));
 		}
 		mLightInfoBuffer->SetSubData(4, 480, &i);
 
 		// Visible render pass
-		mBuffer2->Bind();
+		mDeferredBuffer->Bind();
 
 		render::command::Clear();
 		mShader.Bind();
@@ -192,38 +200,14 @@ namespace nxt
 			DrawModel(m.Instance->Model, mMaterialInfoBuffer);
 		}
 
-		// Bloom
-		mBlurs[0]->Bind();
-		mBlurShader.Bind();
-		mBlurShader.SetValue("vert", 0);
-		mBuffer2->GetTexture(1)->BindToUnit(0);
-		render::command::Clear();
-		mScreenQuad.DrawNoShader();
-		
-		for (int32_t i{ 1 }; i < 10; i++)
-		{
-			int32_t b{ i % 2 };
-			mBlurs[b]->Bind();
-			mBlurShader.SetValue("vert", b);
-			mBlurs[1 - b]->GetTexture(0)->BindToUnit(0);
-			render::command::Clear();
-			mScreenQuad.DrawNoShader();
-		}
-
-		if (drawNormals)
-		{
-			mBuffer2->PushToViewport();
-		}
-		else
-		{
-			mBuffer2->Unbind();
-			mBuffer2->GetTexture(0)->BindToUnit(0);
-			mBlurs[1]->GetTexture(0)->BindToUnit(1);
-			mScreenQuad.Draw();
-		}
+		mDeferredBuffer->Unbind();
+		mDeferredBuffer->GetTexture(0)->BindToUnit(0);
+		mDeferredBuffer->GetTexture(1)->BindToUnit(1);
+		mDeferredBuffer->GetTexture(2)->BindToUnit(2);
+		mScreenQuad.Draw();
 		
 	}
-
+	
 	bool RenderSystem::OnEvent(events::Event& ev)
 	{
 		events::Handler handler{ ev };
@@ -248,6 +232,8 @@ namespace nxt
 
 		SFrameTexture b2{ NewShared<FrameTexture>(mWidth, mHeight, 1, nxtTextureFormat_RGBA, nxtTextureFormatInternal_RGB16F) };
 		mBlurs[1] = NewShared<FrameBuffer>(b2);
+
+		BuildDeferredBuffer();
 
 		render::command::SetViewport(ev.Width, ev.Height);
 		return false;
@@ -314,6 +300,18 @@ namespace nxt
 		}
 
 		return false;
+	}
+
+	void RenderSystem::BuildDeferredBuffer()
+	{
+		int32_t SAMPLES{ 1 }; // enforcing 1 sample for now
+		SFrameTexture positions{ NewShared<FrameTexture>(mWidth, mHeight, SAMPLES, nxtTextureFormat_RGBA, nxtTextureFormatInternal_RGBA16F) };
+		SFrameTexture normals{ NewShared<FrameTexture>(mWidth, mHeight, SAMPLES, nxtTextureFormat_RGBA, nxtTextureFormatInternal_RGBA16F) };
+		SFrameTexture colors{ NewShared<FrameTexture>(mWidth, mHeight, SAMPLES, nxtTextureFormat_RGBA, nxtTextureFormatInternal_RGBA16F) };
+
+		mDeferredBuffer = NewShared<FrameBuffer>(positions);
+		mDeferredBuffer->AttachTexture(normals, nxtTextureAttachment_Color0 + 1);
+		mDeferredBuffer->AttachTexture(colors, nxtTextureAttachment_Color0 + 2);
 	}
 
 }

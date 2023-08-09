@@ -5,6 +5,7 @@
 #include <nxt/render/texture/FrameTexture.h>
 
 #include <vector>
+#include <map>
 
 namespace nxt
 {
@@ -16,6 +17,7 @@ namespace nxt
 		FrameBuffer(int32_t width, int32_t height, uint32_t samples);
 		~FrameBuffer();
 		void AttachTexture(const SFrameTexture& text, nxt_enum attachment);
+		void DetachTexture(nxt_enum attachment);
 		void PushToViewport() const;
 		void Bind() const;
 		static void Unbind();
@@ -28,6 +30,7 @@ namespace nxt
 		std::vector<nxt_enum> mDrawBuffers;
 		SFrameTexture mDepth;
 		//SFrameTexture2 mStencil; // could use a map and enums for textures and targets??
+		std::map<nxt_enum, SFrameTexture> mAttachmentsToTextures;
 	};
 	using SFrameBuffer = Shared<FrameBuffer>;
 

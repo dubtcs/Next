@@ -20,6 +20,7 @@ namespace nxt
 	protected:
 		bool OnWindowResize(events::WindowResized& ev);
 		bool OnKeyPressed(events::KeyboardPressed& ev);
+		void BuildDeferredBuffer();
 	protected:
 		Camera mCamera;
 
@@ -27,6 +28,7 @@ namespace nxt
 		uint32_t mHeight;
 
 		SFrameBuffer mBuffer2;
+		SFrameBuffer mDeferredBuffer;
 
 		std::array<SFrameBuffer, 2> mBlurs;
 
