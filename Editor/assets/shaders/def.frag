@@ -68,6 +68,22 @@ vec3 PointLight(uint i)
 
     return diffuse + specular;
 }
+vec3 DirectionalLight(uint i)
+{
+    vec3 diffuse = vec3(0.0);
+    vec3 specular = vec3(0.0);
+
+    vec3 lightDirection = normalize(-lights[i].Direction);
+    float angleDifference = max(dot(normal, lightDirection), 0.0);
+    diffuse = angleDifference * lights[i].Color;
+    
+    vec3 viewDirection = normalize(cameraPosition - worldPosition);
+    vec3 reflectionDirection = reflect(-lightDirection, normal);
+    float specularHighlight = pow(max(dot(viewDirection, reflectionDirection), 0.0), specularIntensity);
+    specular = specularHighlight * lights[i].Color * specularDampening;
+
+    return (diffuse + specular);// * (1.0 - GetShadow(index));
+}
 vec3 SpotLight(uint i)
 {
     vec3 diffuse = vec3(0.0);
@@ -78,7 +94,6 @@ vec3 SpotLight(uint i)
 
     if(angle > lights[i].Radius)
     {
-
         float falloffStart = lights[i].Radius - (lights[i].Radius * 0.1); // 10% feather
         float edge = (lights[i].Radius - falloffStart);
         float feather = clamp((angle - lights[i].Radius) / edge, 0.0, 1.0);
@@ -128,7 +143,7 @@ void main()
             }
             case(1): // Directional
             {
-                //currentLightEffect = DirectionalLight(i);
+                currentLightEffect = DirectionalLight(i);
                 at = 1.0;
                 break;
             }

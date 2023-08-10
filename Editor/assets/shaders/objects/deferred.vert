@@ -9,11 +9,7 @@ layout (location = 3) in vec2 vTexturePosition;
 out vec3 pWorldPosition;
 out vec3 pNormal;
 out vec2 pTexPos;
-
-out mat3 pTangentMatrix;
-out vec3 pTangentCameraPosition;
-out vec3 pTangentWorldPosition;
-out vec3 pTangentLightPositions[MAX_LIGHTS];
+out mat3 pTBN;
 
 struct Light
 {
@@ -62,4 +58,14 @@ void main()
     pWorldPosition = vec3(worldMatrix * vec4(vPosition, 1.0));
     pNormal = mat3(normalMatrix) * vNormal;
     pTexPos = vTexturePosition;
+
+    if(hasTangents)
+    {
+        vec3 t = normalize(vec3(worldMatrix * vec4(vTangent.xyz, 0.0)));
+        vec3 b = cross(vNormal, vTangent.xyz) * vTangent.w;
+        b = normalize(vec3(worldMatrix * vec4(b, 0.0)));
+        vec3 n = normalize(vec3(worldMatrix * vec4(vNormal, 0.0)));
+        pTBN = mat3(t,b,n);
+    }
+    
 }

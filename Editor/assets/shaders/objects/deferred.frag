@@ -11,11 +11,7 @@ layout (location = 2) out vec4 gColor;
 in vec3 pWorldPosition;
 in vec3 pNormal;
 in vec2 pTexPos;
-
-in mat3 pTangentMatrix;
-in vec3 pTangentCameraPosition;
-in vec3 pTangentWorldPosition;
-in vec3 pTangentLightPositions[MAX_LIGHTS];
+in mat3 pTBN;
 
 uniform sampler2D textures[16];
 
@@ -63,7 +59,18 @@ layout (std140, binding = 3) uniform PrimitiveInfo
 void main()
 {
     gPosition = pWorldPosition;
-    gNormal = pNormal;
+
+    if(hasTangents)
+    {
+        vec3 normal = texture(textures[normalTexture], pTexPos).rgb;
+        normal = normalize((normal * 2.0) - 1.0);
+        gNormal = normalize(pTBN * normal);
+    }
+    else
+    {
+        gNormal = pNormal;
+    }
+
     vec4 targetColor = vec4(0.5, 0.07, 1.0, 1.0); // purple
     if(BITCHECK(lightingMask, 1))
     {

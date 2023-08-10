@@ -147,9 +147,6 @@ namespace nxt
 
 		mFrameInfoBuffer->SetSubData(64, 0, glm::value_ptr(mCamera.GetProjectionViewMatrix()));
 		mFrameInfoBuffer->SetSubData(12, 64, (void*)glm::value_ptr(mCamera.GetPosition()));
-		
-		mLightInfoBuffer->SetSubData(sizeof(glm::vec3), 0, (void*)glm::value_ptr(mCamera.GetPosition()));
-		mLightInfoBuffer->SetSubData(sizeof(glm::vec3), 16, (void*)glm::value_ptr(mCamera.GetLookVector()));
 
 		glm::mat4 ones{ 1.f };
 
@@ -168,7 +165,7 @@ namespace nxt
 				l.Direction = mCamera.GetLookVector();
 				l.Position = mCamera.GetPosition();
 			}
-			mLightInfoBuffer->SetSubData(sizeof(cmp::Light), sizeof(cmp::Light) * i++, &world.GetComponent<cmp::Light>(e));
+			mLightInfoBuffer->SetSubData(sizeof(cmp::Light), sizeof(cmp::Light) * i++, &l);
 		}
 		mLightInfoBuffer->SetSubData(4, 480, &i);
 
