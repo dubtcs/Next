@@ -28,6 +28,7 @@ NxtEngine is built with Win32 and OpenGL to get a better understanding of the co
 
 ### Current Features 
    - [Custom ECS](https://github.com/dubtcs/nECS)
+   - Deferred rendering
    - Drag and Drop 3D GLTF Model loading
    - MSAA
    - Normal and Parallax mapping

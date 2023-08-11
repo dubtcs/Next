@@ -197,7 +197,6 @@ void FireSizeEvent(LPARAM& lparam)
 
 void FireMouseDownEvent(nxt::nxtKeycode keycode, bool isDouble)
 {
-	NXT_LOG_TRACE("BRUH");
 	nxt::events::MouseButtonPressed ev{ keycode, isDouble };
 	nxt::app::OnEvent(ev);
 	return;
@@ -296,7 +295,6 @@ LRESULT CALLBACK NxtWindowProcedure(HWND hwnd, UINT msg, WPARAM wparam, LPARAM l
 			//WORD desc{ HIWORD(wparam) };
 			nxt::Window* window{ reinterpret_cast<nxt::Window*>(GetWindowLongPtr(hwnd, GWLP_USERDATA)) };
 			window->isFocused = !(status == WA_INACTIVE);
-			NXT_LOG_TRACE(window->isFocused);
 			break;
 		}
 		case(WM_KEYDOWN):

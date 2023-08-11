@@ -20,5 +20,6 @@ namespace nxt
 		buffers::SArrayObject mArrayObject;
 		SShader mShader;
 	};
+	using SScreenQuad = Shared<ScreenQuad>;
 
 }

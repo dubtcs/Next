@@ -63,7 +63,7 @@ namespace nxt
 		mCamera{ {-2.f, 1.f, 2.f} },
 
 		mBlurShader{ "assets/shaders/hdr/blur.vert", "assets/shaders/hdr/blur.frag" },
-		mScreenQuad{}
+		mScreenQuad{  }
 	{
 		mShader.Bind();
 		mShader.SetValue("useNormals", useBlinn);
@@ -174,7 +174,6 @@ namespace nxt
 
 		render::command::Clear();
 		mShader.Bind();
-		mShadowmap.BindTextureMap(0);
 
 		necs::SceneView<cmp::Transform, cmp::WorldModel> view{ world.GetScene() };
 		for (const necs::Entity& e : view)
@@ -201,8 +200,9 @@ namespace nxt
 		mDeferredBuffer->GetTexture(0)->BindToUnit(0);
 		mDeferredBuffer->GetTexture(1)->BindToUnit(1);
 		mDeferredBuffer->GetTexture(2)->BindToUnit(2);
+
 		mScreenQuad.Draw();
-		
+
 	}
 	
 	bool RenderSystem::OnEvent(events::Event& ev)
@@ -270,6 +270,8 @@ namespace nxt
 
 			SFrameTexture b2{ NewShared<FrameTexture>(mWidth, mHeight, 1, nxtTextureFormat_RGBA, nxtTextureFormatInternal_RGB16F) };
 			mBlurs[1] = NewShared<FrameBuffer>(b2);
+
+			BuildDeferredBuffer();
 
 			NXT_LOG_TRACE("MSAA {0}", gSamples);
 		}
