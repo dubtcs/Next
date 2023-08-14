@@ -9,10 +9,124 @@
 #include <glm/glm.hpp>
 #include <glm/gtx/string_cast.hpp>
 
+static constexpr double gOneThird{ 0.3333 };
+
 namespace nxt
 {
 
 	namespace gltf = tinygltf;
+
+	// Generate normals for tris only for now
+	static buffers::SDataBuffer GenerateNormals(Primitive& primitive)
+	{
+		using namespace buffers;
+		std::vector<glm::vec3> normals{};
+
+		if (!primitive.hasIndices)
+		{
+			for (uint32_t i{ 0 }; i < primitive.count;)
+			{
+				// Need access to GLTF model buffers for the raw data
+				// Convert to Vertex 1, 2, 3
+				// Cross product of vectors
+
+				// OpenGL default front face is CCW
+				// vector(TO - FROM) will give a position direction vector for CCW normals
+				// V1 Normal:
+				//		cross( normalize(v3 - v1), normalize(v2 - v1) )
+				// V2
+				//		cross( normalize(v1 - v2), normalize(v3 - v2) )
+				// V3
+				//		cross( normalize(v1 - v3), normalize(v2 - v3) )
+
+				i += 3;
+			}
+		}
+
+		SDataBuffer buffer{};
+		return buffer;
+	}
+	// Should I even do this? I feel like at this point in 3D pipeline it's the previous programs problem
+
+	static std::vector<Primitive> RegisterMesh2(buffers::SArrayObject& arrayObject, tinygltf::Model& model, tinygltf::Mesh& mesh, std::vector<buffers::SDataBuffer>& buffers)
+	{
+		using namespace buffers;
+		std::vector<Primitive> primitives{};
+		for (tinygltf::Primitive& primitive : mesh.primitives)
+		{
+			Primitive addition{};
+			// has indices
+			if (primitive.indices >= 0)
+			{
+				tinygltf::Accessor& accessor{ model.accessors[primitive.indices] };
+				addition.count = static_cast<uint32_t>(accessor.count);
+				addition.byteOffset = static_cast<uint32_t>(accessor.byteOffset);
+				addition.componentType = static_cast<nxtDataType>(accessor.componentType);
+				addition.hasIndices = true;
+				addition.buffer = buffers[primitive.indices];
+			}
+			addition.mode = static_cast<nxtDrawMode>(primitive.mode);
+			addition.material = primitive.material;
+
+			bool hasNormals{ false };
+			bool hasTangents{ false };
+			SDataBuffer positionBuffer{ nullptr };
+
+			for (auto& attribute : primitive.attributes)
+			{
+				tinygltf::Accessor& accessor{ model.accessors[attribute.second] };
+
+				SDataBuffer& buffer{ buffers[accessor.bufferView] };
+				buffer->Bind();
+
+				int32_t amount{ accessor.type == TINYGLTF_TYPE_SCALAR ? 1 : accessor.type };
+				int32_t stride{ accessor.ByteStride(model.bufferViews[accessor.bufferView]) };
+
+				int32_t layoutPosition{ -1 };
+				if (attribute.first == "POSITION")
+				{
+					layoutPosition = 0;
+					// Non indexed geometry. Use draw arrays
+					if (!addition.hasIndices)
+					{
+						addition.buffer = buffer;
+						addition.byteOffset = accessor.byteOffset;
+						addition.componentType = static_cast<nxtDataType>(accessor.componentType);
+						addition.count = accessor.count;
+					}
+					positionBuffer = buffer;
+				}
+				else if (attribute.first == "NORMALS")
+				{
+					hasNormals = true;
+					layoutPosition = 1;
+				}
+				else if (attribute.first == "TANGENT")
+				{
+					layoutPosition = 2;
+					addition.hasTangents = true;
+				}
+				else if (attribute.first == "TEXCOORD_0")
+				{
+					layoutPosition = 3;
+				}
+				else NXT_LOG_DEBUG("Attribute found that is not supported: {0}", attribute.first);
+
+				if (layoutPosition >= 0)
+				{
+					arrayObject->SetLayoutPosition(layoutPosition, amount, static_cast<nxtDataType>(accessor.componentType), stride, static_cast<uint32_t>(accessor.byteOffset), accessor.normalized);
+				}
+			}
+
+			if (!hasNormals)
+			{
+				GenerateNormals(addition);
+			}
+
+			primitives.push_back(addition);
+		}
+		return primitives;
+	}
 
 	static std::vector<Primitive> RegisterMesh(buffers::SArrayObject& arrayObject, tinygltf::Model& model, tinygltf::Mesh& mesh, std::vector<buffers::SDataBuffer>& buffers)
 	{

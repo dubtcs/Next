@@ -63,6 +63,7 @@ namespace nxt
 		mCamera{ {-2.f, 1.f, 2.f} },
 
 		mBlurShader{ "assets/shaders/hdr/blur.vert", "assets/shaders/hdr/blur.frag" },
+		mAOShader{ "assets/shaders/screen/ssao.vert", "assets/shaders/screen/ssao.frag" },
 		mScreenQuad{  }
 	{
 		mShader.Bind();
@@ -85,6 +86,25 @@ namespace nxt
 
 		mBlurShader.Bind();
 		mBlurShader.SetValue("blurredTexture", 0);
+
+		// SSAO
+		mAOShader.Bind();
+		// Kernel
+		constexpr uint32_t sampleSize{ 64 };
+		std::vector<glm::vec3> kernel{};
+		kernel.reserve(sampleSize);
+		for (uint32_t i{ 0 }; i < sampleSize; i++)
+		{
+			glm::vec3 sample{ random::GetNumber<float>() * 2.f - 1.f, random::GetNumber<float>() * 2.f - 1.f, random::GetNumber<float>() };
+			sample = glm::normalize(sample);
+			float scale{ static_cast<float>(1 / sampleSize) };
+			scale = (0.1f + (scale * scale) * (1.f - 0.1f));
+			sample *= scale;
+			kernel.push_back(sample);
+		}
+		mAOShader.SetArrayValue("kernel", kernel);
+		std::vector<int32_t> teqwe{ 0, 1, 4 };
+		mAOShader.SetArrayValue("textures", teqwe);
 
 		render::command::SetRenderFeature(nxtRenderFeature_Multisample, true);
 	}
@@ -311,6 +331,27 @@ namespace nxt
 		mDeferredBuffer = NewShared<FrameBuffer>(positions);
 		mDeferredBuffer->AttachTexture(normals, nxtTextureAttachment_Color0 + 1);
 		mDeferredBuffer->AttachTexture(colors, nxtTextureAttachment_Color0 + 2);
+
+		// SSAO
+
+		// Noise
+		constexpr uint32_t nSamples{ 16 };
+		std::array<glm::vec3, nSamples> noiseData{};
+		for (uint32_t i{ 0 }; i < nSamples; i++)
+		{
+			// Z is 0 for hemisphere
+			glm::vec3 n{ random::GetNumber<float>() * 2.f - 1.f, random::GetNumber<float>() * 2.f - 1.f, 0.f };
+			noiseData[i] = n;
+		}
+
+		// 4x4 texture, 16 length array
+		SFrameTexture noise{ NewShared<FrameTexture>(4, 4, 1, nxtTextureFormat_RGBA, nxtTextureFormatInternal_RGB16F) };
+		noise->SetData(nxtTextureFormat_RGBA, nxtDataType_Float, &noiseData.at(0));
+
+		SFrameTexture aoColor{ NewShared<FrameTexture>(mWidth, mHeight, SAMPLES, nxtTextureFormat_R, nxtTextureFormatInternal_R8) };
+		mSSAO = NewShared<FrameBuffer>(aoColor);
+
+
 	}
 
 }

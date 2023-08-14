@@ -60,7 +60,7 @@ Add ```NextEngine/src``` as an include directory.
 class ExampleInterface : public nxt::AppInterface
 {
 public:
-    virtual OnUpdate(double dt) override;
+    virtual OnUpdate(float dt, bool isFocused) override;
     virtual OnEvent(nxt::events::Event& ev) override;
 };
 
