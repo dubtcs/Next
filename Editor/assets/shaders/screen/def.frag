@@ -10,7 +10,7 @@
 
 layout (location = 0) out vec4 outColor;
 
-uniform sampler2D gTextures[3];
+uniform sampler2D gTextures[4];
 
 in vec2 texturePosition;
 
@@ -28,8 +28,8 @@ struct Light
 layout (std140, binding = 0) uniform FrameInfo
 {
     mat4 projectionViewMatrix;
+    mat4 projectionMatrix;
     vec3 cameraPosition;
-    //float frameTime;
 };
 layout (std140, binding = 1) uniform LightInfo // Maybe switch to Shader Storage Buffer Object
 {
@@ -163,5 +163,6 @@ void main()
     }
 
     outColor = vec4(lightingEffect * color, 1.0);
-
+    //outColor = vec4(vec3(texture(gTextures[3], texturePosition).r), 1.0); // testing SSAO texture
+    
 }

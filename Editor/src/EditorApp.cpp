@@ -38,10 +38,13 @@ namespace nxt
 
 		// World Models
 		modelInstance = NewShared<ModelInstance>(Model::Create("assets/models/BoxTextured.gltf"));
-
-		viewModel =  mWorld.CreateEntity();
+		viewModel = mWorld.CreateEntity();
 		mWorld.Attach<cmp::Transform>(viewModel, { glm::vec3{0.f}, glm::vec3{0.f}, glm::vec3{1.f} });
 		mWorld.Attach<cmp::WorldModel>(viewModel, modelInstance);
+		
+		necs::Entity dwa{ mWorld.CreateEntity() };
+		mWorld.Attach<cmp::Transform>(dwa, { glm::vec3{0.5f}, glm::vec3{0.f}, glm::vec3{1.f} });
+		mWorld.Attach<cmp::WorldModel>(dwa, modelInstance);
 
 	}
 

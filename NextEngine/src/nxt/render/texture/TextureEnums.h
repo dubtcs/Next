@@ -62,6 +62,7 @@ namespace nxt
 		nxtTextureParam_MipLinearNear = 0x2701,
 		nxtTextureParam_MipNearLinear = 0x2702,
 		nxtTextureParam_MipLinearLinear = 0x2703,
+		nxtTextureParam_Repeat = 0x2901,
 		nxtTextureParam_ClampToEdge = 0x812F
 	};
 

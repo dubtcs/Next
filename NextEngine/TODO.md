@@ -7,6 +7,8 @@
 - [ ] Expose DropTarget API and let users decide what they want to be droppable
  
  ## COMPLETE
+- [x] Fix deferred depth buffer
+    - Never actually added a depth atatchment to the deferred buffer
 - [x] Fix model drag and drop
     - DrawCube ArrayObject buffers were being overwritten when loading new files with drag&drop. Call stack is [ WindowProc() -> Update() -> RenderPasses() -> DrawViewport() ]. Because the ArrayObject wasn't unbound at the end of the Viewport() call, it's contents were being overwritten by the WindowProc() loading a new model at the start of the next tick.
 - [x] Add normal maps to deferred
@@ -20,4 +22,5 @@
     - New texture class uses both formats for more control
 
  ## ON HOLD
-- Move render system and device from namespace to class for multithreading		: I did this, but OpenGL is a pain with MT, so wait until Vulkan to do this
+- [ ] Move render system and device from namespace to class for multithreading
+    - I did it, but OpenGL render contexts were a pain to juggle. Do this with Vulkan

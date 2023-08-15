@@ -41,6 +41,7 @@ No bits?
 //#ifndef NXT_NO_BITS
 	#define BIT(x) 1 << x
 	#define SETBIT(value, index) value << index
+	#define CHECKBIT(value, bit) ((value >> bit) & 1U) == 1
 //#endif
 
 // Use for binding event callbacks

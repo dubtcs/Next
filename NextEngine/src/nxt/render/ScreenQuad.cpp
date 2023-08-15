@@ -13,7 +13,7 @@ namespace nxt
 		using namespace buffers;
 		mArrayObject->Bind();
 		mShader->Bind();
-		std::vector<int32_t> ts{ 0, 1, 2 };
+		std::vector<int32_t> ts{ 0, 1, 2, 3 };
 		mShader->SetArrayValue("gTextures", ts);
 		
 		float verts[20]

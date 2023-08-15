@@ -25,8 +25,8 @@ struct Light
 layout (std140, binding = 0) uniform FrameInfo
 {
     mat4 projectionViewMatrix;
+    mat4 projectionMatrix;
     vec3 cameraPosition;
-    //float frameTime;
 };
 layout (std140, binding = 1) uniform LightInfo // Maybe switch to Shader Storage Buffer Object
 {

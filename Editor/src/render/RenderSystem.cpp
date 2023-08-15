@@ -29,6 +29,12 @@ struct SceneLightData
 	std::array<LightInfo, gMaxLights> LightData; // 0 Offset
 	uint32_t lightsUsed{ 0 }; // 480 Offset
 };
+struct FrameInfoBuffer
+{
+	glm::mat4 pvm;
+	glm::mat4 pm;
+	glm::vec3 pos;
+};
 struct ObjectBufferInfo
 {
 	glm::mat4 normalMatrix;
@@ -54,7 +60,7 @@ namespace nxt
 	RenderSystem::RenderSystem() :
 		//mShader{ "assets/shaders/objects/obj5.vert", "assets/shaders/objects/obj5.frag" },
 		mShader{ "assets/shaders/objects/deferred.vert", "assets/shaders/objects/deferred.frag" },
-		mFrameInfoBuffer{ buffers::DataBuffer::Create(76, nullptr, nxtBufferTarget_UniformBuffer) },
+		mFrameInfoBuffer{ buffers::DataBuffer::Create(sizeof(FrameInfoBuffer), nullptr, nxtBufferTarget_UniformBuffer)},
 		mLightInfoBuffer{ buffers::DataBuffer::Create(sizeof(SceneLightData), nullptr, nxtBufferTarget_UniformBuffer)},
 		mObjectInfoBuffer{ buffers::DataBuffer::Create(sizeof(ObjectBufferInfo), nullptr, nxtBufferTarget_UniformBuffer) },
 		mMaterialInfoBuffer{ buffers::DataBuffer::Create(sizeof(PrimitiveBufferInfo), nullptr, nxtBufferTarget_UniformBuffer) },
@@ -103,7 +109,7 @@ namespace nxt
 			kernel.push_back(sample);
 		}
 		mAOShader.SetArrayValue("kernel", kernel);
-		std::vector<int32_t> teqwe{ 0, 1, 4 };
+		std::vector<int32_t> teqwe{ 0, 1, 3 };
 		mAOShader.SetArrayValue("textures", teqwe);
 
 		render::command::SetRenderFeature(nxtRenderFeature_Multisample, true);
@@ -166,7 +172,8 @@ namespace nxt
 			mCamera.OnUpdate(dt);
 
 		mFrameInfoBuffer->SetSubData(64, 0, glm::value_ptr(mCamera.GetProjectionViewMatrix()));
-		mFrameInfoBuffer->SetSubData(12, 64, (void*)glm::value_ptr(mCamera.GetPosition()));
+		mFrameInfoBuffer->SetSubData(64, 64, glm::value_ptr(mCamera.GetProjectionMatrix()));
+		mFrameInfoBuffer->SetSubData(12, 128, (void*)glm::value_ptr(mCamera.GetPosition()));
 
 		glm::mat4 ones{ 1.f };
 
@@ -217,9 +224,17 @@ namespace nxt
 		}
 
 		mDeferredBuffer->Unbind();
-		mDeferredBuffer->GetTexture(0)->BindToUnit(0);
-		mDeferredBuffer->GetTexture(1)->BindToUnit(1);
-		mDeferredBuffer->GetTexture(2)->BindToUnit(2);
+
+		for (int32_t i{ 0 }; i < 3; i++)
+		{
+			mDeferredBuffer->GetTexture(i)->BindToUnit(i);
+		}
+
+		mSSAO->GetTexture(1)->BindToUnit(3); // noise texture
+		mSSAO->Bind();
+		mAOShader.Bind();
+		mScreenQuad.DrawNoShader();
+		mSSAO->Unbind();
 
 		mScreenQuad.Draw();
 
@@ -327,10 +342,12 @@ namespace nxt
 		SFrameTexture positions{ NewShared<FrameTexture>(mWidth, mHeight, SAMPLES, nxtTextureFormat_RGBA, nxtTextureFormatInternal_RGBA16F) };
 		SFrameTexture normals{ NewShared<FrameTexture>(mWidth, mHeight, SAMPLES, nxtTextureFormat_RGBA, nxtTextureFormatInternal_RGBA16F) };
 		SFrameTexture colors{ NewShared<FrameTexture>(mWidth, mHeight, SAMPLES, nxtTextureFormat_RGBA, nxtTextureFormatInternal_RGBA16F) };
+		SFrameTexture depth{ NewShared<FrameTexture>(mWidth, mHeight, SAMPLES, nxtTextureFormat_DepthStencil, nxtTextureFormatInternal_Depth24Stencil8) };
 
 		mDeferredBuffer = NewShared<FrameBuffer>(positions);
 		mDeferredBuffer->AttachTexture(normals, nxtTextureAttachment_Color0 + 1);
 		mDeferredBuffer->AttachTexture(colors, nxtTextureAttachment_Color0 + 2);
+		mDeferredBuffer->AttachTexture(depth, nxtTextureAttachment_Depth);
 
 		// SSAO
 
@@ -346,11 +363,15 @@ namespace nxt
 
 		// 4x4 texture, 16 length array
 		SFrameTexture noise{ NewShared<FrameTexture>(4, 4, 1, nxtTextureFormat_RGBA, nxtTextureFormatInternal_RGB16F) };
+		noise->SetParameter(nxtTextureParamName_WrapS, nxtTextureParam_Repeat);
+		noise->SetParameter(nxtTextureParamName_WrapT, nxtTextureParam_Repeat);
 		noise->SetData(nxtTextureFormat_RGBA, nxtDataType_Float, &noiseData.at(0));
 
 		SFrameTexture aoColor{ NewShared<FrameTexture>(mWidth, mHeight, SAMPLES, nxtTextureFormat_R, nxtTextureFormatInternal_R8) };
 		mSSAO = NewShared<FrameBuffer>(aoColor);
-
+		mSSAO->AttachTexture(noise, nxtTextureAttachment_Color0 + 1);
+		// Adding it to the buffer to hold the pointer.
+		// Just don't write to location = 1
 
 	}
 

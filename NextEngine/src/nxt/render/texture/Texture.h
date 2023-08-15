@@ -13,6 +13,14 @@ namespace nxt
 		class FrameBuffer;
 	}
 
+	/*
+	
+	DEPRECATED
+	Use FrameTexture.
+	It has all the same utility, but with more control.
+
+	*/
+
 	class NXT_API Texture
 	{
 		friend class buffers::FrameBuffer;
