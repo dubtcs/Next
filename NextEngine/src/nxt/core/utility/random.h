@@ -11,7 +11,7 @@ namespace nxt::random
 	extern std::mt19937_64 nxtgMtEngine;
 
 	template<typename T>
-	T GetInt(T min = 0, T max = 10)
+	T GetInt(T min, T max)
 	{
 		std::uniform_int_distribution<T> gDistribution(min, max);
 		return gDistribution(nxtgMtEngine);

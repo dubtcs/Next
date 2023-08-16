@@ -30,6 +30,7 @@ namespace nxt
 		SFrameBuffer mBuffer2;
 		SFrameBuffer mDeferredBuffer;
 		SFrameBuffer mSSAO;
+		SFrameTexture mNoise;
 
 		std::array<SFrameBuffer, 2> mBlurs;
 

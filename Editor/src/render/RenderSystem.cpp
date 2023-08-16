@@ -33,6 +33,7 @@ struct FrameInfoBuffer
 {
 	glm::mat4 pvm;
 	glm::mat4 pm;
+	glm::mat4 vm;
 	glm::vec3 pos;
 };
 struct ObjectBufferInfo
@@ -101,18 +102,22 @@ namespace nxt
 		kernel.reserve(sampleSize);
 		for (uint32_t i{ 0 }; i < sampleSize; i++)
 		{
-			glm::vec3 sample{ random::GetNumber<float>() * 2.f - 1.f, random::GetNumber<float>() * 2.f - 1.f, random::GetNumber<float>() };
+			glm::vec3 sample{ random::GetNumber<float>(-1.f, 1.f), random::GetNumber<float>(-1.f, 1.f), random::GetNumber<float>() };
 			sample = glm::normalize(sample);
-			float scale{ static_cast<float>(1 / sampleSize) };
+			sample *= random::GetNumber<float>();
+
+			float scale{ static_cast<float>(i) / static_cast<float>(sampleSize) };
 			scale = (0.1f + (scale * scale) * (1.f - 0.1f));
 			sample *= scale;
+
 			kernel.push_back(sample);
 		}
 		mAOShader.SetArrayValue("kernel", kernel);
 		std::vector<int32_t> teqwe{ 0, 1, 3 };
-		mAOShader.SetArrayValue("textures", teqwe);
+		mAOShader.SetArrayValue("gTextures", teqwe);
 
 		render::command::SetRenderFeature(nxtRenderFeature_Multisample, true);
+		render::command::SetClearColor(0.f, 0.f, 0.f, 1.f);
 	}
 
 	static void DrawMesh(const SModel& model, const Mesh& mesh, buffers::SDataBuffer& objectInfo)
@@ -173,7 +178,8 @@ namespace nxt
 
 		mFrameInfoBuffer->SetSubData(64, 0, glm::value_ptr(mCamera.GetProjectionViewMatrix()));
 		mFrameInfoBuffer->SetSubData(64, 64, glm::value_ptr(mCamera.GetProjectionMatrix()));
-		mFrameInfoBuffer->SetSubData(12, 128, (void*)glm::value_ptr(mCamera.GetPosition()));
+		mFrameInfoBuffer->SetSubData(64, 128, glm::value_ptr(mCamera.GetViewMatrix()));
+		mFrameInfoBuffer->SetSubData(12, 192, (void*)glm::value_ptr(mCamera.GetPosition()));
 
 		glm::mat4 ones{ 1.f };
 
@@ -230,11 +236,13 @@ namespace nxt
 			mDeferredBuffer->GetTexture(i)->BindToUnit(i);
 		}
 
-		mSSAO->GetTexture(1)->BindToUnit(3); // noise texture
+		//mSSAO->GetTexture(1)->BindToUnit(3); // noise texture
+		mNoise->BindToUnit(3);
 		mSSAO->Bind();
 		mAOShader.Bind();
 		mScreenQuad.DrawNoShader();
 		mSSAO->Unbind();
+		mSSAO->GetTexture(0)->BindToUnit(3);
 
 		mScreenQuad.Draw();
 
@@ -353,25 +361,30 @@ namespace nxt
 
 		// Noise
 		constexpr uint32_t nSamples{ 16 };
-		std::array<glm::vec3, nSamples> noiseData{};
+		std::vector<glm::vec3> noiseData{};
+		noiseData.reserve(nSamples);
 		for (uint32_t i{ 0 }; i < nSamples; i++)
 		{
 			// Z is 0 for hemisphere
-			glm::vec3 n{ random::GetNumber<float>() * 2.f - 1.f, random::GetNumber<float>() * 2.f - 1.f, 0.f };
-			noiseData[i] = n;
+			glm::vec3 n{ random::GetNumber<float>(-1.f, 1.f), random::GetNumber<float>(-1.f, 1.f), 0.f };
+			noiseData.push_back(n);
+			NXT_LOG_TRACE("Noise {0} : {1}", i, glm::to_string(noiseData[i]));
 		}
 
 		// 4x4 texture, 16 length array
-		SFrameTexture noise{ NewShared<FrameTexture>(4, 4, 1, nxtTextureFormat_RGBA, nxtTextureFormatInternal_RGB16F) };
+		SFrameTexture noise{ NewShared<FrameTexture>(4, 4, 1, nxtTextureFormat_RGB, nxtTextureFormatInternal_RGB16F) };
 		noise->SetParameter(nxtTextureParamName_WrapS, nxtTextureParam_Repeat);
 		noise->SetParameter(nxtTextureParamName_WrapT, nxtTextureParam_Repeat);
-		noise->SetData(nxtTextureFormat_RGBA, nxtDataType_Float, &noiseData.at(0));
+		noise->SetData(nxtTextureFormat_RGB, nxtDataType_Float, &noiseData[0]);
+		mNoise = noise;
 
-		SFrameTexture aoColor{ NewShared<FrameTexture>(mWidth, mHeight, SAMPLES, nxtTextureFormat_R, nxtTextureFormatInternal_R8) };
+		SFrameTexture aoColor{ NewShared<FrameTexture>(mWidth, mHeight, SAMPLES, nxtTextureFormat_R, nxtTextureFormatInternal_R16F) };
 		mSSAO = NewShared<FrameBuffer>(aoColor);
-		mSSAO->AttachTexture(noise, nxtTextureAttachment_Color0 + 1);
+		//mSSAO->AttachTexture(noise, nxtTextureAttachment_Color0 + 1);
 		// Adding it to the buffer to hold the pointer.
 		// Just don't write to location = 1
+		// can't do that lmao
+		// render command clears it
 
 	}
 

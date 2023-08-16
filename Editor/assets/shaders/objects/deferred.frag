@@ -30,6 +30,7 @@ layout (std140, binding = 0) uniform FrameInfo
 {
     mat4 projectionViewMatrix;
     mat4 projectionMatrix;
+    mat4 viewMatrix;
     vec3 cameraPosition;
 };
 layout (std140, binding = 1) uniform LightInfo // Maybe switch to Shader Storage Buffer Object

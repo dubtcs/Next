@@ -33,6 +33,8 @@ namespace nxt
 	enum nxtTextureFormatInternal : nxt_enum
 	{
 		nxtTextureFormatInternal_R8 = 0x8229,
+		nxtTextureFormatInternal_R16 = 0x822A,
+		nxtTextureFormatInternal_R16F = 0x822D,
 		nxtTextureFormatInternal_RG8 = 0x822B,
 		nxtTextureFormatInternal_RGB8 = 0x8051,
 		nxtTextureFormatInternal_RGBA8 = 0x8058,

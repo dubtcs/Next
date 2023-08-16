@@ -1,5 +1,7 @@
 
 ## TODO
+- [ ] Adjust SSAO matrices.
+    - Either push viewspace coords into gbuffer or convert world space coords to view space in SSAO shader
 - [ ] Ability to remove textures from framebuffers
 - [ ] Make ScreenQuad support multisampled textures with texelFetch
 - [ ] Multiple windows

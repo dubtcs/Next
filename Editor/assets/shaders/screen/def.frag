@@ -29,6 +29,7 @@ layout (std140, binding = 0) uniform FrameInfo
 {
     mat4 projectionViewMatrix;
     mat4 projectionMatrix;
+    mat4 viewMatrix;
     vec3 cameraPosition;
 };
 layout (std140, binding = 1) uniform LightInfo // Maybe switch to Shader Storage Buffer Object
@@ -163,6 +164,7 @@ void main()
     }
 
     outColor = vec4(lightingEffect * color, 1.0);
-    //outColor = vec4(vec3(texture(gTextures[3], texturePosition).r), 1.0); // testing SSAO texture
-    
+    outColor = vec4(vec3(texture(gTextures[3], texturePosition).r), 1.0); // testing SSAO texture
+    //outColor = viewMatrix * vec4(vec3(texture(gTextures[0], texturePosition)), 0.0); // testing SSAO texture
+    //outColor = viewMatrix * texture(gTextures[1], texturePosition);
 }

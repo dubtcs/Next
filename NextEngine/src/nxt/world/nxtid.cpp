@@ -1,7 +1,7 @@
 
 #include "nxtid.h"
 
-#include <nxt/core/random/random.h>
+#include <nxt/core/utility/random.h>
 
 namespace nxt
 {

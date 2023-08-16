@@ -26,6 +26,7 @@ layout (std140, binding = 0) uniform FrameInfo
 {
     mat4 projectionViewMatrix;
     mat4 projectionMatrix;
+    mat4 viewMatrix;
     vec3 cameraPosition;
 };
 layout (std140, binding = 1) uniform LightInfo // Maybe switch to Shader Storage Buffer Object
@@ -54,8 +55,8 @@ layout (std140, binding = 3) uniform PrimitiveInfo
 
 void main()
 {
-    gl_Position = projectionViewMatrix * worldMatrix * vec4(vPosition, 1.0);
     pWorldPosition = vec3(worldMatrix * vec4(vPosition, 1.0));
+    gl_Position = projectionViewMatrix * vec4(pWorldPosition, 1.0);
     pNormal = mat3(normalMatrix) * vNormal;
     pTexPos = vTexturePosition;
 

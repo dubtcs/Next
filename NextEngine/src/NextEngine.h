@@ -16,7 +16,7 @@ All functionaility is in namespace nxt
 #include <nxt/core/input/Input.h>
 #include <nxt/core/events/Event.h>
 #include <nxt/core/clock/Clock.h>
-#include <nxt/core/random/random.h>
+#include <nxt/core/utility/random.h>
 
 #include <nxt/render/RenderAPI.h>
 #include <nxt/render/buffers/VertexBuffer.h>

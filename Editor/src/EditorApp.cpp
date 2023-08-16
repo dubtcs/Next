@@ -37,13 +37,13 @@ namespace nxt
 		mWorld.Attach<cmp::Light>(l4, li4);
 
 		// World Models
-		modelInstance = NewShared<ModelInstance>(Model::Create("assets/models/BoxTextured.gltf"));
+		modelInstance = NewShared<ModelInstance>(Model::Create("assets/models/Avocado.gltf"));
 		viewModel = mWorld.CreateEntity();
-		mWorld.Attach<cmp::Transform>(viewModel, { glm::vec3{0.f}, glm::vec3{0.f}, glm::vec3{1.f} });
+		mWorld.Attach<cmp::Transform>(viewModel, { glm::vec3{0.f}, glm::vec3{0.f}, glm::vec3{15.f} });
 		mWorld.Attach<cmp::WorldModel>(viewModel, modelInstance);
 		
 		necs::Entity dwa{ mWorld.CreateEntity() };
-		mWorld.Attach<cmp::Transform>(dwa, { glm::vec3{0.5f}, glm::vec3{0.f}, glm::vec3{1.f} });
+		mWorld.Attach<cmp::Transform>(dwa, { glm::vec3{0.25f}, glm::vec3{0.f}, glm::vec3{15.f} });
 		mWorld.Attach<cmp::WorldModel>(dwa, modelInstance);
 
 	}
