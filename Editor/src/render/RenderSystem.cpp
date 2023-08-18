@@ -31,10 +31,11 @@ struct SceneLightData
 };
 struct FrameInfoBuffer
 {
-	glm::mat4 pvm;
-	glm::mat4 pm;
-	glm::mat4 vm;
-	glm::vec3 pos;
+	glm::mat4 projView;
+	glm::mat4 proj;
+	glm::mat4 view;
+	glm::mat4 normView;
+	glm::vec3 position;
 };
 struct ObjectBufferInfo
 {
@@ -171,15 +172,26 @@ namespace nxt
 		}
 	}
 
+	static void StripMatrixTranslation(glm::mat4* m)
+	{
+		(*m)[0].w = 0.f;
+		(*m)[1].w = 0.f;
+		(*m)[2].w = 0.f;
+	}
+
 	void RenderSystem::OnUpdate(float& dt, World& world, bool isFocused)
 	{
 		if(isFocused)
 			mCamera.OnUpdate(dt);
 
+		glm::mat4 normalViewMatrix{ glm::inverse(mCamera.GetViewMatrix()) }; // view space normal matrix
+		StripMatrixTranslation(&normalViewMatrix);
+
 		mFrameInfoBuffer->SetSubData(64, 0, glm::value_ptr(mCamera.GetProjectionViewMatrix()));
 		mFrameInfoBuffer->SetSubData(64, 64, glm::value_ptr(mCamera.GetProjectionMatrix()));
 		mFrameInfoBuffer->SetSubData(64, 128, glm::value_ptr(mCamera.GetViewMatrix()));
-		mFrameInfoBuffer->SetSubData(12, 192, (void*)glm::value_ptr(mCamera.GetPosition()));
+		mFrameInfoBuffer->SetSubData(64, 192, glm::value_ptr(normalViewMatrix));
+		mFrameInfoBuffer->SetSubData(12, 256, (void*)glm::value_ptr(mCamera.GetPosition()));
 
 		glm::mat4 ones{ 1.f };
 
@@ -217,6 +229,12 @@ namespace nxt
 				* glm::scale(ones, t.Scale)
 			};
 			glm::mat4 normalMatrix{ glm::transpose(glm::inverse(worldMatrix)) };
+			//glm::mat4 normalViewMatrix{ glm::transpose(glm::inverse(mCamera.GetViewMatrix())) }; // view space normal matrix
+
+			//NXT_LOG_INFO("N = T(I(world)): {0}", glm::to_string(normalMatrix));
+			//NXT_LOG_DEBUG("V * N:      \t{0}", glm::to_string(mCamera.GetViewMatrix() * normalMatrix));
+			//NXT_LOG_DEBUG("T(I(V * W) :\t{0}", glm::to_string(glm::transpose(glm::inverse(mCamera.GetViewMatrix() * worldMatrix))));
+			//NXT_LOG_DEBUG("T(I(V)) * N:\t{0}", glm::to_string(glm::transpose(glm::inverse(mCamera.GetViewMatrix())) * normalMatrix));
 
 			int32_t mask{ 0 };
 			mask |= SETBIT((!world.HasComponent<cmp::Light>(e)), 0);
@@ -368,7 +386,7 @@ namespace nxt
 			// Z is 0 for hemisphere
 			glm::vec3 n{ random::GetNumber<float>(-1.f, 1.f), random::GetNumber<float>(-1.f, 1.f), 0.f };
 			noiseData.push_back(n);
-			NXT_LOG_TRACE("Noise {0} : {1}", i, glm::to_string(noiseData[i]));
+			//NXT_LOG_TRACE("Noise {0} : {1}", i, glm::to_string(noiseData[i]));
 		}
 
 		// 4x4 texture, 16 length array
