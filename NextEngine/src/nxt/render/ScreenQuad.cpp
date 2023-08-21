@@ -46,9 +46,11 @@ namespace nxt
 	void ScreenQuad::DrawNoShader() const
 	{
 		render::command::Clear();
+		//render::command::SetRenderFeature(nxtRenderFeature_DepthTest, false);
 		mArrayObject->Bind();
 		render::command::DrawElements(nxtDrawMode_Triangles, 6, nxtDataType_UInt);
 		mArrayObject->Unbind();
+		//render::command::SetRenderFeature(nxtRenderFeature_DepthTest, true);
 	}
 
 }

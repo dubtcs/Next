@@ -99,6 +99,11 @@ namespace nxt
 		return mColorTextures[index];
 	}
 
+	const SFrameTexture& FrameBuffer::GetDepthTexture() const
+	{
+		return mDepth;
+	}
+
 	FrameBuffer::~FrameBuffer()
 	{
 		glDeleteFramebuffers(1, &mID);

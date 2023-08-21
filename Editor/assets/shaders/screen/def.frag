@@ -29,7 +29,9 @@ layout (std140, binding = 0) uniform FrameInfo
 {
     mat4 projectionViewMatrix;
     mat4 projectionMatrix;
+    mat4 projectionMatrixInverse;
     mat4 viewMatrix;
+    mat4 viewMatrixInverse;
     mat4 normalViewMatrix;
     vec3 cameraPosition;
 };
@@ -124,6 +126,22 @@ float GetAttenuation(uint i)
     return at;
 }
 
+
+vec3 WorldPositionFromDepthValue(float depth)
+{
+    float z = (depth * 2.0) - 1.0;
+
+    vec2 coordsClip = (texturePosition * 2.0) - 1.0;
+    vec4 clipPosition = vec4(coordsClip, z, 1.0);
+    
+    vec4 viewPosition = projectionMatrixInverse * clipPosition;
+
+    viewPosition /= viewPosition.w;
+    vec4 worldPosition = viewMatrixInverse * viewPosition;
+
+    return worldPosition.xyz;
+}
+
 void main()
 {
     worldPosition = texture(gTextures[0], texturePosition).rgb;
@@ -166,6 +184,9 @@ void main()
 
     outColor = vec4(lightingEffect * color, 1.0);
     outColor = vec4(vec3(texture(gTextures[3], texturePosition).r), 1.0); // testing SSAO texture
+
+    float de = texture(gTextures[0], texturePosition).x;
+    outColor = vec4(WorldPositionFromDepthValue(de), 1.0);
 
     //vec3 n = mat3(normalViewMatrix) * texture(gTextures[1], texturePosition).xyz;
     //outColor = vec4(n.x, 0.0, 0.0, 1.0);

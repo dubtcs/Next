@@ -9,6 +9,8 @@
 #include <nxt/core/events/ScriptEvents.h>
 #include <glm/glm.hpp>
 
+#include <nxt/core/utility/lerp.h>
+
 static nxt::SModelInstance modelInstance{ nullptr };
 static necs::Entity viewModel{};
 
@@ -17,8 +19,8 @@ namespace nxt
 
 	Editor::Editor() :
 		mWorld{}
-	{
 
+	{
 		// Lights
 		necs::Entity l1{ mWorld.CreateEntity() };
 		cmp::Light li1{ .Position{ 0.f, 3.f, 5.f }, .Intensity{3.f}, .LightType{cmp::nxtLightType_Point}, .Color{0.8, 0.7, 0.4f} };

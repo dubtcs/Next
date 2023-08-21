@@ -6,6 +6,7 @@
 #include <glm/gtx/string_cast.hpp>
 
 #include <nxt/render/ScreenQuad.h>
+#include <nxt/core/utility/lerp.h>
 
 static uint32_t gSamples{ 4 };
 static bool drawNormals{ true };
@@ -33,7 +34,9 @@ struct FrameInfoBuffer
 {
 	glm::mat4 projView;
 	glm::mat4 proj;
+	glm::mat4 projInv;
 	glm::mat4 view;
+	glm::mat4 viewInv;
 	glm::mat4 normView;
 	glm::vec3 position;
 };
@@ -103,14 +106,11 @@ namespace nxt
 		kernel.reserve(sampleSize);
 		for (uint32_t i{ 0 }; i < sampleSize; i++)
 		{
-			glm::vec3 sample{ random::GetNumber<float>(-1.f, 1.f), random::GetNumber<float>(-1.f, 1.f), random::GetNumber<float>() };
+			glm::vec3 sample{ random::GetNumber<float>(-1.f, 1.f), random::GetNumber<float>(-1.f, 1.f), random::GetNumber<float>(0.f, 1.f) };
 			sample = glm::normalize(sample);
-			sample *= random::GetNumber<float>();
-
 			float scale{ static_cast<float>(i) / static_cast<float>(sampleSize) };
-			scale = (0.1f + (scale * scale) * (1.f - 0.1f));
+			scale = Lerp(0.f, 1.f, scale, nxtEasingStyle_Exponential);
 			sample *= scale;
-
 			kernel.push_back(sample);
 		}
 		mAOShader.SetArrayValue("kernel", kernel);
@@ -187,11 +187,16 @@ namespace nxt
 		glm::mat4 normalViewMatrix{ glm::inverse(mCamera.GetViewMatrix()) }; // view space normal matrix
 		StripMatrixTranslation(&normalViewMatrix);
 
+		glm::mat4 projViewInv{ glm::inverse(mCamera.GetProjectionMatrix()) };
+		glm::mat4 viewInv{ glm::inverse(mCamera.GetViewMatrix()) };
+
 		mFrameInfoBuffer->SetSubData(64, 0, glm::value_ptr(mCamera.GetProjectionViewMatrix()));
 		mFrameInfoBuffer->SetSubData(64, 64, glm::value_ptr(mCamera.GetProjectionMatrix()));
-		mFrameInfoBuffer->SetSubData(64, 128, glm::value_ptr(mCamera.GetViewMatrix()));
-		mFrameInfoBuffer->SetSubData(64, 192, glm::value_ptr(normalViewMatrix));
-		mFrameInfoBuffer->SetSubData(12, 256, (void*)glm::value_ptr(mCamera.GetPosition()));
+		mFrameInfoBuffer->SetSubData(64, 128, glm::value_ptr(projViewInv));
+		mFrameInfoBuffer->SetSubData(64, 192, glm::value_ptr(mCamera.GetViewMatrix()));
+		mFrameInfoBuffer->SetSubData(64, 256, glm::value_ptr(viewInv));
+		mFrameInfoBuffer->SetSubData(64, 320, glm::value_ptr(normalViewMatrix));
+		mFrameInfoBuffer->SetSubData(12, 384, (void*)glm::value_ptr(mCamera.GetPosition()));
 
 		glm::mat4 ones{ 1.f };
 
@@ -255,6 +260,7 @@ namespace nxt
 		}
 
 		//mSSAO->GetTexture(1)->BindToUnit(3); // noise texture
+		mDeferredBuffer->GetDepthTexture()->BindToUnit(0);
 		mNoise->BindToUnit(3);
 		mSSAO->Bind();
 		mAOShader.Bind();
@@ -385,8 +391,8 @@ namespace nxt
 		{
 			// Z is 0 for hemisphere
 			glm::vec3 n{ random::GetNumber<float>(-1.f, 1.f), random::GetNumber<float>(-1.f, 1.f), 0.f };
+			n = glm::normalize(n);
 			noiseData.push_back(n);
-			//NXT_LOG_TRACE("Noise {0} : {1}", i, glm::to_string(noiseData[i]));
 		}
 
 		// 4x4 texture, 16 length array

@@ -22,6 +22,7 @@ namespace nxt
 		void Bind() const;
 		static void Unbind();
 		const SFrameTexture& GetTexture(uint32_t index) const;
+		const SFrameTexture& GetDepthTexture() const;
 	protected:
 		uint32_t mID;
 		int32_t mWidth;
