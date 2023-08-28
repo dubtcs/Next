@@ -39,6 +39,9 @@ struct FrameInfoBuffer
 	glm::mat4 viewInv;
 	glm::mat4 normView;
 	glm::vec3 position;
+	//float aspectRatio;
+	//float nearPlane;
+	//float farPlane;
 };
 struct ObjectBufferInfo
 {
@@ -184,19 +187,25 @@ namespace nxt
 		if(isFocused)
 			mCamera.OnUpdate(dt);
 
-		glm::mat4 normalViewMatrix{ glm::inverse(mCamera.GetViewMatrix()) }; // view space normal matrix
-		StripMatrixTranslation(&normalViewMatrix);
+		//glm::mat4 normalViewMatrix{ glm::transpose(glm::inverse(mCamera.GetViewMatrix())) }; // view space normal matrix
+		//StripMatrixTranslation(&normalViewMatrix);
 
-		glm::mat4 projViewInv{ glm::inverse(mCamera.GetProjectionMatrix()) };
+		glm::mat4 normalViewMatrix{ mCamera.GetViewMatrix() };
+		StripMatrixTranslation(&normalViewMatrix);
+		normalViewMatrix = glm::transpose(glm::inverse(normalViewMatrix));
+
+		glm::mat4 projInv{ glm::inverse(mCamera.GetProjectionMatrix()) };
 		glm::mat4 viewInv{ glm::inverse(mCamera.GetViewMatrix()) };
 
 		mFrameInfoBuffer->SetSubData(64, 0, glm::value_ptr(mCamera.GetProjectionViewMatrix()));
 		mFrameInfoBuffer->SetSubData(64, 64, glm::value_ptr(mCamera.GetProjectionMatrix()));
-		mFrameInfoBuffer->SetSubData(64, 128, glm::value_ptr(projViewInv));
+		mFrameInfoBuffer->SetSubData(64, 128, glm::value_ptr(projInv));
 		mFrameInfoBuffer->SetSubData(64, 192, glm::value_ptr(mCamera.GetViewMatrix()));
 		mFrameInfoBuffer->SetSubData(64, 256, glm::value_ptr(viewInv));
 		mFrameInfoBuffer->SetSubData(64, 320, glm::value_ptr(normalViewMatrix));
 		mFrameInfoBuffer->SetSubData(12, 384, (void*)glm::value_ptr(mCamera.GetPosition()));
+
+		//NXT_LOG_TRACE(glm::to_string(mCamera.GetViewMatrix()));
 
 		glm::mat4 ones{ 1.f };
 

@@ -126,6 +126,10 @@ float GetAttenuation(uint i)
     return at;
 }
 
+float ExtractDepth()
+{
+    return texture(gTextures[0], texturePosition).r;
+}
 
 vec3 WorldPositionFromDepthValue(float depth)
 {
@@ -142,9 +146,26 @@ vec3 WorldPositionFromDepthValue(float depth)
     return worldPosition.xyz;
 }
 
+// viewspace position
+vec3 TestVec3()
+{
+    vec2 dpos = (texturePosition * 2.0) - 1.0;
+    float dd = (ExtractDepth() * 2.0) - 1.0;
+
+    vec4 devicePositions = vec4(dpos, dd, 1.0);
+    vec4 viewPosition = projectionMatrixInverse * devicePositions;
+
+    return viewPosition.xyz / viewPosition.w;
+}
+
+float TestFloat()
+{
+    return 1 - TestVec3().z;
+}
+
 void main()
 {
-    worldPosition = texture(gTextures[0], texturePosition).rgb;
+    worldPosition = WorldPositionFromDepthValue(ExtractDepth());
     normal = texture(gTextures[1], texturePosition).rgb;
     vec3 color = texture(gTextures[2], texturePosition).rgb;
 
@@ -183,15 +204,6 @@ void main()
     }
 
     outColor = vec4(lightingEffect * color, 1.0);
-    outColor = vec4(vec3(texture(gTextures[3], texturePosition).r), 1.0); // testing SSAO texture
+    //outColor = vec4(TestVec3(), 1.0);
 
-    float de = texture(gTextures[0], texturePosition).x;
-    outColor = vec4(WorldPositionFromDepthValue(de), 1.0);
-
-    //vec3 n = mat3(normalViewMatrix) * texture(gTextures[1], texturePosition).xyz;
-    //outColor = vec4(n.x, 0.0, 0.0, 1.0);
-
-    //outColor = viewMatrix * vec4(vec3(texture(gTextures[0], texturePosition)), 0.0); // testing SSAO texture
-    //outColor = vec4(texture(gTextures[1], texturePosition).xyz, 1.0);
-    //outColor = vec4((normalViewMatrix * vec4(texture(gTextures[1], texturePosition).xyz, 0.0)).xyz, 1.0);
 }

@@ -58,18 +58,20 @@ layout (std140, binding = 3) uniform PrimitiveInfo
 
 void main()
 {
-    pWorldPosition = vec3(worldMatrix * vec4(vPosition, 1.0));
+    //pWorldPosition = vec3(worldMatrix * vec4(vPosition, 1.0));
+    pWorldPosition = vec3(viewMatrix * worldMatrix * vec4(vPosition, 1.0));
+    
     pNormal = mat3(normalMatrix) * vNormal;
     pTexPos = vTexturePosition;
-    
-    gl_Position = projectionViewMatrix * vec4(pWorldPosition, 1.0);
+
+    gl_Position = projectionMatrix * vec4(pWorldPosition, 1.0);
 
     if(hasTangents)
     {
         vec3 t = normalize(vec3(worldMatrix * vec4(vTangent.xyz, 0.0)));
         vec3 b = cross(vNormal, vTangent.xyz) * vTangent.w;
         b = normalize(vec3(worldMatrix * vec4(b, 0.0)));
-        vec3 n = normalize(vec3(worldMatrix * vec4(vNormal, 0.0)));
+        vec3 n = normalize(vec3(normalMatrix * vec4(vNormal, 0.0)));
         pTBN = mat3(t,b,n);
     }
     

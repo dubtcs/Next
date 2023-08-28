@@ -72,7 +72,7 @@ void main()
     }
     else
     {
-        gNormal = pNormal;
+        gNormal = normalize(pNormal);
     }
 
     vec4 targetColor = vec4(0.5, 0.07, 1.0, 1.0); // purple
