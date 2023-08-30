@@ -28,6 +28,7 @@ NxtEngine is built with Win32 and OpenGL to get a better understanding of the co
 
 ### Current Features 
    - [Custom ECS](https://github.com/dubtcs/nECS)
+   - SSAO
    - Deferred rendering
    - Drag and Drop 3D GLTF Model loading
    - MSAA
@@ -45,7 +46,7 @@ NxtEngine comes with a built in viewer, but if you want to use the raw render ap
     Use the right/left arrow keys to increase/decrease MSAA sampling.
 
 **Normals:**
-    Press *N* to toggle normal mapping.
+    Press *B* to toggle SSAO.
 
 ### App Interface
 
