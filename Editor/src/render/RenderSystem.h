@@ -30,6 +30,7 @@ namespace nxt
 		SFrameBuffer mBuffer2;
 		SFrameBuffer mDeferredBuffer;
 		SFrameBuffer mSSAO;
+		SFrameBuffer mAOBlur;
 		SFrameTexture mNoise;
 
 		std::array<SFrameBuffer, 2> mBlurs;
@@ -37,6 +38,7 @@ namespace nxt
 		Shader mShader;
 		Shader mBlurShader;
 		Shader mAOShader;
+		Shader mAOBlurShader;
 
 		STexture mWood;
 

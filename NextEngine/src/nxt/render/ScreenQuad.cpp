@@ -53,4 +53,10 @@ namespace nxt
 		//render::command::SetRenderFeature(nxtRenderFeature_DepthTest, true);
 	}
 
+	void ScreenQuad::toggleao(int32_t t) const
+	{
+		mShader->Bind();
+		mShader->SetValue("useAO", t);
+	}
+
 }

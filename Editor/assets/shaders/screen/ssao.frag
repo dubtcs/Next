@@ -82,6 +82,7 @@ const vec2 tiling = vec2(480.0, 270.0); // 1920/4, 1080/4 -- Adapt to resolution
 
 const float radius = 0.5;
 const float bias = 0.025;
+const float aoIntensity = 2.5;
 
 void main()
 {
@@ -116,5 +117,5 @@ void main()
     }
 
     occlusion = 1 - (occlusion / KERNEL_SIZE);
-    outColor = occlusion;
+    outColor = pow(occlusion, aoIntensity);
 }

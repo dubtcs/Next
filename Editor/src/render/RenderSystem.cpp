@@ -78,6 +78,7 @@ namespace nxt
 
 		mBlurShader{ "assets/shaders/hdr/blur.vert", "assets/shaders/hdr/blur.frag" },
 		mAOShader{ "assets/shaders/screen/ssao.vert", "assets/shaders/screen/ssao.frag" },
+		mAOBlurShader{ "assets/shaders/screen/ssao.vert", "assets/shaders/screen/aoblur.frag" },
 		mScreenQuad{  }
 	{
 		mShader.Bind();
@@ -119,6 +120,11 @@ namespace nxt
 		mAOShader.SetArrayValue("kernel", kernel);
 		std::vector<int32_t> teqwe{ 0, 1, 3 };
 		mAOShader.SetArrayValue("gTextures", teqwe);
+
+		mAOBlurShader.Bind();
+		mAOBlurShader.SetValue("aoTexture", 3); // 3 is the texture unit set in update()
+
+		mScreenQuad.toggleao(useBlinn);
 
 		render::command::SetRenderFeature(nxtRenderFeature_Multisample, true);
 		render::command::SetClearColor(0.f, 0.f, 0.f, 1.f);
@@ -267,14 +273,21 @@ namespace nxt
 			mDeferredBuffer->GetTexture(i)->BindToUnit(i);
 		}
 
-		//mSSAO->GetTexture(1)->BindToUnit(3); // noise texture
+		// SSAO
 		mDeferredBuffer->GetDepthTexture()->BindToUnit(0);
 		mNoise->BindToUnit(3);
 		mSSAO->Bind();
 		mAOShader.Bind();
 		mScreenQuad.DrawNoShader();
 		mSSAO->Unbind();
-		mSSAO->GetTexture(0)->BindToUnit(3);
+		mSSAO->GetTexture(0)->BindToUnit(3); // ding ding, ref mAOBlurShader.SetValue("aoTexture", 3)
+
+		// blurring AO
+		mAOBlur->Bind();
+		mAOBlurShader.Bind();
+		mScreenQuad.DrawNoShader();
+		mAOBlur->GetTexture(0)->BindToUnit(3);
+		mAOBlur->Unbind();
 
 		mScreenQuad.Draw();
 
@@ -357,13 +370,12 @@ namespace nxt
 			NXT_LOG_TRACE("{0} using framebuffer texture.", drawNormals ? "Now" : "No longer");
 		}
 
-		/*if (ev.Keycode == nxtKeycode_B)
+		if (ev.Keycode == nxtKeycode_B)
 		{
 			useBlinn = !useBlinn;
-			NXT_LOG_TRACE("Normals: {0}", useBlinn);
-			mShader.Bind();
-			mShader.SetValue("useNormals", useBlinn);
-		}*/
+			NXT_LOG_TRACE("AO: {0}", useBlinn);
+			mScreenQuad.toggleao(useBlinn);
+		}
 
 		if (ev.Keycode == nxtKeycode_G)
 		{
@@ -412,6 +424,10 @@ namespace nxt
 
 		SFrameTexture aoColor{ NewShared<FrameTexture>(mWidth, mHeight, SAMPLES, nxtTextureFormat_R, nxtTextureFormatInternal_R16) };
 		mSSAO = NewShared<FrameBuffer>(aoColor);
+
+		SFrameTexture aoBlur{ NewShared<FrameTexture>(mWidth, mHeight, SAMPLES, nxtTextureFormat_R, nxtTextureFormatInternal_R16) };
+		mAOBlur = NewShared<FrameBuffer>(aoBlur);
+
 		//mSSAO->AttachTexture(noise, nxtTextureAttachment_Color0 + 1);
 		// Adding it to the buffer to hold the pointer.
 		// Just don't write to location = 1

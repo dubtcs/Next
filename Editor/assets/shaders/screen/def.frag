@@ -11,6 +11,7 @@
 layout (location = 0) out vec4 outColor;
 
 uniform sampler2D gTextures[4];
+uniform int useAO = 1;
 
 in vec2 texturePosition;
 
@@ -116,7 +117,8 @@ vec3 SpotLight(uint i)
 vec3 AmbientLight(uint i)
 {
     vec3 color = vec3(lights[i].Color);
-    return color;
+    float ao = useAO == 1 ? texture(gTextures[3], texturePosition).r : 1.0;
+    return color * ao;
 }
 
 float GetAttenuation(uint i)
@@ -203,9 +205,6 @@ void main()
         lightingEffect += (currentLightEffect * at * amnt);
     }
 
-    //outColor = vec4(lightingEffect * color, 1.0);
-    //outColor = vec4(TestVec3(), 1.0);
-    outColor = vec4(vec3(texture(gTextures[3], texturePosition).r), 1.0);
-    //outColor = vec4(vec3(texture(gTextures[1], texturePosition)), 1.0);
+    outColor = vec4(lightingEffect * color, 1.0);
 
 }

@@ -16,6 +16,8 @@ namespace nxt
 		ScreenQuad();
 		void Draw() const;
 		void DrawNoShader() const;
+
+		void toggleao(int32_t value) const;
 	protected:
 		buffers::SArrayObject mArrayObject;
 		SShader mShader;
