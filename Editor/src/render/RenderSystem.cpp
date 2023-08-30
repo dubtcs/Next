@@ -191,7 +191,6 @@ namespace nxt
 		//StripMatrixTranslation(&normalViewMatrix);
 
 		glm::mat4 normalViewMatrix{ mCamera.GetViewMatrix() };
-		StripMatrixTranslation(&normalViewMatrix);
 		normalViewMatrix = glm::transpose(glm::inverse(normalViewMatrix));
 
 		glm::mat4 projInv{ glm::inverse(mCamera.GetProjectionMatrix()) };
@@ -380,9 +379,9 @@ namespace nxt
 	void RenderSystem::BuildDeferredBuffer()
 	{
 		int32_t SAMPLES{ 1 }; // enforcing 1 sample for now
-		SFrameTexture positions{ NewShared<FrameTexture>(mWidth, mHeight, SAMPLES, nxtTextureFormat_RGBA, nxtTextureFormatInternal_RGBA16F) };
-		SFrameTexture normals{ NewShared<FrameTexture>(mWidth, mHeight, SAMPLES, nxtTextureFormat_RGBA, nxtTextureFormatInternal_RGBA16F) };
-		SFrameTexture colors{ NewShared<FrameTexture>(mWidth, mHeight, SAMPLES, nxtTextureFormat_RGBA, nxtTextureFormatInternal_RGBA16F) };
+		SFrameTexture positions{ NewShared<FrameTexture>(mWidth, mHeight, SAMPLES, nxtTextureFormat_RGBAF, nxtTextureFormatInternal_RGBA16F) };
+		SFrameTexture normals{ NewShared<FrameTexture>(mWidth, mHeight, SAMPLES, nxtTextureFormat_RGBAF, nxtTextureFormatInternal_RGBA16F) };
+		SFrameTexture colors{ NewShared<FrameTexture>(mWidth, mHeight, SAMPLES, nxtTextureFormat_RGBAF, nxtTextureFormatInternal_RGBA16F) };
 		SFrameTexture depth{ NewShared<FrameTexture>(mWidth, mHeight, SAMPLES, nxtTextureFormat_DepthStencil, nxtTextureFormatInternal_Depth24Stencil8) };
 
 		mDeferredBuffer = NewShared<FrameBuffer>(positions);
@@ -405,13 +404,13 @@ namespace nxt
 		}
 
 		// 4x4 texture, 16 length array
-		SFrameTexture noise{ NewShared<FrameTexture>(4, 4, 1, nxtTextureFormat_RGB, nxtTextureFormatInternal_RGB16F) };
+		SFrameTexture noise{ NewShared<FrameTexture>(4, 4, 1, nxtTextureFormat_RGBA, nxtTextureFormatInternal_RGBA16F) };
 		noise->SetParameter(nxtTextureParamName_WrapS, nxtTextureParam_Repeat);
 		noise->SetParameter(nxtTextureParamName_WrapT, nxtTextureParam_Repeat);
-		noise->SetData(nxtTextureFormat_RGB, nxtDataType_Float, &noiseData[0]);
+		noise->SetData(nxtTextureFormat_RGBA, nxtDataType_Float, &noiseData[0]);
 		mNoise = noise;
 
-		SFrameTexture aoColor{ NewShared<FrameTexture>(mWidth, mHeight, SAMPLES, nxtTextureFormat_R, nxtTextureFormatInternal_R16F) };
+		SFrameTexture aoColor{ NewShared<FrameTexture>(mWidth, mHeight, SAMPLES, nxtTextureFormat_R, nxtTextureFormatInternal_R16) };
 		mSSAO = NewShared<FrameBuffer>(aoColor);
 		//mSSAO->AttachTexture(noise, nxtTextureAttachment_Color0 + 1);
 		// Adding it to the buffer to hold the pointer.

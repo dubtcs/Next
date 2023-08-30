@@ -206,5 +206,6 @@ void main()
     //outColor = vec4(lightingEffect * color, 1.0);
     //outColor = vec4(TestVec3(), 1.0);
     outColor = vec4(vec3(texture(gTextures[3], texturePosition).r), 1.0);
+    //outColor = vec4(vec3(texture(gTextures[1], texturePosition)), 1.0);
 
 }

@@ -44,9 +44,9 @@ namespace nxt
 		mWorld.Attach<cmp::Transform>(viewModel, { glm::vec3{0.f}, glm::vec3{0.f}, glm::vec3{25.f} });
 		mWorld.Attach<cmp::WorldModel>(viewModel, modelInstance);
 		
-		//necs::Entity dwa{ mWorld.CreateEntity() };
-		//mWorld.Attach<cmp::Transform>(dwa, { glm::vec3{0.25f}, glm::vec3{0.f}, glm::vec3{15.f} });
-		//mWorld.Attach<cmp::WorldModel>(dwa, modelInstance);
+		necs::Entity dwa{ mWorld.CreateEntity() };
+		mWorld.Attach<cmp::Transform>(dwa, { glm::vec3{0.25f}, glm::vec3{0.f}, glm::vec3{15.f} });
+		mWorld.Attach<cmp::WorldModel>(dwa, modelInstance);
 	}
 
 	void Editor::OnUpdate(float& dt, bool isFocused)
