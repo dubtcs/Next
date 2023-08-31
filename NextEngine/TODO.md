@@ -1,14 +1,21 @@
 
 ## TODO
-- [ ] Adjust SSAO matrices.
-    - Either push viewspace coords into gbuffer or convert world space coords to view space in SSAO shader
-- [ ] Ability to remove textures from framebuffers
 - [ ] Make ScreenQuad support multisampled textures with texelFetch
 - [ ] Multiple windows
 - [ ] Automatically generate tangents if none are available
 - [ ] Expose DropTarget API and let users decide what they want to be droppable
+- [ ] Full GLTF file support
+    - [x] Vertex Colors
+    - [x] Normals
+    - [x] Textures
+    - [x] Meshes
+    - [x] Primitives
  
  ## COMPLETE
+- [x] Ability to remove textures from framebuffers
+- [x] Adjust SSAO matrices.
+    - Rebuilding viewspace & worldspace positions through depth buffer
+    - Normal matrix has been corrected
 - [x] Fix deferred depth buffer
     - Never actually added a depth atatchment to the deferred buffer
 - [x] Fix model drag and drop

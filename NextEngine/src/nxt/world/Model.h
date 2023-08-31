@@ -32,6 +32,11 @@ namespace nxt
 		std::vector<Mesh> children;
 	};
 
+	struct NXT_API Animation
+	{
+
+	};
+
 	class NXT_API Model
 	{
 	public:

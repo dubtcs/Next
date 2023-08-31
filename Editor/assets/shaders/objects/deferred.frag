@@ -10,6 +10,7 @@ layout (location = 2) out vec4 gColor;
 // Input
 in vec3 pWorldPosition;
 in vec3 pNormal;
+in vec4 pColor;
 in vec2 pTexPos;
 in mat3 pTBN;
 
@@ -75,10 +76,11 @@ void main()
         gNormal = normalize(pNormal);
     }
 
-    vec4 targetColor = vec4(0.5, 0.07, 1.0, 1.0); // purple
+    //vec4 targetColor = vec4(0.5, 0.07, 1.0, 1.0); // purple
+    vec4 targetColor = baseColor * pColor;
     if(BITCHECK(lightingMask, 1))
     {
-        targetColor = texture(textures[colorTextureIndex], pTexPos) * baseColor;
+        targetColor = texture(textures[colorTextureIndex], pTexPos) * targetColor;
     }
     gColor = targetColor;
 }

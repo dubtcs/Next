@@ -128,16 +128,16 @@ float GetAttenuation(uint i)
     return at;
 }
 
-float ExtractDepth()
+float ExtractDepth(vec2 texpos)
 {
-    return texture(gTextures[0], texturePosition).r;
+    return texture(gTextures[0], texpos).r;
 }
 
-vec3 WorldPositionFromDepthValue(float depth)
+vec3 GetWorldPosition(vec2 texpos, float depth)
 {
     float z = (depth * 2.0) - 1.0;
 
-    vec2 coordsClip = (texturePosition * 2.0) - 1.0;
+    vec2 coordsClip = (texpos * 2.0) - 1.0;
     vec4 clipPosition = vec4(coordsClip, z, 1.0);
     
     vec4 viewPosition = projectionMatrixInverse * clipPosition;
@@ -148,26 +148,9 @@ vec3 WorldPositionFromDepthValue(float depth)
     return worldPosition.xyz;
 }
 
-// viewspace position
-vec3 TestVec3()
-{
-    vec2 dpos = (texturePosition * 2.0) - 1.0;
-    float dd = (ExtractDepth() * 2.0) - 1.0;
-
-    vec4 devicePositions = vec4(dpos, dd, 1.0);
-    vec4 viewPosition = projectionMatrixInverse * devicePositions;
-
-    return viewPosition.xyz / viewPosition.w;
-}
-
-float TestFloat()
-{
-    return 1 - TestVec3().z;
-}
-
 void main()
 {
-    worldPosition = WorldPositionFromDepthValue(ExtractDepth());
+    worldPosition = GetWorldPosition(texturePosition, ExtractDepth(texturePosition));
     normal = texture(gTextures[1], texturePosition).rgb;
     vec3 color = texture(gTextures[2], texturePosition).rgb;
 
@@ -206,5 +189,4 @@ void main()
     }
 
     outColor = vec4(lightingEffect * color, 1.0);
-
 }

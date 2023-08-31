@@ -268,7 +268,7 @@ namespace nxt
 
 		mDeferredBuffer->Unbind();
 
-		for (int32_t i{ 0 }; i < 3; i++)
+		for (int32_t i{ 0 }; i < mDeferredBuffer->GetAttachmentCount(); i++)
 		{
 			mDeferredBuffer->GetTexture(i)->BindToUnit(i);
 		}
@@ -344,6 +344,11 @@ namespace nxt
 				gSamples = static_cast<uint32_t>(newVal);
 				rebuildBuffer = true;
 			}
+		}
+		else if (ev.Keycode == nxtKeycode_I)
+		{
+			NXT_LOG_WARN("Deleting deffered normal buffer");
+			mDeferredBuffer->DetachTexture(nxtTextureAttachment_Color0 + 1);
 		}
 
 		if (rebuildBuffer)

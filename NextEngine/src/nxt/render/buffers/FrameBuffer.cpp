@@ -15,9 +15,7 @@ namespace nxt
 	{
 		glCreateFramebuffers(1, &mID);
 		glBindFramebuffer(GL_FRAMEBUFFER, mID);
-		mColorTextures.push_back(color);
-		glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, color->mTarget, color->mID, 0);
-		mDrawBuffers.push_back(GL_COLOR_ATTACHMENT0);
+		AttachTexture(color, nxtTextureAttachment_Color0);
 		if (glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE)
 		{
 			NXT_LOG_CRIT("FrameBuffer creation failure. Code {0}", (std::stringstream{} << std::hex << glCheckFramebufferStatus(GL_FRAMEBUFFER)).str());
@@ -45,8 +43,13 @@ namespace nxt
 	{
 		if (attachment >= nxtTextureAttachment_Color0 && attachment < (nxtTextureAttachment_Color0 + 31))
 		{
-			mColorTextures.push_back(tex);
 			mDrawBuffers.push_back(attachment);
+			std::pair<std::map<nxt_enum, SFrameTexture>::iterator, bool> operationStatus{ mAttachmentsToTextures.try_emplace(attachment, tex) };
+			if (!operationStatus.second)
+			{
+				NXT_LOG_WARN("Texture attachment failure. Slot [{0}] already used.", attachment);
+				return;
+			}
 			glDrawBuffers(mDrawBuffers.size(), &mDrawBuffers.at(0));
 		}
 		else if (attachment == nxtTextureAttachment_Depth)
@@ -96,12 +99,18 @@ namespace nxt
 
 	const SFrameTexture& FrameBuffer::GetTexture(uint32_t index) const
 	{
-		return mColorTextures[index];
+		nxt_enum key{ mDrawBuffers[index] };
+		return mAttachmentsToTextures.at(key);
 	}
 
 	const SFrameTexture& FrameBuffer::GetDepthTexture() const
 	{
 		return mDepth;
+	}
+
+	int32_t FrameBuffer::GetAttachmentCount() const
+	{
+		return mDrawBuffers.size();
 	}
 
 	FrameBuffer::~FrameBuffer()

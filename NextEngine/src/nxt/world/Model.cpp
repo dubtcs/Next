@@ -186,9 +186,13 @@ namespace nxt
 					tangentsFound = true;
 					addPrimitive.hasTangents = true;
 				}
-				else if (attribute.first == "TEXCOORD_0") 
+				else if (attribute.first == "COLOR_0")
 				{
 					layoutPosition = 3;
+				}
+				else if (attribute.first == "TEXCOORD_0") 
+				{
+					layoutPosition = 4;
 				}
 				else NXT_LOG_DEBUG("Attribute found that is not supported: {0}", attribute.first);
 
@@ -308,6 +312,12 @@ namespace nxt
 				SMaterial mat{ NewShared<Material>(props, tex) };
 				materials.push_back(mat);
 			}
+		}
+
+		// Animations
+		if (model.animations.size() > 0)
+		{
+			//std::vector<Animation> 
 		}
 
 		// Cycle nodes

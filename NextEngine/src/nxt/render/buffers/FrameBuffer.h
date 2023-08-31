@@ -18,19 +18,18 @@ namespace nxt
 		~FrameBuffer();
 		void AttachTexture(const SFrameTexture& text, nxt_enum attachment);
 		void DetachTexture(nxt_enum attachment);
+		int32_t GetAttachmentCount() const;
 		void PushToViewport() const;
 		void Bind() const;
-		static void Unbind();
 		const SFrameTexture& GetTexture(uint32_t index) const;
 		const SFrameTexture& GetDepthTexture() const;
+		static void Unbind();
 	protected:
 		uint32_t mID;
 		int32_t mWidth;
 		int32_t mHeight;
-		std::vector<SFrameTexture> mColorTextures;
-		std::vector<nxt_enum> mDrawBuffers;
 		SFrameTexture mDepth;
-		//SFrameTexture2 mStencil; // could use a map and enums for textures and targets??
+		std::vector<nxt_enum> mDrawBuffers;
 		std::map<nxt_enum, SFrameTexture> mAttachmentsToTextures;
 	};
 	using SFrameBuffer = Shared<FrameBuffer>;

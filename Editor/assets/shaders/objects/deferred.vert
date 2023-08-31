@@ -4,10 +4,12 @@
 layout (location = 0) in vec3 vPosition;
 layout (location = 1) in vec3 vNormal;
 layout (location = 2) in vec4 vTangent;
-layout (location = 3) in vec2 vTexturePosition;
+layout (location = 3) in vec4 vColor;
+layout (location = 4) in vec2 vTexturePosition;
 
 out vec3 pWorldPosition;
 out vec3 pNormal;
+out vec4 pColor;
 out vec2 pTexPos;
 out mat3 pTBN;
 
@@ -63,7 +65,8 @@ void main()
     
     pNormal = mat3(normalMatrix) * vNormal;
     pTexPos = vTexturePosition;
-
+    pColor = vColor;
+    
     gl_Position = projectionMatrix * vec4(pWorldPosition, 1.0);
 
     if(hasTangents)
