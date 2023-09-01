@@ -7,6 +7,7 @@
 #include <tiny_gltf.h>
 
 #include <glm/glm.hpp>
+#include <glm/gtc/type_ptr.hpp>
 #include <glm/gtx/string_cast.hpp>
 
 static constexpr double gOneThird{ 0.3333 };
@@ -128,7 +129,7 @@ namespace nxt
 		return primitives;
 	}
 
-	static std::vector<Primitive> RegisterMesh(buffers::SArrayObject& arrayObject, tinygltf::Model& model, tinygltf::Mesh& mesh, std::vector<buffers::SDataBuffer>& buffers)
+	static std::vector<Primitive> RegisterMesh(tinygltf::Model& model, tinygltf::Mesh& mesh, std::vector<buffers::SDataBuffer>& buffers)
 	{
 		using namespace buffers;
 		std::vector<Primitive> primitives{};
@@ -136,6 +137,8 @@ namespace nxt
 		for (tinygltf::Primitive& primitive : mesh.primitives)
 		{
 			Primitive addPrimitive{};
+			addPrimitive.arrayObject->Bind();
+			SArrayObject arrayObject{ addPrimitive.arrayObject };
 
 			// Check for indices;
 			if (primitive.indices >= 0)
@@ -145,7 +148,10 @@ namespace nxt
 				addPrimitive.byteOffset = static_cast<uint32_t>(indexAccessor.byteOffset);
 				addPrimitive.componentType = static_cast<nxtDataType>(indexAccessor.componentType);
 				addPrimitive.hasIndices = true;
-				addPrimitive.buffer = buffers[primitive.indices];
+				gltf::Accessor& ac{ model.accessors[primitive.indices] };
+				SDataBuffer& buf{ buffers[ac.bufferView] };
+				addPrimitive.buffer = buf;
+				//addPrimitive.buffer = buffers[primitive.indices];
 			}
 
 			addPrimitive.mode = static_cast<nxtDrawMode>(primitive.mode);
@@ -203,27 +209,65 @@ namespace nxt
 			}
 
 			primitives.push_back(addPrimitive);
+			addPrimitive.arrayObject->Unbind();
 		}
 
 		return primitives;
 	}
 
-	static Mesh RegisterNode(buffers::SArrayObject& arrayObject, tinygltf::Model& model, tinygltf::Node& node, std::vector<buffers::SDataBuffer>& buffers)
+	static Mesh RegisterNode(tinygltf::Model& model, tinygltf::Node& node, std::vector<buffers::SDataBuffer>& buffers)
 	{
 		//NXT_LOG_TRACE("Register Node");
 		Mesh mesh{};
 		if (node.mesh >= 0)
 		{
-			mesh.primitives = RegisterMesh(arrayObject, model, model.meshes[node.mesh], buffers);
+			mesh.primitives = RegisterMesh(model, model.meshes[node.mesh], buffers);
 		}
+
+		if (!node.matrix.empty())
+		{
+			NXT_LOG_TRACE("Matrix found");
+			mesh.matrix = glm::make_mat4(&node.matrix.at(0));
+		}
+		else
+		{
+			// Translation rotation scale
+			glm::mat4 ones{ 1.f };
+			glm::mat4 translation{ 1.f };
+			glm::mat4 rotation{ 1.f };
+			glm::mat4 scale{ 1.f };
+
+			if (!node.translation.empty())
+			{
+				NXT_LOG_TRACE("Translation Matrix Found");
+				glm::vec3 pos{ glm::make_vec3(&node.translation.at(0)) };
+				translation = glm::translate(ones, pos);
+			}
+			if (!node.rotation.empty()) // gltf supplies quaternions
+			{
+				NXT_LOG_TRACE("Rotation Matrix Found");
+				// w component is [3] in GLTF, but [0] in glm
+				glm::quat rot{ static_cast<float>(node.rotation.at(3)), static_cast<float>(node.rotation.at(0)), static_cast<float>(node.rotation.at(1)), static_cast<float>(node.rotation.at(2)) };
+				rotation = glm::mat4_cast(rot);
+			}
+			if (!node.scale.empty())
+			{
+				NXT_LOG_TRACE("Scale Matrix Found");
+				glm::vec3 sc{ glm::make_vec3(&node.scale.at(0)) };
+				scale = glm::scale(ones, sc);
+			}
+
+			mesh.matrix = translation * rotation * scale;
+		}
+
 		for (int32_t& i : node.children)
 		{
-			mesh.children.push_back(RegisterNode(arrayObject, model, model.nodes[i], buffers));
+			mesh.children.push_back(RegisterNode(model, model.nodes[i], buffers));
 		}
 		return mesh;
 	}
 
-	static std::vector<Mesh> RegisterModel(buffers::SArrayObject& arrayObject, std::vector<STexture>& textures, std::vector<SMaterial>& materials, gltf::Model& model)
+	static std::vector<Mesh> RegisterModel(std::vector<STexture>& textures, std::vector<SMaterial>& materials, gltf::Model& model)
 	{
 		using namespace buffers;
 		// Buffers
@@ -324,12 +368,12 @@ namespace nxt
 		std::vector<Mesh> meshes;
 		for (int32_t& i : model.scenes[model.defaultScene].nodes)
 		{
-			meshes.push_back(RegisterNode(arrayObject, model, model.nodes[i], buffers));
+			meshes.push_back(RegisterNode(model, model.nodes[i], buffers));
 		}
 
 		// MUST Unbind VAO before the buffers are deleted
 		NXT_LOG_DEBUG("Buffers: {0}, Textures: {1}", buffers.size(), textures.size());
-		arrayObject->Unbind();
+		//arrayObject->Unbind();
 		return meshes;
 	}
 
@@ -358,12 +402,7 @@ namespace nxt
 			return;
 		}
 		NXT_LOG_DEBUG("MODEL: {0}", filepath.string());
-		mMeshes = RegisterModel(mArrayObject, mTextures, mMaterials, model);
-	}
-
-	void Model::Bind() const
-	{
-		mArrayObject->Bind();
+		mMeshes = RegisterModel(mTextures, mMaterials, model);
 	}
 
 	const std::vector<Mesh>& Model::GetMeshes() const

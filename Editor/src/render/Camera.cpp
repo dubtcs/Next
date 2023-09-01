@@ -11,7 +11,7 @@ static float gSpeed{ 50.f }; // movement speed
 
 static constexpr float gScrollModifier{ 0.1f };
 
-static constexpr float gNearClip{ 0.1f };
+static constexpr float gNearClip{ 0.01f };
 static constexpr float gFarClip{ 10'000.f };
 
 namespace nxt

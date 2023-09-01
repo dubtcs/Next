@@ -5,6 +5,9 @@
 - [ ] Automatically generate tangents if none are available
 - [ ] Expose DropTarget API and let users decide what they want to be droppable
 - [ ] Full GLTF file support
+    - [ ] Sparse Accessors
+    - [x] Local node transforms
+    - [ ] Animations
     - [x] Vertex Colors
     - [x] Normals
     - [x] Textures
@@ -12,6 +15,8 @@
     - [x] Primitives
  
  ## COMPLETE
+- [x] Heirarchy model primitives all using the same vertex data
+    - Added array objects to each primitive. Previously it was per model, so all primitives were using the same data.
 - [x] Ability to remove textures from framebuffers
 - [x] Adjust SSAO matrices.
     - Rebuilding viewspace & worldspace positions through depth buffer

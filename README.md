@@ -42,10 +42,13 @@ NxtEngine comes with a built in viewer, but if you want to use the raw render ap
 
 ### Viewer Controls
 
+**Model Scale:**
+    Use +, - to scale up and down the model
+
 **MSAA Sampling:**
     Use the right/left arrow keys to increase/decrease MSAA sampling.
 
-**Normals:**
+**SSAO:**
     Press *B* to toggle SSAO.
 
 ### App Interface

@@ -24,12 +24,14 @@ namespace nxt
 		bool hasTangents{ false };
 		bool hasIndices{ false };
 		buffers::SDataBuffer buffer;
+		buffers::SArrayObject arrayObject{ NewShared<buffers::ArrayObject>() };
 	};
 
 	struct NXT_API Mesh // also a node
 	{
 		std::vector<Primitive> primitives;
 		std::vector<Mesh> children;
+		glm::mat4 matrix{ 1.f };
 	};
 
 	struct NXT_API Animation
@@ -45,12 +47,11 @@ namespace nxt
 		~Model();
 
 		// TEMP FOR ECS
-		void Bind() const;
 		const std::vector<Mesh>& GetMeshes() const;
 		const std::vector<STexture>& GetTextures() const;
 		const std::vector<SMaterial>& GetMaterials() const;
 	protected:
-		Shared<buffers::ArrayObject> mArrayObject{ buffers::ArrayObject::Create() };
+		//Shared<buffers::ArrayObject> mArrayObject{ buffers::ArrayObject::Create() };
 		std::vector<Mesh> mMeshes;
 		std::vector<SMaterial> mMaterials;
 		std::vector<STexture> mTextures;

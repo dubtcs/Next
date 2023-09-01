@@ -75,6 +75,9 @@ namespace nxt
 		nxtKeycode_X = 0x58,
 		nxtKeycode_Y = 0x59,
 		nxtKeycode_Z = 0x5A,
+
+		nxtKeycode_Plus = 0xBB,
+		nxtKeycode_Minus = 0xBD
 	};
 
 }

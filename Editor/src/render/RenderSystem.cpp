@@ -15,6 +15,9 @@ static bool useBlinn{ true };
 static nxt::STexture gDepthTexture;
 static nxt::STexture gHDR;
 
+static float gSizeScalar{ 1.f };
+static constexpr float gSizeScalarMultiplier{ 2.f }; // size per sec
+
 static constexpr uint32_t gMaxLights{ 10 };
 struct LightInfo // 16 Byte Aligned
 {
@@ -51,6 +54,7 @@ struct ObjectBufferInfo
 };
 struct PrimitiveBufferInfo
 {
+	glm::mat4 primitiveMatrix; // should probably put this in promitive info??
 	glm::vec4 baseColor;
 	int32_t colorTextureIndex;
 	float roughness;
@@ -130,25 +134,32 @@ namespace nxt
 		render::command::SetClearColor(0.f, 0.f, 0.f, 1.f);
 	}
 
-	static void DrawMesh(const SModel& model, const Mesh& mesh, buffers::SDataBuffer& objectInfo)
+	static void DrawMesh(const SModel& model, const Mesh& mesh, buffers::SDataBuffer& objectInfo, glm::mat4& parentTransform)
 	{
 		using namespace buffers;
+
+		glm::mat4 localTransform{ parentTransform * mesh.matrix };
+
 		for (const Primitive& p : mesh.primitives)
 		{
+			p.arrayObject->Bind();
 			SDataBuffer buffer{ p.buffer };
-
 			bool hasMats{ (p.material >= 0) };
-			objectInfo->SetSubData(sizeof(bool), 40, (void*)&p.hasTangents);
-			objectInfo->SetSubData(sizeof(bool), 44, &hasMats);
+
+			objectInfo->SetSubData(sizeof(glm::mat4), 0, (void*)&localTransform);
+
+			objectInfo->SetSubData(sizeof(bool), 104, (void*)&p.hasTangents);
+			objectInfo->SetSubData(sizeof(bool), 108, &hasMats);
+
 			if (hasMats)
 			{
 				const SMaterial& mat{ model->GetMaterials()[p.material] };
-				objectInfo->SetSubData(sizeof(glm::vec4), 0, glm::value_ptr(mat->Properties.Color.BaseColor));
-				objectInfo->SetSubData(sizeof(int32_t), 16, &mat->Properties.Color.Texture);
+				objectInfo->SetSubData(sizeof(glm::vec4), 64, glm::value_ptr(mat->Properties.Color.BaseColor));
+				objectInfo->SetSubData(sizeof(int32_t), 80, &mat->Properties.Color.Texture);
 
-				objectInfo->SetSubData(sizeof(int32_t), 28, &mat->Textures.Normal);
-				objectInfo->SetSubData(sizeof(int32_t), 32, &mat->Textures.Emissive);
-				objectInfo->SetSubData(sizeof(int32_t), 36, &mat->Textures.Occlusion);
+				objectInfo->SetSubData(sizeof(int32_t), 92, &mat->Textures.Normal);
+				objectInfo->SetSubData(sizeof(int32_t), 96, &mat->Textures.Emissive);
+				objectInfo->SetSubData(sizeof(int32_t), 100, &mat->Textures.Occlusion);
 			}
 
 			buffer->Bind();
@@ -163,21 +174,21 @@ namespace nxt
 		}
 		for (const Mesh& otherMesh : mesh.children)
 		{
-			DrawMesh(model, otherMesh, objectInfo);
+			DrawMesh(model, otherMesh, objectInfo, localTransform);
 		}
 	}
 
 	static void DrawModel(const SModel& model, buffers::SDataBuffer& objectInfo)
 	{
-		model->Bind();
 		int32_t i{ 0 };
+		glm::mat4 ones{ 1.f };
 		for (const STexture& tex : model->GetTextures())
 		{
 			tex->Bind(i++);
 		}
 		for (const Mesh& m : model->GetMeshes())
 		{
-			DrawMesh(model, m, objectInfo);
+			DrawMesh(model, m, objectInfo, ones);
 		}
 	}
 
@@ -192,6 +203,16 @@ namespace nxt
 	{
 		if(isFocused)
 			mCamera.OnUpdate(dt);
+
+		if (input::IsKeyDown(nxtKeycode_Plus))
+		{
+			gSizeScalar += dt * gSizeScalarMultiplier * gSizeScalar;
+		}
+		else if (input::IsKeyDown(nxtKeycode_Minus))
+		{
+			float temp{ gSizeScalar - (dt * gSizeScalarMultiplier * gSizeScalar) };
+			gSizeScalar = std::max(0.01f, temp);
+		}
 
 		//glm::mat4 normalViewMatrix{ glm::transpose(glm::inverse(mCamera.GetViewMatrix())) }; // view space normal matrix
 		//StripMatrixTranslation(&normalViewMatrix);
@@ -245,7 +266,7 @@ namespace nxt
 			cmp::Transform& t{ world.GetComponent<cmp::Transform>(e) };
 			glm::mat4 worldMatrix{ glm::translate(ones, t.Position)
 				//* glm::rotate(ones, t.Scale) // quaternions required
-				* glm::scale(ones, t.Scale)
+				* glm::scale(ones, t.Scale * gSizeScalar)
 			};
 			glm::mat4 normalMatrix{ glm::transpose(glm::inverse(worldMatrix)) };
 			//glm::mat4 normalViewMatrix{ glm::transpose(glm::inverse(mCamera.GetViewMatrix())) }; // view space normal matrix

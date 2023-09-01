@@ -50,15 +50,16 @@ layout (std140, binding = 2) uniform ObjectInfo
 };
 layout (std140, binding = 3) uniform PrimitiveInfo
 {
-    vec4 baseColor;         // 0   Offset
-    int colorTextureIndex;  // 16  Offset
-    float roughness;        // 20  Offset
-    float metallic;         // 24  Offset
-    int normalTexture;      // 28 Offset
-    int emissionTexture;    // 32 Offset
-    int occlusionTexture;   // 36 Offset
-    bool hasTangents;       // 40
-    bool hasMaterial;       // 44
+    mat4 primitiveMatrix;   // 0    Offset
+    vec4 baseColor;         // 64   Offset
+    int colorTextureIndex;  // 80   Offset
+    float roughness;        // 84   Offset
+    float metallic;         // 88   Offset
+    int normalTexture;      // 92   Offset
+    int emissionTexture;    // 96   Offset
+    int occlusionTexture;   // 100  Offset
+    bool hasTangents;       // 104  Offset
+    bool hasMaterial;       // 108  Offset
 };
 
 void main()
@@ -83,4 +84,5 @@ void main()
         targetColor = texture(textures[colorTextureIndex], pTexPos) * targetColor;
     }
     gColor = targetColor;
+    //gColor = vec4(0.5, 0.07, 1.0, 1.0);
 }
