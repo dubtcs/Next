@@ -226,38 +226,30 @@ namespace nxt
 
 		if (!node.matrix.empty())
 		{
-			NXT_LOG_TRACE("Matrix found");
+			//NXT_LOG_TRACE("Matrix found");
 			mesh.matrix = glm::make_mat4(&node.matrix.at(0));
 		}
 		else
 		{
 			// Translation rotation scale
 			glm::mat4 ones{ 1.f };
-			glm::mat4 translation{ 1.f };
-			glm::mat4 rotation{ 1.f };
-			glm::mat4 scale{ 1.f };
 
-			if (!node.translation.empty())
-			{
-				NXT_LOG_TRACE("Translation Matrix Found");
-				glm::vec3 pos{ glm::make_vec3(&node.translation.at(0)) };
-				translation = glm::translate(ones, pos);
-			}
-			if (!node.rotation.empty()) // gltf supplies quaternions
-			{
-				NXT_LOG_TRACE("Rotation Matrix Found");
-				// w component is [3] in GLTF, but [0] in glm
-				glm::quat rot{ static_cast<float>(node.rotation.at(3)), static_cast<float>(node.rotation.at(0)), static_cast<float>(node.rotation.at(1)), static_cast<float>(node.rotation.at(2)) };
-				rotation = glm::mat4_cast(rot);
-			}
 			if (!node.scale.empty())
 			{
-				NXT_LOG_TRACE("Scale Matrix Found");
 				glm::vec3 sc{ glm::make_vec3(&node.scale.at(0)) };
-				scale = glm::scale(ones, sc);
+				mesh.matrix = glm::scale(ones, sc) * mesh.matrix;
+			}
+			if (!node.rotation.empty())
+			{
+				glm::quat rot{ static_cast<float>(node.rotation.at(3)), static_cast<float>(node.rotation.at(0)), static_cast<float>(node.rotation.at(1)), static_cast<float>(node.rotation.at(2)) };
+				mesh.matrix = glm::mat4_cast(rot) * mesh.matrix;
+			}
+			if (!node.translation.empty())
+			{
+				glm::vec3 pos{ glm::make_vec3(&node.translation.at(0)) };
+				mesh.matrix = glm::translate(ones, pos) * mesh.matrix;
 			}
 
-			mesh.matrix = translation * rotation * scale;
 		}
 
 		for (int32_t& i : node.children)

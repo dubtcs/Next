@@ -1,7 +1,7 @@
 #version 460
 #define MAX_LIGHTS 10
 
-#define BITCHECK(var, index) ((var >> index) & 1U) == 1
+#define CHECKBIT(var, index) ((var >> index) & 1U) == 1
 
 layout (location = 0) out vec3 gPosition;
 layout (location = 1) out vec3 gNormal;
@@ -36,6 +36,8 @@ layout (std140, binding = 0) uniform FrameInfo
     mat4 viewMatrixInverse;
     mat4 normalViewMatrix; // transpose(inverse(viewMatrix))
     vec3 cameraPosition;
+    int xResolution;
+    int yResolution;
 };
 layout (std140, binding = 1) uniform LightInfo // Maybe switch to Shader Storage Buffer Object
 {
@@ -46,7 +48,7 @@ layout (std140, binding = 2) uniform ObjectInfo
 {
     mat4 normalMatrix;  // 0    Offset
     mat4 worldMatrix;   // 64   Offset
-    int lightingMask;   // 128  Offset, bit 1: useTextures, bit 2: useLighting
+    int shaderMask;   // 128  Offset, bit 0: useTextures
 };
 layout (std140, binding = 3) uniform PrimitiveInfo
 {
@@ -79,10 +81,9 @@ void main()
 
     //vec4 targetColor = vec4(0.5, 0.07, 1.0, 1.0); // purple
     vec4 targetColor = baseColor * pColor;
-    if(BITCHECK(lightingMask, 1))
+    if(CHECKBIT(shaderMask, 0))
     {
         targetColor = texture(textures[colorTextureIndex], pTexPos) * targetColor;
     }
     gColor = targetColor;
-    //gColor = vec4(0.5, 0.07, 1.0, 1.0);
 }

@@ -13,6 +13,9 @@ namespace nxt
 	// Add option to append precompile definitions to shader
 	// So we can change LIGHT_MAX or somn as we want
 
+	using shader_mask = int32_t;
+	// Bit 0	: Enable Color Textures
+
 	class NXT_API Shader
 	{
 	public:

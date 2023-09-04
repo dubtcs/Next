@@ -3,6 +3,8 @@
 bin/
 bin-int/
 
+Editor/assets/models/exclude
+
 *.user
 *.sln
 *.vcxproj

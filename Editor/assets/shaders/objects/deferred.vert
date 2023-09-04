@@ -33,6 +33,8 @@ layout (std140, binding = 0) uniform FrameInfo
     mat4 viewMatrixInverse;
     mat4 normalViewMatrix; // transpose(inverse(viewMatrix))
     vec3 cameraPosition;
+    int xResolution;
+    int yResolution;
 };
 layout (std140, binding = 1) uniform LightInfo // Maybe switch to Shader Storage Buffer Object
 {
@@ -43,7 +45,7 @@ layout (std140, binding = 2) uniform ObjectInfo
 {
     mat4 normalMatrix;  // 0    Offset
     mat4 worldMatrix;   // 64   Offset
-    int lightingMask;   // 128  Offset, bit 1: useTextures, bit 2: useLighting
+    int shaderMask;   // 128  Offset, bit 1: useTextures, bit 2: useLighting
 };
 layout (std140, binding = 3) uniform PrimitiveInfo
 {

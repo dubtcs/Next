@@ -35,6 +35,8 @@ layout (std140, binding = 0) uniform FrameInfo
     mat4 viewMatrixInverse;
     mat4 normalViewMatrix; // transpose(inverse(viewMatrix))
     vec3 cameraPosition;
+    int xResolution;
+    int yResolution;
 };
 
 vec3 GetWorldPosition(vec2 texpos, float depth)
@@ -76,7 +78,7 @@ vec3 GetViewNormal(vec2 texpos)
     return (normal.xyz);
 }
 
-const vec2 tiling = vec2(480.0, 270.0); // 1920/4, 1080/4 -- Adapt to resolution later
+const vec2 tiling = vec2(xResolution * 0.25, yResolution * 0.25); // 1920/4, 1080/4 -- Adapt to resolution later
 
 // this is driving me insane
 

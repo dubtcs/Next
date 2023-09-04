@@ -8,7 +8,7 @@ namespace nxt
 
 	ScreenQuad::ScreenQuad() :
 		mArrayObject{ buffers::ArrayObject::Create() },
-		mShader{ new Shader{"assets/shaders/screen/def.vert", "assets/shaders/screen/def.frag"} }
+		mShader{ new Shader{"assets/shaders/screen/quad.vert", "assets/shaders/screen/def.frag"} }
 	{
 		using namespace buffers;
 		mArrayObject->Bind();

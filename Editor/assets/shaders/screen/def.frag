@@ -33,8 +33,10 @@ layout (std140, binding = 0) uniform FrameInfo
     mat4 projectionMatrixInverse;
     mat4 viewMatrix;
     mat4 viewMatrixInverse;
-    mat4 normalViewMatrix;
+    mat4 normalViewMatrix; // transpose(inverse(viewMatrix))
     vec3 cameraPosition;
+    int xResolution;
+    int yResolution;
 };
 layout (std140, binding = 1) uniform LightInfo // Maybe switch to Shader Storage Buffer Object
 {

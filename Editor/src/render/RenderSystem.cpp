@@ -35,22 +35,21 @@ struct SceneLightData
 };
 struct FrameInfoBuffer
 {
-	glm::mat4 projView;
-	glm::mat4 proj;
-	glm::mat4 projInv;
-	glm::mat4 view;
-	glm::mat4 viewInv;
-	glm::mat4 normView;
-	glm::vec3 position;
-	//float aspectRatio;
-	//float nearPlane;
-	//float farPlane;
+	glm::mat4 projView;		// 0
+	glm::mat4 proj;			// 64
+	glm::mat4 projInv;		// 128
+	glm::mat4 view;			// 192
+	glm::mat4 viewInv;		// 256
+	glm::mat4 normView;		// 320
+	glm::vec3 position;		// 384
+	int32_t xResolution;		// 396
+	int32_t yResolution;		// 400
 };
 struct ObjectBufferInfo
 {
 	glm::mat4 normalMatrix;
 	glm::mat4 worldMatrix;
-	int32_t lightingMask;
+	nxt::shader_mask lightingMask;
 };
 struct PrimitiveBufferInfo
 {
@@ -81,8 +80,8 @@ namespace nxt
 		mCamera{ {-2.f, 1.f, 2.f} },
 
 		mBlurShader{ "assets/shaders/hdr/blur.vert", "assets/shaders/hdr/blur.frag" },
-		mAOShader{ "assets/shaders/screen/ssao.vert", "assets/shaders/screen/ssao.frag" },
-		mAOBlurShader{ "assets/shaders/screen/ssao.vert", "assets/shaders/screen/aoblur.frag" },
+		mAOShader{ "assets/shaders/screen/quad.vert", "assets/shaders/screen/ssao.frag" },
+		mAOBlurShader{ "assets/shaders/screen/quad.vert", "assets/shaders/screen/aoblur.frag" },
 		mScreenQuad{  }
 	{
 		mShader.Bind();
@@ -271,19 +270,14 @@ namespace nxt
 			glm::mat4 normalMatrix{ glm::transpose(glm::inverse(worldMatrix)) };
 			//glm::mat4 normalViewMatrix{ glm::transpose(glm::inverse(mCamera.GetViewMatrix())) }; // view space normal matrix
 
-			//NXT_LOG_INFO("N = T(I(world)): {0}", glm::to_string(normalMatrix));
-			//NXT_LOG_DEBUG("V * N:      \t{0}", glm::to_string(mCamera.GetViewMatrix() * normalMatrix));
-			//NXT_LOG_DEBUG("T(I(V * W) :\t{0}", glm::to_string(glm::transpose(glm::inverse(mCamera.GetViewMatrix() * worldMatrix))));
-			//NXT_LOG_DEBUG("T(I(V)) * N:\t{0}", glm::to_string(glm::transpose(glm::inverse(mCamera.GetViewMatrix())) * normalMatrix));
-
-			int32_t mask{ 0 };
-			mask |= SETBIT((!world.HasComponent<cmp::Light>(e)), 0);
+			cmp::WorldModel& m{ world.GetComponent<cmp::WorldModel>(e) };
+			shader_mask mask{ 0 };
+			mask |= SETBIT((m.Instance->Model->GetTextures().size() > 0), 0);
 			mask |= SETBIT((!world.HasComponent<cmp::Light>(e)), 1);
 			mObjectInfoBuffer->SetSubData(64, 0, glm::value_ptr(normalMatrix));
 			mObjectInfoBuffer->SetSubData(64, 64, glm::value_ptr(worldMatrix));
 			mObjectInfoBuffer->SetSubData(4, 128, &mask);
 
-			cmp::WorldModel& m{ world.GetComponent<cmp::WorldModel>(e) };
 			DrawModel(m.Instance->Model, mMaterialInfoBuffer);
 		}
 
@@ -338,6 +332,9 @@ namespace nxt
 
 		SFrameTexture b2{ NewShared<FrameTexture>(mWidth, mHeight, 1, nxtTextureFormat_RGBA, nxtTextureFormatInternal_RGB16F) };
 		mBlurs[1] = NewShared<FrameBuffer>(b2);
+
+		mFrameInfoBuffer->SetSubData(4, 396, &mWidth);
+		mFrameInfoBuffer->SetSubData(4, 400, &mHeight);
 
 		BuildDeferredBuffer();
 
