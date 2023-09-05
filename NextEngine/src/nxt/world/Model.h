@@ -3,6 +3,7 @@
 #include <nxt/EngineCore.h>
 
 #include "materials/Material.h"
+#include "Animation.h"
 
 #include <nxt/render/buffers/ArrayObject.h>
 #include <nxt/render/buffers/DataBuffer.h>
@@ -14,6 +15,12 @@
 namespace nxt
 {
 
+	struct NXT_API PrimitiveModifier
+	{
+		bool used{ false };
+		std::vector<uint16_t> indices{};
+	};
+
 	struct NXT_API Primitive
 	{
 		uint32_t count;
@@ -23,6 +30,7 @@ namespace nxt
 		nxtDataType componentType;
 		bool hasTangents{ false };
 		bool hasIndices{ false };
+		PrimitiveModifier modifier{};
 		buffers::SDataBuffer buffer;
 		buffers::SArrayObject arrayObject{ NewShared<buffers::ArrayObject>() };
 	};
@@ -32,11 +40,6 @@ namespace nxt
 		std::vector<Primitive> primitives;
 		std::vector<Mesh> children;
 		glm::mat4 matrix{ 1.f };
-	};
-
-	struct NXT_API Animation
-	{
-
 	};
 
 	class NXT_API Model

@@ -15,7 +15,7 @@
     - [x] Primitives
  
  ## COMPLETE
-- [x] Heirarchy model primitives all using the same vertex data
+- [x] Fix heirarchy model primitives all using the same vertex data
     - Added array objects to each primitive. Previously it was per model, so all primitives were using the same data.
 - [x] Ability to remove textures from framebuffers
 - [x] Adjust SSAO matrices.

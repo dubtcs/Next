@@ -4,6 +4,8 @@
 #include <nxt/render/buffers/DataBuffer.h>
 #include <nxt/core/log/Log.h>
 
+#include <nxt/core/utility/TypeToSize.h>
+
 #include <tiny_gltf.h>
 
 #include <glm/glm.hpp>
@@ -151,7 +153,6 @@ namespace nxt
 				gltf::Accessor& ac{ model.accessors[primitive.indices] };
 				SDataBuffer& buf{ buffers[ac.bufferView] };
 				addPrimitive.buffer = buf;
-				//addPrimitive.buffer = buffers[primitive.indices];
 			}
 
 			addPrimitive.mode = static_cast<nxtDrawMode>(primitive.mode);
@@ -162,6 +163,26 @@ namespace nxt
 			{
 				// Binding buffers for attribute locationd data
 				tinygltf::Accessor& accessor{ model.accessors[attribute.second] };
+				
+				if (accessor.sparse.isSparse)
+				{
+					NXT_LOG_WARN("Model has sparse accessor.");
+					tinygltf::Accessor::Sparse& sparse{ accessor.sparse };
+					addPrimitive.modifier.used = true;
+					addPrimitive.modifier.indices.reserve(sparse.count);
+
+					int32_t count{ sparse.count };
+					size_t dataSize{ GetSizeOf(sparse.indices.componentType) };
+
+					tinygltf::BufferView& bv{ model.bufferViews[sparse.indices.bufferView] };
+					void* data{ &model.buffers[bv.buffer].data.at(bv.byteOffset + sparse.indices.byteOffset) };
+
+					for (int32_t i{ 0 }; i < sparse.count; i++)
+					{
+						uint16_t* index{ static_cast<uint16_t*>(data) + i };
+						addPrimitive.modifier.indices.push_back(*index);
+					}
+				}
 
 				Shared<DataBuffer>& dBuffer{ buffers[accessor.bufferView] };
 				dBuffer->Bind();
@@ -259,6 +280,19 @@ namespace nxt
 		return mesh;
 	}
 
+	static std::vector<Animation> RegisterAnimation(tinygltf::Model& model)
+	{
+		for (tinygltf::Animation& animation : model.animations)
+		{
+			Animation an{};
+			for (tinygltf::AnimationSampler& sampler : animation.samplers)
+			{
+
+			}
+		}
+		return {};
+	}
+
 	static std::vector<Mesh> RegisterModel(std::vector<STexture>& textures, std::vector<SMaterial>& materials, gltf::Model& model)
 	{
 		using namespace buffers;
@@ -353,7 +387,7 @@ namespace nxt
 		// Animations
 		if (model.animations.size() > 0)
 		{
-			//std::vector<Animation> 
+			std::vector<Animation> animations{ RegisterAnimation(model) };
 		}
 
 		// Cycle nodes

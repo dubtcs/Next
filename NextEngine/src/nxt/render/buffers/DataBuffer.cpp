@@ -38,6 +38,33 @@ namespace nxt::buffers
 		glBindBuffer(GL_COPY_WRITE_BUFFER, 0);
 	}
 
+	BufferMapPtr::BufferMapPtr(nxtBufferTarget target, size_t byteOffset, size_t byteSize, nxt_enum usage) :
+		mTarget{ target }
+	{
+		mPtr = glMapBufferRange(mTarget, byteOffset, byteSize, usage);
+	}
+
+	BufferMapPtr::~BufferMapPtr()
+	{
+		glUnmapBuffer(mTarget);
+	}
+
+	void* BufferMapPtr::Get()
+	{
+		return mPtr;
+	}
+
+	void* DataBuffer::MapRange(size_t byteOffset, size_t byteSize, nxt_enum usage)
+	{
+		// Must bind buffer before usage
+		return glMapBufferRange(mTarget, byteOffset, byteSize, usage);
+	}
+
+	void DataBuffer::Unmap()
+	{
+		glUnmapBuffer(mTarget);
+	}
+
 	const nxtBufferTarget& DataBuffer::GetTarget() const
 	{
 		return mTarget;

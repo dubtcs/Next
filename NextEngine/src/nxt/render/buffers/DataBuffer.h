@@ -6,6 +6,18 @@
 namespace nxt::buffers
 {
 
+	// TODO: Make this custom ref counting
+	class NXT_API BufferMapPtr
+	{
+	public:
+		BufferMapPtr(nxtBufferTarget target, size_t byteOffset, size_t byteSize, nxt_enum usage);
+		~BufferMapPtr();
+		void* Get();
+	protected:
+		void* mPtr;
+		nxtBufferTarget mTarget;
+	};
+
 	class NXT_API DataBuffer
 	{
 	public:
@@ -17,6 +29,9 @@ namespace nxt::buffers
 	public:
 		void SetSubData(size_t byteSize, size_t byteOffset, void* data);
 		void CopyBufferData(Shared<DataBuffer> otherBuffer, size_t readOffset, size_t writeOffset, size_t byteSize);
+		void CopyData();
+		void* MapRange(size_t byteOffset, size_t byteSize, nxt_enum usage);
+		void Unmap();
 		const nxtBufferTarget& GetTarget() const;
 		void BindIndexed(int32_t index) const;
 		void Bind() const;

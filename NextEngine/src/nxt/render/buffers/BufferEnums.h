@@ -29,7 +29,15 @@ namespace nxt
 	{
 		nxtBufferTarget_ArrayBuffer = 0x8892,
 		nxtBufferTarget_ElementArray = 0x8893,
-		nxtBufferTarget_UniformBuffer = 0x8A11
+		nxtBufferTarget_UniformBuffer = 0x8A11,
+		nxtBufferTarget_CopyRead = 0x8F36,
+		nxtBufferTarget_CopyWrite = 0x8F37
+	};
+
+	enum nxtBufferAccess : nxt_enum
+	{
+		nxtBufferAccess_Read = 0x0001,
+		nxtBufferAccess_Write = 0x0002,
 	};
 
 }

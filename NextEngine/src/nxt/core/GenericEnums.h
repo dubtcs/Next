@@ -1,6 +1,7 @@
 #pragma once
 
 #include <memory>
+#include <nxt/EngineCore.h>
 
 namespace nxt
 {
@@ -18,6 +19,20 @@ namespace nxt
 		nxtDataType_Int = 0x1404, // Integer
 		nxtDataType_UInt = 0x1405, // Unsigned Integer
 		nxtDataType_Float = 0x1406, // Float
+	};
+
+	enum nxtEasingStyle : nxt_enum
+	{
+		nxtEasingStyle_Linear = BIT(1),
+		nxtEasingStyle_Exponential = BIT(2)
+	};
+
+	enum nxtDataFormat : nxt_enum
+	{
+		nxtDataFormat_Scalar = BIT(1),
+		nxtDataFormat_Vec2 = BIT(2),
+		nxtDataFormat_Vec3 = BIT(3),
+		nxtDataFormat_Vec4 = BIT(4)
 	};
 
 }
