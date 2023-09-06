@@ -47,8 +47,9 @@ namespace nxt
 		void SetRenderFeature(nxtRenderFeature feature, bool toggle);
 		void SetFaceCullingMode(nxtCullingMode mode);
 
-		void SwapBuffers();
+		nxt_enum GrabError();
 
+		void SwapBuffers();
 	}
 
 	class NXT_API Render

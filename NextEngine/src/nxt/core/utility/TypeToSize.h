@@ -5,6 +5,7 @@
 namespace nxt
 {
 
-	size_t GetSizeOf(nxt_enum dataType);
+	size_t SizeInBytes(nxt_enum dataType);
+	size_t SizeInBits(nxt_enum dataType);
 
 }

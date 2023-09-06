@@ -161,6 +161,20 @@ namespace nxt
 				objectInfo->SetSubData(sizeof(int32_t), 100, &mat->Textures.Occlusion);
 			}
 
+			// sparse accessors
+			for (const PrimitiveModifier& mod : p.modifiers)
+			{
+				for (int32_t i{ 0 }; i < mod.indices.size(); i++)
+				{
+					uint16_t currentIndex{ mod.indices[i] };		// element size
+					
+					size_t readOffset{ mod.info.byteOffset + (mod.info.elementByteSize * i) };
+					size_t writeOffset{ mod.info.targetByteOffset + (mod.info.targetByteStride * currentIndex) };
+
+					mod.target->CopyBufferData(mod.info.dataBuffer, readOffset, writeOffset, mod.info.elementByteSize);
+				}
+			}
+
 			buffer->Bind();
 			if (p.hasIndices)
 			{

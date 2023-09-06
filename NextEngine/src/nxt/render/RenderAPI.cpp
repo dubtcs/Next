@@ -60,6 +60,11 @@ namespace nxt::render::command
 		toggle ? glEnable(feature) : glDisable(feature);
 	}
 
+	nxt_enum GrabError()
+	{
+		return glGetError();
+	}
+
 	void SwapBuffers()
 	{
 		device::SwapBuffers();

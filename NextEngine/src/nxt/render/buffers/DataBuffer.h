@@ -28,7 +28,7 @@ namespace nxt::buffers
 		~DataBuffer();
 	public:
 		void SetSubData(size_t byteSize, size_t byteOffset, void* data);
-		void CopyBufferData(Shared<DataBuffer> otherBuffer, size_t readOffset, size_t writeOffset, size_t byteSize);
+		void CopyBufferData(Shared<DataBuffer> readBuffer, size_t readOffset, size_t writeOffset, size_t byteSize);
 		void CopyData();
 		void* MapRange(size_t byteOffset, size_t byteSize, nxt_enum usage);
 		void Unmap();

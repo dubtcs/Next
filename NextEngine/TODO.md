@@ -1,5 +1,6 @@
 
 ## TODO
+- [ ] Fix buffer data copying always putting INVALID_VALUE error.
 - [ ] Make ScreenQuad support multisampled textures with texelFetch
 - [ ] Multiple windows
 - [ ] Automatically generate tangents if none are available

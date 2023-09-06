@@ -164,31 +164,37 @@ namespace nxt
 				// Binding buffers for attribute locationd data
 				tinygltf::Accessor& accessor{ model.accessors[attribute.second] };
 				
-				if (accessor.sparse.isSparse)
-				{
-					NXT_LOG_WARN("Model has sparse accessor.");
-					tinygltf::Accessor::Sparse& sparse{ accessor.sparse };
-					addPrimitive.modifier.used = true;
-					addPrimitive.modifier.indices.reserve(sparse.count);
-
-					int32_t count{ sparse.count };
-					size_t dataSize{ GetSizeOf(sparse.indices.componentType) };
-
-					tinygltf::BufferView& bv{ model.bufferViews[sparse.indices.bufferView] };
-					void* data{ &model.buffers[bv.buffer].data.at(bv.byteOffset + sparse.indices.byteOffset) };
-
-					for (int32_t i{ 0 }; i < sparse.count; i++)
-					{
-						uint16_t* index{ static_cast<uint16_t*>(data) + i };
-						addPrimitive.modifier.indices.push_back(*index);
-					}
-				}
-
 				Shared<DataBuffer>& dBuffer{ buffers[accessor.bufferView] };
 				dBuffer->Bind();
 
 				int32_t amount{ accessor.type == TINYGLTF_TYPE_SCALAR ? 1 : accessor.type };
 				int32_t stride{ accessor.ByteStride(model.bufferViews[accessor.bufferView]) };
+
+				if (accessor.sparse.isSparse)
+				{
+					NXT_LOG_WARN("Model has sparse accessor.");
+
+					PrimitiveModifier modifier{ dBuffer };
+					tinygltf::Accessor::Sparse& sparse{ accessor.sparse };
+
+					tinygltf::BufferView& indexView{ model.bufferViews[sparse.indices.bufferView] };
+					void* indexData{ &model.buffers[indexView.buffer].data.at(indexView.byteOffset + sparse.indices.byteOffset) };
+
+					// Index Data
+					modifier.indices.resize(sparse.count);
+					size_t byteSize{ sizeof(uint16_t) * sparse.count };
+					memcpy_s(&modifier.indices.at(0), byteSize, indexData, byteSize);
+
+					// Value Data
+					tinygltf::BufferView& view{ model.bufferViews[sparse.values.bufferView] };
+					ModifierInfo info{ sparse.values.byteOffset };
+					modifier.info.elementByteSize = SizeInBytes(accessor.componentType) * amount; // amount is making it a vec3, vec2, etc...
+					modifier.info.targetByteOffset = accessor.byteOffset;
+					modifier.info.targetByteStride = stride;
+					modifier.info.dataBuffer = buffers[sparse.values.bufferView];
+
+					addPrimitive.modifiers.push_back(modifier);
+				}
 
 				int32_t layoutPosition{ -1 };
 
@@ -301,7 +307,7 @@ namespace nxt
 		for (tinygltf::BufferView& view : model.bufferViews)
 		{
 			tinygltf::Buffer& buffer{ model.buffers[view.buffer] };
-			Shared<DataBuffer> dBuffer{ DataBuffer::Create(view.byteLength, &buffer.data.at(0) + view.byteOffset, static_cast<nxtBufferTarget>(view.target)) };
+			Shared<DataBuffer> dBuffer{ DataBuffer::Create(view.byteLength, &buffer.data.at(0) + view.byteOffset, static_cast<nxtBufferTarget>(view.target == 0 ? nxtBufferTarget_CopyWrite : view.target)) };
 			buffers.push_back(dBuffer);
 		}
 

@@ -29,13 +29,9 @@ namespace nxt::buffers
 		glBufferSubData(mTarget, byteOffset, byteSize, data);
 	}
 
-	void DataBuffer::CopyBufferData(SDataBuffer other, size_t readOffset, size_t writeOffset, size_t byteSize)
+	void DataBuffer::CopyBufferData(SDataBuffer readBuffer, size_t readOffset, size_t writeOffset, size_t byteSize)
 	{
-		glBindBuffer(GL_COPY_READ_BUFFER, other->mID);
-		glBindBuffer(GL_COPY_WRITE_BUFFER, mID);
-		glCopyBufferSubData(GL_COPY_READ_BUFFER, GL_COPY_WRITE_BUFFER, readOffset, writeOffset, byteSize);
-		glBindBuffer(GL_COPY_READ_BUFFER, 0);
-		glBindBuffer(GL_COPY_WRITE_BUFFER, 0);
+		glCopyNamedBufferSubData(readBuffer->mID, mID, readOffset, writeOffset, byteSize);
 	}
 
 	BufferMapPtr::BufferMapPtr(nxtBufferTarget target, size_t byteOffset, size_t byteSize, nxt_enum usage) :
