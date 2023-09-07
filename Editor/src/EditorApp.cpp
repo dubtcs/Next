@@ -11,6 +11,9 @@
 
 #include <nxt/core/utility/lerp.h>
 
+
+#include <nxt/world/Model2.h>
+
 static nxt::SModelInstance modelInstance{ nullptr };
 static necs::Entity viewModel{};
 
@@ -21,6 +24,8 @@ namespace nxt
 		mWorld{}
 
 	{
+
+		//Shared<Model2> m2{ NewShared<Model2>("assets/models/Avocado.gltf") };
 
 		// Lights
 		necs::Entity l1{ mWorld.CreateEntity() };

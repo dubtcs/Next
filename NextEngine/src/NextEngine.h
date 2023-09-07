@@ -32,4 +32,5 @@ All functionaility is in namespace nxt
 
 #include <nxt/world/World.h>
 #include <nxt/world/Model.h>
+#include <nxt/world/Model2.h>
 #include <nxt/world/components/all.h>

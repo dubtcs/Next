@@ -162,7 +162,7 @@ namespace nxt
 			}
 
 			// sparse accessors
-			for (const PrimitiveModifier& mod : p.modifiers)
+			for (const BufferDataModifier& mod : p.modifiers)
 			{
 				for (int32_t i{ 0 }; i < mod.indices.size(); i++)
 				{
@@ -203,6 +203,11 @@ namespace nxt
 		{
 			DrawMesh(model, m, objectInfo, ones);
 		}
+	}
+
+	static void DrawModel2(const Shared<Model2>& model, Shared<buffers::DataBuffer>& objectInfo)
+	{
+		// Draw root scene
 	}
 
 	static void StripMatrixTranslation(glm::mat4* m)

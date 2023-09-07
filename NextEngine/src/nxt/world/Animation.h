@@ -7,24 +7,14 @@
 namespace nxt
 {
 
-	struct NXT_API KeyframeAccessor
+	struct NXT_API AnimationTrack
 	{
-		int32_t count;
-		int32_t type;
-		nxtDataType dataType;
-		Shared<buffers::DataBuffer> buffer;
-	};
-
-	struct NXT_API KeyframeSampler
-	{
-		KeyframeAccessor timing;
-		KeyframeAccessor data;
-		nxtEasingStyle interpolation;
+		int32_t target; // index of mesh target;
 	};
 
 	struct NXT_API Animation
 	{
-		std::vector<KeyframeSampler> keyframes;
+		std::vector<AnimationTrack> tracks;
 	};
 
 }

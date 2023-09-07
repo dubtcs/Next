@@ -95,7 +95,7 @@ namespace nxt
 						addition.buffer = buffer;
 						addition.byteOffset = accessor.byteOffset;
 						addition.componentType = static_cast<nxtDataType>(accessor.componentType);
-						addition.count = accessor.count;
+						addition.count = static_cast<uint32_t>(accessor.count);
 					}
 					positionBuffer = buffer;
 				}
@@ -174,7 +174,7 @@ namespace nxt
 				{
 					NXT_LOG_WARN("Model has sparse accessor.");
 
-					PrimitiveModifier modifier{ dBuffer };
+					BufferDataModifier modifier{ dBuffer };
 					tinygltf::Accessor::Sparse& sparse{ accessor.sparse };
 
 					tinygltf::BufferView& indexView{ model.bufferViews[sparse.indices.bufferView] };
@@ -187,7 +187,7 @@ namespace nxt
 
 					// Value Data
 					tinygltf::BufferView& view{ model.bufferViews[sparse.values.bufferView] };
-					ModifierInfo info{ sparse.values.byteOffset };
+					ModifierInfo info{ static_cast<size_t>(sparse.values.byteOffset) };
 					modifier.info.elementByteSize = SizeInBytes(accessor.componentType) * amount; // amount is making it a vec3, vec2, etc...
 					modifier.info.targetByteOffset = accessor.byteOffset;
 					modifier.info.targetByteStride = stride;
@@ -206,7 +206,7 @@ namespace nxt
 						addPrimitive.buffer = dBuffer;
 						addPrimitive.byteOffset = accessor.byteOffset;
 						addPrimitive.componentType = static_cast<nxtDataType>(accessor.componentType);
-						addPrimitive.count = accessor.count;
+						addPrimitive.count = static_cast<uint32_t>(accessor.count);
 					}
 				}
 				else if (attribute.first == "NORMAL")
@@ -299,6 +299,9 @@ namespace nxt
 		return {};
 	}
 
+	// Rewrite to create all meshes first and create a contiguous vector of them
+	// Then use a root mesh to start the render loop
+
 	static std::vector<Mesh> RegisterModel(std::vector<STexture>& textures, std::vector<SMaterial>& materials, gltf::Model& model)
 	{
 		using namespace buffers;
@@ -306,8 +309,9 @@ namespace nxt
 		std::vector<Shared<DataBuffer>> buffers{};
 		for (tinygltf::BufferView& view : model.bufferViews)
 		{
+			// This creates a buffer for every view. Unused buffers will be deleted once the model creation is complete
 			tinygltf::Buffer& buffer{ model.buffers[view.buffer] };
-			Shared<DataBuffer> dBuffer{ DataBuffer::Create(view.byteLength, &buffer.data.at(0) + view.byteOffset, static_cast<nxtBufferTarget>(view.target == 0 ? nxtBufferTarget_CopyWrite : view.target)) };
+			Shared<DataBuffer> dBuffer{ DataBuffer::Create(view.byteLength, &buffer.data.at(0) + view.byteOffset, static_cast<nxtBufferTarget>(view.target)) };
 			buffers.push_back(dBuffer);
 		}
 

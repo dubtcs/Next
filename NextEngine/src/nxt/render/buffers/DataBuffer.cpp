@@ -19,14 +19,16 @@ namespace nxt::buffers
 		mByteSize{ byteSize }
 	{
 		glCreateBuffers(1, &mID);
-		glBindBuffer(mTarget, mID);
-		glBufferData(mTarget, byteSize, data, bufferUsage);
+		glNamedBufferData(mID, byteSize, data, bufferUsage);
+		// Using the direct storage access version for sparse accessors. This allows data to be set without a buffer target
+
+		Bind(); // Bind if possible
 	}
 
 	void DataBuffer::SetSubData(size_t byteSize, size_t byteOffset, void* data)
 	{
-		Bind();
-		glBufferSubData(mTarget, byteOffset, byteSize, data);
+		//Bind();
+		glNamedBufferSubData(mID, byteOffset, byteSize, data);
 	}
 
 	void DataBuffer::CopyBufferData(SDataBuffer readBuffer, size_t readOffset, size_t writeOffset, size_t byteSize)

@@ -1,12 +1,12 @@
 
 ## TODO
-- [ ] Fix buffer data copying always putting INVALID_VALUE error.
 - [ ] Make ScreenQuad support multisampled textures with texelFetch
 - [ ] Multiple windows
 - [ ] Automatically generate tangents if none are available
 - [ ] Expose DropTarget API and let users decide what they want to be droppable
 - [ ] Full GLTF file support
-    - [ ] Sparse Accessors
+    - [ ] Multiple scenes
+    - [x] Sparse Accessors
     - [x] Local node transforms
     - [ ] Animations
     - [x] Vertex Colors
@@ -16,6 +16,9 @@
     - [x] Primitives
  
  ## COMPLETE
+- [x] Fix buffer data copying always putting INVALID_VALUE error.
+    - Sparse accessor value buffers don't have a buffer target. When DataBuffers are initialized, they are bound to their target and data is pushed into that target. Because no target was set, the target is 0 and the data goes nowhere.
+    - Fixed by using direct storage access
 - [x] Fix heirarchy model primitives all using the same vertex data
     - Added array objects to each primitive. Previously it was per model, so all primitives were using the same data.
 - [x] Ability to remove textures from framebuffers
@@ -23,7 +26,7 @@
     - Rebuilding viewspace & worldspace positions through depth buffer
     - Normal matrix has been corrected
 - [x] Fix deferred depth buffer
-    - Never actually added a depth atatchment to the deferred buffer
+    - Never actually added a depth attachment to the deferred buffer
 - [x] Fix model drag and drop
     - DrawCube ArrayObject buffers were being overwritten when loading new files with drag&drop. Call stack is [ WindowProc() -> Update() -> RenderPasses() -> DrawViewport() ]. Because the ArrayObject wasn't unbound at the end of the Viewport() call, it's contents were being overwritten by the WindowProc() loading a new model at the start of the next tick.
 - [x] Add normal maps to deferred
@@ -38,4 +41,3 @@
 
  ## ON HOLD
 - [ ] Move render system and device from namespace to class for multithreading
-    - I did it, but OpenGL render contexts were a pain to juggle. Do this with Vulkan
