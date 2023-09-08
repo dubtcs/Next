@@ -6,6 +6,9 @@
 #include <nxt/core/utility/TypeToSize.h>
 
 #include <tiny_gltf.h>
+#include <glm/glm.hpp>
+#include <glm/gtc/type_ptr.hpp>
+#include <glm/gtx/string_cast.hpp>
 
 namespace gltf = tinygltf;
 
@@ -119,8 +122,7 @@ namespace nxt
 		if (!model.animations.empty())
 		{
 			// On^2 dhawouhodawhuioawd
-			for (gltf::Animation& a : model.animations)
-			{
+			for (gltf::Animation& a : model.animations) {
 				Animation animation{};
 				for (gltf::AnimationChannel& channel : a.channels)
 				{
@@ -239,15 +241,43 @@ namespace nxt
 	static std::vector<Mesh2> RegisterNodes(gltf::Model& model, std::vector<Shared<buffers::DataBuffer>>& buffers)
 	{
 		std::vector<Mesh2> meshes{};
-		for (gltf::Node& n : model.nodes)
+		for (gltf::Node& node : model.nodes)
 		{
-			Mesh2 temp{};
-			if (n.mesh >= 0)
+			Mesh2 mesh{};
+			if (node.mesh >= 0)
 			{
-				temp.primitives = RegisterMesh(model.meshes[n.mesh], model, buffers);
+				mesh.primitives = RegisterMesh(model.meshes[node.mesh], model, buffers);
 			}
-			temp.children = n.children;
-			meshes.push_back(temp);
+
+			if (!node.matrix.empty())
+			{
+				mesh.matrix = glm::make_mat4(&node.matrix.at(0));
+			}
+			else
+			{
+				// Translation rotation scale
+				glm::mat4 ones{ 1.f };
+
+				if (!node.scale.empty())
+				{
+					glm::vec3 sc{ glm::make_vec3(&node.scale.at(0)) };
+					mesh.matrix = glm::scale(ones, sc) * mesh.matrix;
+				}
+				if (!node.rotation.empty())
+				{
+					glm::quat rot{ static_cast<float>(node.rotation.at(3)), static_cast<float>(node.rotation.at(0)), static_cast<float>(node.rotation.at(1)), static_cast<float>(node.rotation.at(2)) };
+					mesh.matrix = glm::mat4_cast(rot) * mesh.matrix;
+				}
+				if (!node.translation.empty())
+				{
+					glm::vec3 pos{ glm::make_vec3(&node.translation.at(0)) };
+					mesh.matrix = glm::translate(ones, pos) * mesh.matrix;
+				}
+
+			}
+
+			mesh.children = node.children;
+			meshes.push_back(mesh);
 		}
 		return meshes;
 	}
@@ -287,6 +317,7 @@ namespace nxt
 		{
 			mScenes.push_back(s.nodes);
 		}
+		mRootScene = model.defaultScene;
 
 		mMeshes = RegisterModel2(mTextures, mMaterials, mAnimations, model);
 	}

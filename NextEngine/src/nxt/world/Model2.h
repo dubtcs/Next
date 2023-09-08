@@ -26,7 +26,7 @@ namespace nxt
 		const std::vector<Shared<Material>>& GetMaterials() const;
 		const std::vector<Shared<FrameTexture>>& GetTextures() const;
 	public:
-		int32_t mRootMesh{ 0 };
+		int32_t mRootScene{ 0 };
 	protected:
 		std::vector<Mesh2> mMeshes;
 		std::vector<Scene> mScenes;
@@ -37,7 +37,7 @@ namespace nxt
 
 	struct NXT_API Model2Instance
 	{
-		Shared<Model2> model;
+		Shared<Model2> Model;
 	};
 
 }

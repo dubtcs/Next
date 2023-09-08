@@ -10,6 +10,9 @@ namespace nxt
 	struct NXT_API AnimationTrack
 	{
 		int32_t target; // index of mesh target;
+		nxtEasingStyle interpolation;
+		Shared<buffers::DataBuffer> inputBuffer;
+		Shared<buffers::DataBuffer> outputBuffer;
 	};
 
 	struct NXT_API Animation

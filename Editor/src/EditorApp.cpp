@@ -14,7 +14,7 @@
 
 #include <nxt/world/Model2.h>
 
-static nxt::SModelInstance modelInstance{ nullptr };
+static nxt::Shared<nxt::Model2Instance> modelInstance{ nullptr };
 static necs::Entity viewModel{};
 
 namespace nxt
@@ -45,7 +45,7 @@ namespace nxt
 		mWorld.Attach<cmp::Light>(l4, li4);
 
 		// World Models
-		modelInstance = NewShared<ModelInstance>(Model::Create("assets/models/Avocado.gltf"));
+		modelInstance = NewShared<Model2Instance>(NewShared<Model2>("assets/models/Avocado.gltf"));
 		viewModel = mWorld.CreateEntity();
 		mWorld.Attach<cmp::Transform>(viewModel, { glm::vec3{0.f}, glm::vec3{0.f}, glm::vec3{1.f} });
 		mWorld.Attach<cmp::WorldModel>(viewModel, modelInstance);
@@ -61,7 +61,9 @@ namespace nxt
 	{
 		if (ev.Path.extension().string() == ".gltf" || ev.Path.extension().string() == ".glb")
 		{
-			modelInstance->Model = Model::Create(ev.Path);
+			Shared<Model2> m2{ NewShared<Model2>(ev.Path) };
+			//modelInstance->Model = Model::Create(ev.Path);
+			modelInstance->Model = m2;
 		}
 		return false;
 	}

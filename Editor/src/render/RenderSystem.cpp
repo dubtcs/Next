@@ -205,9 +205,78 @@ namespace nxt
 		}
 	}
 
-	static void DrawModel2(const Shared<Model2>& model, Shared<buffers::DataBuffer>& objectInfo)
+	static void DrawMesh2(const Shared<Model2>& model, int32_t meshIndex, glm::mat4& parentTransform, const Shared<buffers::DataBuffer>& primitiveInfo)
 	{
-		// Draw root scene
+		const Mesh2& mesh{ model->GetMeshes().at(meshIndex) };
+
+		glm::mat4 localTransform{ parentTransform * mesh.matrix };
+
+		for (const Primitive& primitive : mesh.primitives)
+		{
+			primitive.arrayObject->Bind();
+			bool hasMaterials{ (primitive.material >= 0) };
+
+			primitiveInfo->SetSubData(sizeof(glm::mat4), 0, &localTransform);
+			primitiveInfo->SetSubData(sizeof(bool), 104, (void*)&primitive.hasTangents);
+			primitiveInfo->SetSubData(sizeof(bool), 108, &hasMaterials);
+
+			// Push Material Information Into Buffer
+			if (hasMaterials)
+			{
+				const SMaterial& mat{ model->GetMaterials()[primitive.material] };
+				primitiveInfo->SetSubData(sizeof(glm::vec4), 64, glm::value_ptr(mat->Properties.Color.BaseColor));
+				primitiveInfo->SetSubData(sizeof(int32_t), 80, &mat->Properties.Color.Texture);
+
+				primitiveInfo->SetSubData(sizeof(int32_t), 92, &mat->Textures.Normal);
+				primitiveInfo->SetSubData(sizeof(int32_t), 96, &mat->Textures.Emissive);
+				primitiveInfo->SetSubData(sizeof(int32_t), 100, &mat->Textures.Occlusion);
+			}
+
+			// Adjust buffer data for sparse accessors
+			for (const BufferDataModifier& mod : primitive.modifiers)
+			{
+				for (int32_t i{ 0 }; i < mod.indices.size(); i++)
+				{
+					uint16_t currentIndex{ mod.indices[i] }; // element size
+
+					size_t readOffset{ mod.info.byteOffset + (mod.info.elementByteSize * i) };
+					size_t writeOffset{ mod.info.targetByteOffset + (mod.info.targetByteStride * currentIndex) };
+
+					mod.target->CopyBufferData(mod.info.dataBuffer, readOffset, writeOffset, mod.info.elementByteSize);
+				}
+			}
+
+			primitive.buffer->Bind();
+			if (primitive.hasIndices)
+			{
+				render::command::DrawElements(primitive.mode, primitive.count, primitive.componentType, (void*)(primitive.byteOffset));
+			}
+			else
+			{
+				render::command::DrawArrays(primitive.mode, primitive.count, 0);
+			}
+
+		}
+
+		for (int32_t childIndex : mesh.children)
+		{
+			DrawMesh2(model, childIndex, localTransform, primitiveInfo);
+		}
+	}
+
+	static void DrawModel2(const Shared<Model2>& model, Shared<buffers::DataBuffer>& primitiveInfo)
+	{
+		glm::mat4 ones{ 1.f };
+		const Model2::Scene& scene{ model->GetScenes().at(model->mRootScene) };
+		int32_t i{ 0 };
+		for (const Shared<FrameTexture>& tex : model->GetTextures())
+		{
+			tex->BindToUnit(i++);
+		}
+		for (int32_t meshIndex : scene)
+		{
+			DrawMesh2(model, meshIndex, ones, primitiveInfo);
+		}
 	}
 
 	static void StripMatrixTranslation(glm::mat4* m)
@@ -297,7 +366,7 @@ namespace nxt
 			mObjectInfoBuffer->SetSubData(64, 64, glm::value_ptr(worldMatrix));
 			mObjectInfoBuffer->SetSubData(4, 128, &mask);
 
-			DrawModel(m.Instance->Model, mMaterialInfoBuffer);
+			DrawModel2(m.Instance->Model, mMaterialInfoBuffer);
 		}
 
 		mDeferredBuffer->Unbind();
