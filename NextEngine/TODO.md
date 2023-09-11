@@ -5,7 +5,7 @@
 - [ ] Automatically generate tangents if none are available
 - [ ] Expose DropTarget API and let users decide what they want to be droppable
 - [ ] Full GLTF file support
-    - [ ] Multiple scenes
+    - [x] Multiple scenes
     - [x] Sparse Accessors
     - [x] Local node transforms
     - [ ] Animations

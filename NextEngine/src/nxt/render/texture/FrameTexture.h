@@ -12,8 +12,8 @@ namespace nxt
 	{
 		nxtTextureParam MinimizeFilter{ nxtTextureParam_Linear };
 		nxtTextureParam MagnifyFilter{ nxtTextureParam_Linear };
-		nxtTextureParam WrapFilterX{ nxtTextureParam_ClampToEdge };
-		nxtTextureParam WrapFilterY{ nxtTextureParam_ClampToEdge };
+		nxtTextureParam WrapFilterX{ nxtTextureParam_Repeat }; // previously clamp to edge
+		nxtTextureParam WrapFilterY{ nxtTextureParam_Repeat }; // previously clamp to edge
 	};
 
 	// This CAN replace both TextureMultiSample and Texture

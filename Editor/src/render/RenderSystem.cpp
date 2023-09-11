@@ -116,7 +116,7 @@ namespace nxt
 			glm::vec3 sample{ random::GetNumber<float>(-1.f, 1.f), random::GetNumber<float>(-1.f, 1.f), random::GetNumber<float>(0.f, 1.f) };
 			sample = glm::normalize(sample);
 			float scale{ static_cast<float>(i) / static_cast<float>(sampleSize) };
-			scale = Lerp(0.f, 1.f, scale, nxtEasingStyle_Exponential);
+			scale = Lerp(0.f, 1.f, scale, nxtInterpolation_Exponential);
 			sample *= scale;
 			kernel.push_back(sample);
 		}

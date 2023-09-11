@@ -21,10 +21,10 @@ namespace nxt
 		nxtDataType_Float = 0x1406, // Float
 	};
 
-	enum nxtEasingStyle : nxt_enum
+	enum nxtInterpolation : nxt_enum
 	{
-		nxtEasingStyle_Linear = BIT(1),
-		nxtEasingStyle_Exponential = BIT(2)
+		nxtInterpolation_Linear = BIT(1),
+		nxtInterpolation_Exponential = BIT(2)
 	};
 
 	enum nxtDataFormat : nxt_enum

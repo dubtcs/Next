@@ -365,7 +365,7 @@ namespace nxt
 					NXT_LOG_CRIT("Image bitdepth [{0}] not support atm", image.bits);
 					break;
 				}
-
+				
 				STexture tex{ Texture::Create(image.width, image.height, format) };
 				tex->SetData(format, dataType, &image.image.at(0));
 				textures.push_back(tex);

@@ -7,6 +7,6 @@
 namespace nxt
 {
 
-	float Lerp(float start, float target, float timestep, nxtEasingStyle easingStyle = nxtEasingStyle_Linear);
+	float Lerp(float start, float target, float timestep, nxtInterpolation easingStyle = nxtInterpolation_Linear);
 
 }

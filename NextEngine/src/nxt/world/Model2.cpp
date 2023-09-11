@@ -15,6 +15,17 @@ namespace gltf = tinygltf;
 namespace nxt
 {
 
+	static nxtInterpolation GetInterpolationTypeFromString(const std::string& name)
+	{
+		if (name == "LINEAR")
+			return nxtInterpolation_Linear;
+		else if (name == "EXPONENTIAL")
+			return nxtInterpolation_Exponential;
+
+		// default
+		return nxtInterpolation_Linear;
+	}
+
 	static std::vector<Shared<buffers::DataBuffer>> RegisterBuffers(gltf::Model& model)
 	{
 		using namespace buffers;
@@ -38,31 +49,31 @@ namespace nxt
 				tinygltf::Image& image{ model.images[texture.source] };
 
 				nxtTextureFormat format{ 0 };
-				nxtTextureFormatInternal internal{ 0 };
+				nxtTextureFormatInternal internalFormat{ 0 };
 				switch (image.component)
 				{
 					case(1):
 					{
 						format = nxtTextureFormat_R;
-						internal = nxtTextureFormatInternal_R8;
+						internalFormat = nxtTextureFormatInternal_R8;
 						break;
 					}
 					case(2):
 					{
 						format = nxtTextureFormat_RG;
-						internal = nxtTextureFormatInternal_RG8;
+						internalFormat = nxtTextureFormatInternal_RG8;
 						break;
 					}
 					case(3):
 					{
 						format = nxtTextureFormat_RGB;
-						internal = nxtTextureFormatInternal_RGB8;
+						internalFormat = nxtTextureFormatInternal_RGB8;
 						break;
 					}
 					case(4):
 					{
 						format = nxtTextureFormat_RGBA;
-						internal = nxtTextureFormatInternal_RGBA8;
+						internalFormat = nxtTextureFormatInternal_RGBA8;
 						break;
 					}
 				}
@@ -86,7 +97,7 @@ namespace nxt
 					break;
 				}
 
-				Shared<FrameTexture> tex{ NewShared<FrameTexture>(image.width, image.height, 1, format, internal) };
+				Shared<FrameTexture> tex{ NewShared<FrameTexture>(image.width, image.height, 1, format, internalFormat) };
 				tex->SetData(format, dataType, &image.image.at(0));
 				textures.push_back(tex);
 
@@ -117,7 +128,7 @@ namespace nxt
 		}
 	}
 
-	static void RegisterAnimations(std::vector<Animation>& animations, gltf::Model& model)
+	static void RegisterAnimations(std::vector<Animation>& animations, std::vector<Shared<buffers::DataBuffer>>& buffers, gltf::Model& model)
 	{
 		if (!model.animations.empty())
 		{
@@ -127,6 +138,22 @@ namespace nxt
 				for (gltf::AnimationChannel& channel : a.channels)
 				{
 					AnimationTrack track{ channel.target_node };
+					
+					// From what I can tell from gltf repo, only one channel per sampler
+					gltf::AnimationSampler& sampler{ a.samplers[channel.sampler] };
+					track.interpolation = GetInterpolationTypeFromString(sampler.interpolation);
+
+					// Input
+					gltf::Accessor& inputAccessor{ model.accessors[sampler.input] };
+					int32_t amount{ inputAccessor.type == TINYGLTF_TYPE_SCALAR ? 1 : inputAccessor.type };
+
+					ModifierInfo inputInfo{ inputAccessor.byteOffset };
+					inputInfo.elementByteSize = SizeInBytes(inputAccessor.componentType) * amount;
+					
+
+					BufferDataModifier inputModifier{ buffers[inputAccessor.bufferView] };
+
+					// Output
 
 					animation.tracks.push_back(track);
 				}
@@ -287,7 +314,7 @@ namespace nxt
 		std::vector<Shared<buffers::DataBuffer>> buffers{ RegisterBuffers(model) };
 		RegisterTextures(textures, model);
 		RegisterMaterials(materials, model);
-		RegisterAnimations(animations, model);
+		RegisterAnimations(animations, buffers, model);
 		return RegisterNodes(model, buffers);
 	}
 
