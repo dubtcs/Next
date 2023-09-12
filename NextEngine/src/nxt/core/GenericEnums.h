@@ -29,10 +29,8 @@ namespace nxt
 
 	enum nxtDataFormat : nxt_enum
 	{
-		nxtDataFormat_Scalar = BIT(1),
-		nxtDataFormat_Vec2 = BIT(2),
-		nxtDataFormat_Vec3 = BIT(3),
-		nxtDataFormat_Vec4 = BIT(4)
+		nxtDataFormat_Scalar = 0,
+
 	};
 
 }

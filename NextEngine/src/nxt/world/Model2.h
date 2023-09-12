@@ -20,11 +20,11 @@ namespace nxt
 	public:
 		Model2(const std::filesystem::path& filepath);
 		~Model2();
-		const std::vector<Mesh2>& GetMeshes() const;
-		const std::vector<Scene>& GetScenes() const;
-		const std::vector<Animation>& GetAnimations() const;
-		const std::vector<Shared<Material>>& GetMaterials() const;
-		const std::vector<Shared<FrameTexture>>& GetTextures() const;
+		std::vector<Mesh2>& GetMeshes();
+		std::vector<Scene>& GetScenes();
+		std::vector<Animation>& GetAnimations();
+		std::vector<Shared<Material>>& GetMaterials();
+		std::vector<Shared<FrameTexture>>& GetTextures();
 	public:
 		int32_t mRootScene{ 0 };
 	protected:

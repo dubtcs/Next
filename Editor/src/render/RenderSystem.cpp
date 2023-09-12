@@ -207,9 +207,41 @@ namespace nxt
 
 	static void DrawMesh2(const Shared<Model2>& model, int32_t meshIndex, glm::mat4& parentTransform, const Shared<buffers::DataBuffer>& primitiveInfo)
 	{
-		const Mesh2& mesh{ model->GetMeshes().at(meshIndex) };
+		Mesh2& mesh{ model->GetMeshes().at(meshIndex) };
 
-		glm::mat4 localTransform{ parentTransform * mesh.matrix };
+		glm::mat4 localTransform{ mesh.matrix };
+
+		if (mesh.animationInfo.inProgress && mesh.animationInfo.currentAnimation >= 0)
+		{
+			const Animation& animation{ model->GetAnimations().at(mesh.animationInfo.currentAnimation) };
+			const AnimationTrack& track{ animation.tracks.at(mesh.animations.at(mesh.animationInfo.currentAnimation).at(0)) };
+
+			int32_t nextKeyframe{ mesh.animationInfo.currentKeyframe + 1 };
+
+			// enforcing looping animations for now
+			if (mesh.animationInfo.currentKeyframe >= (track.timing.size() - 1))
+			{
+				nextKeyframe = 0;
+			}
+
+			clock::time_point now{ clock::GetTime() };
+			float nextKeyframeTime{ track.timing.at(nextKeyframe) };
+
+			float duration{ clock::GetDuration(mesh.animationInfo.keyframeTimepoint, now) - mesh.animationInfo.keyframeOffset };
+			if (duration > nextKeyframeTime)
+			{
+				float pastKeyframe{ duration - nextKeyframeTime };
+				
+				mesh.animationInfo.currentKeyframe++;
+				if (mesh.animationInfo.currentKeyframe >= track.timing.size())
+					mesh.animationInfo.currentKeyframe = 0;
+			}
+
+			NXT_LOG_TRACE(mesh.animationInfo.currentKeyframe);
+
+		}
+
+		localTransform = parentTransform * localTransform;
 
 		for (const Primitive& primitive : mesh.primitives)
 		{
@@ -273,6 +305,26 @@ namespace nxt
 		{
 			tex->BindToUnit(i++);
 		}
+
+		// Instead of looping here
+		// Can save the animation track indices in the mesh they belong to and apply the animation there
+		// Removing this loop at the cost of higher memory usage
+
+		// Test loop for printing data
+		//for (const Animation& animation : model->GetAnimations())
+		//{
+		//	for (const AnimationTrack& track : animation.tracks)
+		//	{
+		//		NXT_LOG_DEBUG("NEW ANIMATION");
+		//		for (int32_t i{ 0 }; i < track.timing.size(); i++)
+		//		{
+		//			if (track.indicesPerElement == 4)
+		//			{
+		//				NXT_LOG_TRACE("\nKeyframe: {0}\n\tTiming: {1}\n\tValue: {2}", i, track.timing.at(i), glm::to_string(glm::make_vec4(&track.data.at(i * track.indicesPerElement))));
+		//			}
+		//		}
+		//	}
+		//}
 		for (int32_t meshIndex : scene)
 		{
 			DrawMesh2(model, meshIndex, ones, primitiveInfo);

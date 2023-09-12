@@ -49,6 +49,17 @@ namespace nxt
 
 		// Keyboard Main / Letter Input
 
+		nxtKeycode_0 = 0x30,
+		nxtKeycode_1 = 0x31,
+		nxtKeycode_2 = 0x32,
+		nxtKeycode_3 = 0x33,
+		nxtKeycode_4 = 0x34,
+		nxtKeycode_5 = 0x35,
+		nxtKeycode_6 = 0x36,
+		nxtKeycode_7 = 0x37,
+		nxtKeycode_8 = 0x38,
+		nxtKeycode_9 = 0x39,
+
 		nxtKeycode_A = 0x41,
 		nxtKeycode_B = 0x42,
 		nxtKeycode_C = 0x43,
@@ -76,6 +87,17 @@ namespace nxt
 		nxtKeycode_Y = 0x59,
 		nxtKeycode_Z = 0x5A,
 
+		nxtKeycode_0NumPad = 0x60,
+		nxtKeycode_1NumPad = 0x61,
+		nxtKeycode_2NumPad = 0x62,
+		nxtKeycode_3NumPad = 0x63,
+		nxtKeycode_4NumPad = 0x64,
+		nxtKeycode_5NumPad = 0x65,
+		nxtKeycode_6NumPad = 0x66,
+		nxtKeycode_7NumPad = 0x67,
+		nxtKeycode_8NumPad = 0x68,
+		nxtKeycode_9NumPad = 0x69,
+		
 		nxtKeycode_Plus = 0xBB,
 		nxtKeycode_Minus = 0xBD
 	};

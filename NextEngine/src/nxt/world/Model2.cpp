@@ -128,32 +128,57 @@ namespace nxt
 		}
 	}
 
-	static void RegisterAnimations(std::vector<Animation>& animations, std::vector<Shared<buffers::DataBuffer>>& buffers, gltf::Model& model)
+	static void RegisterAnimations(std::vector<Animation>& animations, std::vector<Shared<buffers::DataBuffer>>& buffers, std::vector<Mesh2>& meshes, gltf::Model& model)
 	{
 		if (!model.animations.empty())
 		{
 			// On^2 dhawouhodawhuioawd
+			int32_t animationIndex{ 0 };
 			for (gltf::Animation& a : model.animations) {
 				Animation animation{};
+
+				int32_t trackIndex{ 0 };
 				for (gltf::AnimationChannel& channel : a.channels)
 				{
 					AnimationTrack track{ channel.target_node };
-					
+					meshes[channel.target_node].animations[animationIndex].push_back(trackIndex);
+					meshes[channel.target_node].animationInfo.inProgress = true;
+					meshes[channel.target_node].animationInfo.currentAnimation = 0;
+
 					// From what I can tell from gltf repo, only one channel per sampler
 					gltf::AnimationSampler& sampler{ a.samplers[channel.sampler] };
 					track.interpolation = GetInterpolationTypeFromString(sampler.interpolation);
 
+					// !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+					// This assumes all data is packed.
+					// Account for data interleaving in the future
+					// !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+
 					// Input
 					gltf::Accessor& inputAccessor{ model.accessors[sampler.input] };
-					int32_t amount{ inputAccessor.type == TINYGLTF_TYPE_SCALAR ? 1 : inputAccessor.type };
+					size_t count{ inputAccessor.count };
 
-					ModifierInfo inputInfo{ inputAccessor.byteOffset };
-					inputInfo.elementByteSize = SizeInBytes(inputAccessor.componentType) * amount;
-					
+					gltf::BufferView& inputView{ model.bufferViews[inputAccessor.bufferView] };
+					gltf::Buffer& inputBuffer{ model.buffers[inputView.buffer] };
 
-					BufferDataModifier inputModifier{ buffers[inputAccessor.bufferView] };
+					track.timing.resize(count);
+					size_t dataSize{ count * sizeof(float) };
+					memcpy_s(&track.timing.at(0), dataSize, &inputBuffer.data.at(0) + inputAccessor.byteOffset, dataSize);
+					//
 
 					// Output
+					gltf::Accessor& outAccessor{ model.accessors[sampler.output] };
+					int32_t amountPerElement{ outAccessor.type == TINYGLTF_TYPE_SCALAR ? 1 : outAccessor.type };
+					
+					gltf::BufferView& outView{ model.bufferViews[outAccessor.bufferView] };
+					gltf::Buffer& outBuffer{ model.buffers[outView.buffer] };
+
+					track.indicesPerElement = amountPerElement;
+					count *= amountPerElement;
+					dataSize = count * sizeof(float);
+					track.data.resize(count);
+					memcpy_s(&track.data.at(0), dataSize, &outBuffer.data.at(0) + outAccessor.byteOffset, dataSize);
+					//
 
 					animation.tracks.push_back(track);
 				}
@@ -312,10 +337,11 @@ namespace nxt
 	static std::vector<Mesh2> RegisterModel2(std::vector<Shared<FrameTexture>>& textures, std::vector<Shared<Material>>& materials, std::vector<Animation>& animations, gltf::Model& model)
 	{
 		std::vector<Shared<buffers::DataBuffer>> buffers{ RegisterBuffers(model) };
+		std::vector<Mesh2> meshes{ RegisterNodes(model, buffers) };
 		RegisterTextures(textures, model);
 		RegisterMaterials(materials, model);
-		RegisterAnimations(animations, buffers, model);
-		return RegisterNodes(model, buffers);
+		RegisterAnimations(animations, buffers, meshes, model);
+		return meshes;
 	}
 
 	Model2::Model2(const std::filesystem::path& filepath)
@@ -354,10 +380,10 @@ namespace nxt
 
 	}
 
-	const std::vector<Mesh2>& Model2::GetMeshes() const { return mMeshes; }
-	const std::vector<Model2::Scene>& Model2::GetScenes() const { return mScenes; }
-	const std::vector<Animation>& Model2::GetAnimations() const { return mAnimations; }
-	const std::vector<Shared<Material>>& Model2::GetMaterials() const {	return mMaterials; }
-	const std::vector<Shared<FrameTexture>>& Model2::GetTextures() const { return mTextures; }
+	std::vector<Mesh2>& Model2::GetMeshes() { return mMeshes; }
+	std::vector<Model2::Scene>& Model2::GetScenes() { return mScenes; }
+	std::vector<Animation>& Model2::GetAnimations() { return mAnimations; }
+	std::vector<Shared<Material>>& Model2::GetMaterials() {	return mMaterials; }
+	std::vector<Shared<FrameTexture>>& Model2::GetTextures() { return mTextures; }
 
 }
