@@ -54,9 +54,9 @@ namespace nxt
 		struct NXT_API AnimationInfo
 		{
 			bool inProgress{ false };
-			float keyframeDelta{ 0.f };
-			float keyframeOffset{ 0.f }; // subtract from keyframe timepoint
-			clock::time_point keyframeTimepoint;
+			float runtime{ 0.f };
+			float timeOffset{ 0.f }; // subtract from keyframe timepoint
+			clock::time_point timeStart;
 			int32_t currentKeyframe{ 0 };
 			int32_t currentAnimation{ -1 };
 		};

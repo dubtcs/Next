@@ -205,7 +205,7 @@ namespace nxt
 		}
 	}
 
-	static void DrawMesh2(const Shared<Model2>& model, int32_t meshIndex, glm::mat4& parentTransform, const Shared<buffers::DataBuffer>& primitiveInfo)
+	static void DrawMesh2(const Shared<Model2>& model, int32_t meshIndex, glm::mat4& parentTransform, const Shared<buffers::DataBuffer>& primitiveInfo, float dt)
 	{
 		Mesh2& mesh{ model->GetMeshes().at(meshIndex) };
 
@@ -216,28 +216,27 @@ namespace nxt
 			const Animation& animation{ model->GetAnimations().at(mesh.animationInfo.currentAnimation) };
 			const AnimationTrack& track{ animation.tracks.at(mesh.animations.at(mesh.animationInfo.currentAnimation).at(0)) };
 
-			int32_t nextKeyframe{ mesh.animationInfo.currentKeyframe + 1 };
-
 			// enforcing looping animations for now
-			if (mesh.animationInfo.currentKeyframe >= (track.timing.size() - 1))
+			if (mesh.animationInfo.currentKeyframe == (track.timing.size() - 1))
 			{
-				nextKeyframe = 0;
+				mesh.animationInfo.runtime = 0.f;
+				mesh.animationInfo.currentKeyframe = 0;
+				mesh.animationInfo.timeStart = clock::GetTime();
 			}
 
-			clock::time_point now{ clock::GetTime() };
-			float nextKeyframeTime{ track.timing.at(nextKeyframe) };
-
-			float duration{ clock::GetDuration(mesh.animationInfo.keyframeTimepoint, now) - mesh.animationInfo.keyframeOffset };
-			if (duration > nextKeyframeTime)
+			int32_t nextKeyframe{ mesh.animationInfo.currentKeyframe + 1 };
+			if (mesh.animationInfo.runtime >= track.timing.at(nextKeyframe))
 			{
-				float pastKeyframe{ duration - nextKeyframeTime };
-				
 				mesh.animationInfo.currentKeyframe++;
-				if (mesh.animationInfo.currentKeyframe >= track.timing.size())
-					mesh.animationInfo.currentKeyframe = 0;
+				NXT_LOG_TRACE("Current keyframe: {0}", mesh.animationInfo.currentKeyframe);
 			}
 
-			NXT_LOG_TRACE(mesh.animationInfo.currentKeyframe);
+			if (track.animationTarget == nxtAnimationTarget_Rotation)
+			{
+
+			}
+
+			mesh.animationInfo.runtime += dt;
 
 		}
 
@@ -292,11 +291,11 @@ namespace nxt
 
 		for (int32_t childIndex : mesh.children)
 		{
-			DrawMesh2(model, childIndex, localTransform, primitiveInfo);
+			DrawMesh2(model, childIndex, localTransform, primitiveInfo, dt);
 		}
 	}
 
-	static void DrawModel2(const Shared<Model2>& model, Shared<buffers::DataBuffer>& primitiveInfo)
+	static void DrawModel2(const Shared<Model2>& model, Shared<buffers::DataBuffer>& primitiveInfo, float dt)
 	{
 		glm::mat4 ones{ 1.f };
 		const Model2::Scene& scene{ model->GetScenes().at(model->mRootScene) };
@@ -327,7 +326,7 @@ namespace nxt
 		//}
 		for (int32_t meshIndex : scene)
 		{
-			DrawMesh2(model, meshIndex, ones, primitiveInfo);
+			DrawMesh2(model, meshIndex, ones, primitiveInfo, dt);
 		}
 	}
 
@@ -418,7 +417,7 @@ namespace nxt
 			mObjectInfoBuffer->SetSubData(64, 64, glm::value_ptr(worldMatrix));
 			mObjectInfoBuffer->SetSubData(4, 128, &mask);
 
-			DrawModel2(m.Instance->Model, mMaterialInfoBuffer);
+			DrawModel2(m.Instance->Model, mMaterialInfoBuffer, dt);
 		}
 
 		mDeferredBuffer->Unbind();
