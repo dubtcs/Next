@@ -1,5 +1,6 @@
 
 ## TODO
+- [ ] Fix negative scaling in matrix decomposition
 - [ ] Make ScreenQuad support multisampled textures with texelFetch
 - [ ] Multiple windows
 - [ ] Automatically generate tangents if none are available

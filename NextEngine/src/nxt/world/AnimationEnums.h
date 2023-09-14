@@ -9,7 +9,8 @@ namespace nxt
 	{
 		nxtAnimationTarget_Position = 0,
 		nxtAnimationTarget_Rotation = 1,
-		nxtAnimationTarget_Scale = 3,
+		nxtAnimationTarget_Scale = 2,
+		nxtAnimationTarget_Weights = 3,
 
 		// 10-19 color targets
 		nxtAnimationTarget_Color0 = 10,

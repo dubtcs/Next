@@ -51,6 +51,12 @@ namespace nxt
 	struct NXT_API Mesh2
 	{
 		using AnimationTrackMap = std::map<int32_t, std::vector<int32_t>>;
+		struct NXT_API MatrixComposition
+		{
+			glm::vec3 position{ 0.f };
+			glm::vec4 rotation{ 0.f };
+			glm::vec3 scale{ 1.f };
+		};
 		struct NXT_API AnimationInfo
 		{
 			bool inProgress{ false };
@@ -60,7 +66,7 @@ namespace nxt
 			int32_t currentKeyframe{ 0 };
 			int32_t currentAnimation{ -1 };
 		};
-		glm::mat4 matrix{ 1.f };
+		MatrixComposition matrix;
 		std::vector<Primitive> primitives;
 		std::vector<int32_t> children;
 		AnimationInfo animationInfo;

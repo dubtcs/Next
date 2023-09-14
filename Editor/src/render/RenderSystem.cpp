@@ -209,7 +209,9 @@ namespace nxt
 	{
 		Mesh2& mesh{ model->GetMeshes().at(meshIndex) };
 
-		glm::mat4 localTransform{ mesh.matrix };
+		glm::vec3 translation{ mesh.matrix.position };
+		glm::vec4 rotation{ mesh.matrix.rotation };
+		glm::vec3 scale{ mesh.matrix.scale };
 
 		if (mesh.animationInfo.inProgress && mesh.animationInfo.currentAnimation >= 0)
 		{
@@ -228,17 +230,38 @@ namespace nxt
 			if (mesh.animationInfo.runtime >= track.timing.at(nextKeyframe))
 			{
 				mesh.animationInfo.currentKeyframe++;
-				NXT_LOG_TRACE("Current keyframe: {0}", mesh.animationInfo.currentKeyframe);
+				NXT_LOG_DEBUG("Current keyframe: {0}", mesh.animationInfo.currentKeyframe);
 			}
+
+			float timingDelta{ track.timing.at(nextKeyframe) - mesh.animationInfo.runtime };
+			NXT_LOG_TRACE("Time delta: {0}", timingDelta);
+
+			float currentFrameTime{ track.timing.at(mesh.animationInfo.currentKeyframe) };
+			float adjustedFinalTime{ track.timing.at(nextKeyframe) - currentFrameTime };
+			float percentProgress{ std::abs((mesh.animationInfo.runtime - currentFrameTime) / adjustedFinalTime) };
+			//NXT_LOG_WARN("Adjusted {0}\nProgress %{1}", adjustedFinalTime, progressToNextKey);
 
 			if (track.animationTarget == nxtAnimationTarget_Rotation)
 			{
+				glm::vec4 data{ glm::make_vec4(&track.data.at(nextKeyframe * track.indicesPerElement)) };
+				glm::vec4 curData{ glm::make_vec4(&track.data.at(mesh.animationInfo.currentKeyframe * track.indicesPerElement)) };
 
+				NXT_LOG_TRACE("Target: {0}", glm::to_string(data));
+				data = glm::mix(curData, data, percentProgress); // only linear for now
+
+				rotation = data;
 			}
 
 			mesh.animationInfo.runtime += dt;
-
 		}
+
+		glm::mat4 ones{ 1.f };
+		glm::mat4 localTransform{ glm::scale(ones, scale) * ones };
+
+		glm::quat quaternion{ rotation.w, rotation.x, rotation.y, rotation.z };
+		localTransform = glm::mat4_cast(quaternion) * localTransform;
+
+		localTransform = glm::translate(ones, translation) * localTransform;
 
 		localTransform = parentTransform * localTransform;
 

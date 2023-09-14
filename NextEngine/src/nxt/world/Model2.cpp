@@ -180,6 +180,15 @@ namespace nxt
 					memcpy_s(&track.data.at(0), dataSize, &outBuffer.data.at(0) + outAccessor.byteOffset, dataSize);
 					//
 
+					if (channel.target_path == "translation")
+						track.animationTarget = nxtAnimationTarget_Position;
+					else if (channel.target_path == "rotation")
+						track.animationTarget = nxtAnimationTarget_Rotation;
+					else if (channel.target_path == "scale")
+						track.animationTarget = nxtAnimationTarget_Scale;
+					else if (channel.target_path == "weights")
+						track.animationTarget = nxtAnimationTarget_Weights;
+
 					animation.tracks.push_back(track);
 				}
 				animations.push_back(animation);
@@ -303,27 +312,43 @@ namespace nxt
 
 			if (!node.matrix.empty())
 			{
-				mesh.matrix = glm::make_mat4(&node.matrix.at(0));
+				NXT_LOG_WARN("Has matrix");
+				glm::mat4 matrix{ glm::make_mat4(&node.matrix.at(0)) };
+
+				// extract translation
+				mesh.matrix.position = matrix[3];
+				matrix[3] = glm::vec4{ 0.f, 0.f, 0.f, 1.f }; // remove translation
+
+				// negative scaling wont work. Fix it
+				mesh.matrix.scale = glm::vec3{ glm::length(matrix[0]), glm::length(matrix[1]), glm::length(matrix[2]) };
+
+				glm::mat4 rotation{
+					matrix[0] / mesh.matrix.scale.x,
+					matrix[1] / mesh.matrix.scale.y,
+					matrix[2] / mesh.matrix.scale.z,
+					glm::vec4{ 0.f, 0.f, 0.f, 1.f} 
+				};
+
+				glm::quat q{ glm::quat_cast(rotation) };
+				mesh.matrix.rotation = { q.x, q.y, q.z, q.w };
 			}
 			else
 			{
 				// Translation rotation scale
-				glm::mat4 ones{ 1.f };
-
 				if (!node.scale.empty())
 				{
 					glm::vec3 sc{ glm::make_vec3(&node.scale.at(0)) };
-					mesh.matrix = glm::scale(ones, sc) * mesh.matrix;
+					mesh.matrix.scale = sc;
 				}
 				if (!node.rotation.empty())
 				{
 					glm::quat rot{ static_cast<float>(node.rotation.at(3)), static_cast<float>(node.rotation.at(0)), static_cast<float>(node.rotation.at(1)), static_cast<float>(node.rotation.at(2)) };
-					mesh.matrix = glm::mat4_cast(rot) * mesh.matrix;
+					mesh.matrix.rotation = { rot.x, rot.y, rot.z, rot.w };
 				}
 				if (!node.translation.empty())
 				{
 					glm::vec3 pos{ glm::make_vec3(&node.translation.at(0)) };
-					mesh.matrix = glm::translate(ones, pos) * mesh.matrix;
+					mesh.matrix.position = pos;
 				}
 
 			}
