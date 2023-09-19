@@ -20,6 +20,8 @@ namespace nxt
 	public:
 		Model2(const std::filesystem::path& filepath);
 		~Model2();
+		bool PlayAnimation(int32_t animationIndex, bool repeat = true);
+		bool StopAnimation();
 		std::vector<Mesh2>& GetMeshes();
 		std::vector<Scene>& GetScenes();
 		std::vector<Animation>& GetAnimations();
@@ -27,6 +29,14 @@ namespace nxt
 		std::vector<Shared<FrameTexture>>& GetTextures();
 	public:
 		int32_t mRootScene{ 0 };
+		struct NXT_API AnimationInfo
+		{
+			int32_t currentAnimation{ -1 };
+			bool isLooping{ false };
+			bool isComplete{ true };
+			float runtime{ 0.f };
+		};
+		AnimationInfo mAnimation;
 	protected:
 		std::vector<Mesh2> mMeshes;
 		std::vector<Scene> mScenes;

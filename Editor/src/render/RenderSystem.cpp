@@ -8,6 +8,8 @@
 #include <nxt/render/ScreenQuad.h>
 #include <nxt/core/utility/lerp.h>
 
+static nxt::cmp::WorldModel worldModel;
+
 static uint32_t gSamples{ 4 };
 static bool drawNormals{ true };
 static bool useBlinn{ true };
@@ -213,6 +215,43 @@ namespace nxt
 		glm::vec4 rotation{ mesh.matrix.rotation };
 		glm::vec3 scale{ mesh.matrix.scale };
 
+		// is an animation playing
+		int32_t currentAnimationIndex{ model->mAnimation.currentAnimation };
+		if (currentAnimationIndex >= 0)
+		{
+			Model2::AnimationInfo& info{ model->mAnimation };
+
+			// does this mesh have data associated with the current animation
+			if (mesh.animations.contains(currentAnimationIndex))
+			{
+				const Animation& animation{ model->GetAnimations().at(currentAnimationIndex) };
+				const AnimationTrack& track{ animation.tracks.at(mesh.animations.at(currentAnimationIndex)) };
+
+				int32_t currentKeyframe{ mesh.animationInfo.currentKeyframe };
+				int32_t nextKeyframe{ currentKeyframe + 1 };
+				if (nextKeyframe >= track.timing.size())
+				{
+					mesh.animationInfo.currentKeyframe = 0;
+					currentKeyframe = 0;
+					nextKeyframe = 1;
+				}
+
+				float currentKeytime{ track.timing.at(currentKeyframe) };
+				float nextKeytime{ track.timing.at(nextKeyframe) };
+				if (model->mAnimation.runtime >= nextKeytime)
+				{
+					mesh.animationInfo.currentKeyframe++;
+					NXT_LOG_TRACE("Current keyframe: {0}", mesh.animationInfo.currentKeyframe);
+				}
+
+			}
+		} 
+		else
+		{
+			mesh.animationInfo.currentKeyframe = 0;
+		}
+
+		/*
 		if (mesh.animationInfo.inProgress && mesh.animationInfo.currentAnimation >= 0)
 		{
 			const Animation& animation{ model->GetAnimations().at(mesh.animationInfo.currentAnimation) };
@@ -234,36 +273,55 @@ namespace nxt
 			}
 
 			float timingDelta{ track.timing.at(nextKeyframe) - mesh.animationInfo.runtime };
-			NXT_LOG_TRACE("Time delta: {0}", timingDelta);
 
 			float currentFrameTime{ track.timing.at(mesh.animationInfo.currentKeyframe) };
 			float adjustedFinalTime{ track.timing.at(nextKeyframe) - currentFrameTime };
 			float percentProgress{ std::abs((mesh.animationInfo.runtime - currentFrameTime) / adjustedFinalTime) };
-			//NXT_LOG_WARN("Adjusted {0}\nProgress %{1}", adjustedFinalTime, progressToNextKey);
 
-			if (track.animationTarget == nxtAnimationTarget_Rotation)
+			switch (track.animationTarget)
 			{
-				glm::vec4 data{ glm::make_vec4(&track.data.at(nextKeyframe * track.indicesPerElement)) };
-				glm::vec4 curData{ glm::make_vec4(&track.data.at(mesh.animationInfo.currentKeyframe * track.indicesPerElement)) };
-
-				NXT_LOG_TRACE("Target: {0}", glm::to_string(data));
-				data = glm::mix(curData, data, percentProgress); // only linear for now
-
-				rotation = data;
+				case(nxtAnimationTarget_Scale):
+				{
+					glm::vec3 data{ glm::make_vec3(&track.data.at(nextKeyframe * track.indicesPerElement)) };
+					glm::vec3 curData{ glm::make_vec3(&track.data.at(mesh.animationInfo.currentKeyframe * track.indicesPerElement)) };
+					data = glm::mix(curData, data, percentProgress);
+					scale = data;
+					break;
+				}
+				case(nxtAnimationTarget_Rotation):
+				{
+					glm::vec4 data{ glm::make_vec4(&track.data.at(nextKeyframe * track.indicesPerElement)) };
+					glm::vec4 curData{ glm::make_vec4(&track.data.at(mesh.animationInfo.currentKeyframe * track.indicesPerElement)) };
+					data = glm::mix(curData, data, percentProgress); // only linear for now
+					rotation = data;
+					break;
+				}
+				case(nxtAnimationTarget_Position):
+				{
+					glm::vec3 data{ glm::make_vec3(&track.data.at(nextKeyframe + track.indicesPerElement)) };
+					glm::vec3 currentData{ glm::make_vec3(&track.data.at(mesh.animationInfo.currentKeyframe * track.indicesPerElement)) };
+					data = glm::mix(currentData, data, percentProgress); // only linear for now
+					translation = data;
+					break;
+				}
+				case(nxtAnimationTarget_Weights):
+				{
+					NXT_LOG_WARN("Weights animation key detected, but not supported.");
+					break;
+				}
 			}
 
 			mesh.animationInfo.runtime += dt;
 		}
+		*/
 
 		glm::mat4 ones{ 1.f };
-		glm::mat4 localTransform{ glm::scale(ones, scale) * ones };
+		
+		glm::mat4 scaleM{ glm::scale(ones, scale) };
+		glm::mat4 rotationM{ glm::mat4_cast(glm::quat{rotation.w, rotation.x, rotation.y, rotation.z}) };
+		glm::mat4 transformM{ glm::translate(ones, translation) };
 
-		glm::quat quaternion{ rotation.w, rotation.x, rotation.y, rotation.z };
-		localTransform = glm::mat4_cast(quaternion) * localTransform;
-
-		localTransform = glm::translate(ones, translation) * localTransform;
-
-		localTransform = parentTransform * localTransform;
+		glm::mat4 localTransform{ parentTransform * (transformM * rotationM * scaleM) };
 
 		for (const Primitive& primitive : mesh.primitives)
 		{
@@ -328,29 +386,30 @@ namespace nxt
 			tex->BindToUnit(i++);
 		}
 
-		// Instead of looping here
-		// Can save the animation track indices in the mesh they belong to and apply the animation there
-		// Removing this loop at the cost of higher memory usage
-
-		// Test loop for printing data
-		//for (const Animation& animation : model->GetAnimations())
-		//{
-		//	for (const AnimationTrack& track : animation.tracks)
-		//	{
-		//		NXT_LOG_DEBUG("NEW ANIMATION");
-		//		for (int32_t i{ 0 }; i < track.timing.size(); i++)
-		//		{
-		//			if (track.indicesPerElement == 4)
-		//			{
-		//				NXT_LOG_TRACE("\nKeyframe: {0}\n\tTiming: {1}\n\tValue: {2}", i, track.timing.at(i), glm::to_string(glm::make_vec4(&track.data.at(i * track.indicesPerElement))));
-		//			}
-		//		}
-		//	}
-		//}
 		for (int32_t meshIndex : scene)
 		{
 			DrawMesh2(model, meshIndex, ones, primitiveInfo, dt);
 		}
+
+		if (model->mAnimation.currentAnimation >= 0)
+		{
+			Animation& animation{ model->GetAnimations().at(model->mAnimation.currentAnimation) };
+			if (model->mAnimation.runtime >= animation.totalRuntime)
+			{
+				if (model->mAnimation.isLooping)
+				{
+					model->mAnimation.runtime = model->mAnimation.runtime - animation.totalRuntime;
+				}
+				else
+				{
+					model->mAnimation.isComplete = true;
+					model->mAnimation.currentAnimation = -1;
+				}
+			}
+			// dt added at the end to avoid hanging on last keyframe
+			model->mAnimation.runtime += dt;
+		}
+		
 	}
 
 	static void StripMatrixTranslation(glm::mat4* m)
@@ -570,6 +629,13 @@ namespace nxt
 			render::command::SetRenderFeature(nxtRenderFeature_FrameBuffer_sRGB, jj);
 		}
 
+		// number keys
+		if ((ev.Keycode >= 0x30) && (ev.Keycode <= 0x39))
+		{
+			NXT_LOG_TRACE("Playing animation {0}", ev.Keycode - 48);
+			worldModel.Instance->Model->PlayAnimation(ev.Keycode - 48, true);
+		}
+
 		return false;
 	}
 
@@ -619,6 +685,11 @@ namespace nxt
 		// can't do that lmao
 		// render command clears it
 
+	}
+
+	void RenderSystem::SetViewModel(const cmp::WorldModel& mr)
+	{
+		worldModel = mr;
 	}
 
 }

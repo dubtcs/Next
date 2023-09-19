@@ -17,6 +17,7 @@ namespace nxt
 		RenderSystem();
 		void OnUpdate(float& dt, World& world, bool isFocused);
 		bool OnEvent(events::Event& ev);
+		void SetViewModel(const cmp::WorldModel& modelref);
 	protected:
 		bool OnWindowResize(events::WindowResized& ev);
 		bool OnKeyPressed(events::KeyboardPressed& ev);

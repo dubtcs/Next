@@ -141,9 +141,12 @@ namespace nxt
 				for (gltf::AnimationChannel& channel : a.channels)
 				{
 					AnimationTrack track{ channel.target_node };
-					meshes[channel.target_node].animations[animationIndex].push_back(trackIndex);
-					meshes[channel.target_node].animationInfo.inProgress = true;
-					meshes[channel.target_node].animationInfo.currentAnimation = 0;
+					Mesh2& mesh{ meshes[channel.target_node] };
+					mesh.animations.emplace(animationIndex, trackIndex);
+
+					//meshes[channel.target_node].animations[animationIndex].push_back(trackIndex);
+					//meshes[channel.target_node].animationInfo.inProgress = true;
+					//meshes[channel.target_node].animationInfo.currentAnimation = 0;
 
 					// From what I can tell from gltf repo, only one channel per sampler
 					gltf::AnimationSampler& sampler{ a.samplers[channel.sampler] };
@@ -155,6 +158,7 @@ namespace nxt
 					// !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
 					// Input
+					// Can maybe just store an index to a timing vector instead of storing duplicates in each track. Some tracks will have the same keyframe timing
 					gltf::Accessor& inputAccessor{ model.accessors[sampler.input] };
 					size_t count{ inputAccessor.count };
 
@@ -164,6 +168,9 @@ namespace nxt
 					track.timing.resize(count);
 					size_t dataSize{ count * sizeof(float) };
 					memcpy_s(&track.timing.at(0), dataSize, &inputBuffer.data.at(0) + inputAccessor.byteOffset, dataSize);
+
+					// are all animation samplers the same runtime? If so, set this once and be done
+					animation.totalRuntime = std::max(animation.totalRuntime, track.timing.back());
 					//
 
 					// Output
@@ -403,6 +410,23 @@ namespace nxt
 	Model2::~Model2()
 	{
 
+	}
+
+	bool Model2::PlayAnimation(int32_t animationIndex, bool loop)
+	{
+		if ((animationIndex >= 0) && (animationIndex < mAnimations.size()))
+		{
+			// construct new obj so I don't have to comeback and add reset lines every time a change is made to the struct
+			mAnimation = { animationIndex, loop };
+			return true;
+		}
+		return false;
+	}
+
+	bool Model2::StopAnimation()
+	{
+		mAnimation = AnimationInfo{};
+		return true;
 	}
 
 	std::vector<Mesh2>& Model2::GetMeshes() { return mMeshes; }

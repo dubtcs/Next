@@ -10,10 +10,6 @@
 namespace nxt
 {
 
-	// Each model has a matrix
-	// Use the animation keyframes to manipulate the matrix
-	// No need for buffer manipulation
-
 	struct NXT_API AnimationTrack
 	{
 		int32_t target; // index of mesh target;
@@ -26,7 +22,14 @@ namespace nxt
 
 	struct NXT_API Animation
 	{
+		float totalRuntime{ 0.f };
 		std::vector<AnimationTrack> tracks;
 	};
+
+	/*
+	Rework:
+	Each animation will only have one channel per mesh.
+	Usually only one sampler per channel.
+	*/
 
 }

@@ -50,7 +50,9 @@ namespace nxt
 
 	struct NXT_API Mesh2
 	{
-		using AnimationTrackMap = std::map<int32_t, std::vector<int32_t>>;
+		using AnimationID = int32_t;
+		using TrackID = int32_t;
+		using AnimationTrackMap = std::map<AnimationID, TrackID>;
 		struct NXT_API MatrixComposition
 		{
 			glm::vec3 position{ 0.f };
@@ -59,12 +61,7 @@ namespace nxt
 		};
 		struct NXT_API AnimationInfo
 		{
-			bool inProgress{ false };
-			float runtime{ 0.f };
-			float timeOffset{ 0.f }; // subtract from keyframe timepoint
-			clock::time_point timeStart;
 			int32_t currentKeyframe{ 0 };
-			int32_t currentAnimation{ -1 };
 		};
 		MatrixComposition matrix;
 		std::vector<Primitive> primitives;

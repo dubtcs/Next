@@ -1,5 +1,8 @@
 
 ## TODO
+- [ ] Animation rework
+    - See <src/nxt/world/Animation.h> for details
+- [ ] Add multiple animation tracks
 - [ ] Fix negative scaling in matrix decomposition
 - [ ] Make ScreenQuad support multisampled textures with texelFetch
 - [ ] Multiple windows

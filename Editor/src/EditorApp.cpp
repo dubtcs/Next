@@ -44,11 +44,14 @@ namespace nxt
 		cmp::Light li4{ .Intensity{1.f}, .Direction{5.f, 2.f, 0.f}, .LightType{cmp::nxtLightType_Directional} };
 		mWorld.Attach<cmp::Light>(l4, li4);
 
-		// World Models
+		// World Model
 		modelInstance = NewShared<Model2Instance>(NewShared<Model2>("assets/models/Avocado.gltf"));
 		viewModel = mWorld.CreateEntity();
 		mWorld.Attach<cmp::Transform>(viewModel, { glm::vec3{0.f}, glm::vec3{0.f}, glm::vec3{1.f} });
 		mWorld.Attach<cmp::WorldModel>(viewModel, modelInstance);
+		mRender.SetViewModel(mWorld.GetComponent<cmp::WorldModel>(viewModel));
+		// Needs a better way to do this. But it's a single model viewer, so for now its fine
+
 	}
 
 	void Editor::OnUpdate(float& dt, bool isFocused)
