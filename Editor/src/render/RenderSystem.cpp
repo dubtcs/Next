@@ -238,10 +238,27 @@ namespace nxt
 
 				float currentKeytime{ track.timing.at(currentKeyframe) };
 				float nextKeytime{ track.timing.at(nextKeyframe) };
-				if (model->mAnimation.runtime >= nextKeytime)
+				if (model->mAnimation.runtime > nextKeytime)
 				{
-					mesh.animationInfo.currentKeyframe++;
 					NXT_LOG_TRACE("Current keyframe: {0}", mesh.animationInfo.currentKeyframe);
+					mesh.animationInfo.currentKeyframe++;
+				}
+
+				float keyframeDelta{ 1 - ((nextKeytime - model->mAnimation.runtime) / (nextKeytime - currentKeytime)) };
+				NXT_LOG_TRACE("Progress: {0}", keyframeDelta);
+
+				switch (track.animationTarget)
+				{
+					case(nxtAnimationTarget_Rotation):
+					{
+						glm::vec4 currentData{ glm::make_vec4(&track.data.at(currentKeyframe * track.indicesPerElement)) };
+						glm::vec4 nextData{ glm::make_vec4(&track.data.at(nextKeyframe * track.indicesPerElement)) };
+						glm::quat b1{ currentData.w, currentData.x, currentData.y, currentData.z };
+						glm::quat b2{ nextData.w, nextData.x, nextData.y, nextData.z };
+						glm::quat bruh{ glm::slerp(b1, b2, keyframeDelta) };
+						rotation = { bruh.x, bruh.y, bruh.z, bruh.w };
+						break;
+					}
 				}
 
 			}
@@ -623,10 +640,11 @@ namespace nxt
 
 		if (ev.Keycode == nxtKeycode_G)
 		{
-			static bool jj{ true };
-			jj = !jj;
-			NXT_LOG_TRACE("Gamma correction: {0}", jj);
-			render::command::SetRenderFeature(nxtRenderFeature_FrameBuffer_sRGB, jj);
+			//static bool jj{ true };
+			//jj = !jj;
+			//NXT_LOG_TRACE("Gamma correction: {0}", jj);
+			//render::command::SetRenderFeature(nxtRenderFeature_FrameBuffer_sRGB, jj);
+			worldModel.Instance->Model->StopAnimation();
 		}
 
 		// number keys

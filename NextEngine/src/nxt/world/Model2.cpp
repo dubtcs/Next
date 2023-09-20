@@ -165,9 +165,12 @@ namespace nxt
 					gltf::BufferView& inputView{ model.bufferViews[inputAccessor.bufferView] };
 					gltf::Buffer& inputBuffer{ model.buffers[inputView.buffer] };
 
+					NXT_LOG_INFO("Timing");
+					NXT_LOG_TRACE("Stride: {0}", inputAccessor.ByteStride(inputView));
+
 					track.timing.resize(count);
 					size_t dataSize{ count * sizeof(float) };
-					memcpy_s(&track.timing.at(0), dataSize, &inputBuffer.data.at(0) + inputAccessor.byteOffset, dataSize);
+					memcpy_s(&track.timing.at(0), dataSize, &inputBuffer.data.at(0) + inputView.byteOffset + inputAccessor.byteOffset, dataSize);
 
 					// are all animation samplers the same runtime? If so, set this once and be done
 					animation.totalRuntime = std::max(animation.totalRuntime, track.timing.back());
@@ -176,15 +179,17 @@ namespace nxt
 					// Output
 					gltf::Accessor& outAccessor{ model.accessors[sampler.output] };
 					int32_t amountPerElement{ outAccessor.type == TINYGLTF_TYPE_SCALAR ? 1 : outAccessor.type };
-					
 					gltf::BufferView& outView{ model.bufferViews[outAccessor.bufferView] };
 					gltf::Buffer& outBuffer{ model.buffers[outView.buffer] };
+
+					NXT_LOG_INFO("Data");
+					NXT_LOG_TRACE("Stride: {0}", outAccessor.ByteStride(outView));
 
 					track.indicesPerElement = amountPerElement;
 					count *= amountPerElement;
 					dataSize = count * sizeof(float);
 					track.data.resize(count);
-					memcpy_s(&track.data.at(0), dataSize, &outBuffer.data.at(0) + outAccessor.byteOffset, dataSize);
+					memcpy_s(&track.data.at(0), dataSize, &outBuffer.data.at(0) + outView.byteOffset + outAccessor.byteOffset, dataSize);
 					//
 
 					if (channel.target_path == "translation")
