@@ -1,18 +1,17 @@
 
 ## TODO
-- [ ] Animation rework
-    - See <src/nxt/world/Animation.h> for details
-- [ ] Add multiple animation tracks
+- [ ] Fix spot light
 - [ ] Fix negative scaling in matrix decomposition
 - [ ] Make ScreenQuad support multisampled textures with texelFetch
 - [ ] Multiple windows
-- [ ] Automatically generate tangents if none are available
 - [ ] Expose DropTarget API and let users decide what they want to be droppable
 - [ ] Full GLTF file support
+    - [ ] Skins
+    - [ ] Morph targets
     - [x] Multiple scenes
     - [x] Sparse Accessors
     - [x] Local node transforms
-    - [ ] Animations
+    - [x] Animations
     - [x] Vertex Colors
     - [x] Normals
     - [x] Textures
@@ -20,6 +19,9 @@
     - [x] Primitives
  
  ## COMPLETE
+- [x] Animation rework
+    - See <src/nxt/world/Animation.h> for details
+- [x] Add multiple animation tracks
 - [x] Fix buffer data copying always putting INVALID_VALUE error.
     - Sparse accessor value buffers don't have a buffer target. When DataBuffers are initialized, they are bound to their target and data is pushed into that target. Because no target was set, the target is 0 and the data goes nowhere.
     - Fixed by using direct storage access
@@ -44,4 +46,5 @@
     - New texture class uses both formats for more control
 
  ## ON HOLD
+- [ ] Automatically generate tangents if none are available
 - [ ] Move render system and device from namespace to class for multithreading

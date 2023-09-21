@@ -28,21 +28,21 @@ namespace nxt
 		//Shared<Model2> m2{ NewShared<Model2>("assets/models/Avocado.gltf") };
 
 		// Lights
-		necs::Entity l1{ mWorld.CreateEntity() };
-		cmp::Light li1{ .Position{ 0.f, 3.f, 5.f }, .Intensity{3.f}, .LightType{cmp::nxtLightType_Point}, .Color{0.8, 0.7, 0.4f} };
-		mWorld.Attach<cmp::Light>(l1, li1);
+		//necs::Entity l1{ mWorld.CreateEntity() };
+		cmp::Light li1{ .Position{ 1.f, 0.f, 1.f }, .Intensity{3.f}, .LightType{cmp::nxtLightType_Point}, .Color{0.8, 0.7, 0.4f} };
+		//mWorld.Attach<cmp::Light>(l1, li1);
 
 		necs::Entity l2{ mWorld.CreateEntity() };
-		cmp::Light li2{ .Intensity{ 0.3f }, .LightType{ cmp::nxtLightType_Ambient }, .Color{ 1.f, 1.f, 1.f } };
+		cmp::Light li2{ .Intensity{ 0.1f }, .LightType{ cmp::nxtLightType_Ambient }, .Color{ 1.f, 1.f, 1.f } };
 		mWorld.Attach<cmp::Light>(l2, li2);
 
 		necs::Entity l3{ mWorld.CreateEntity() };
 		cmp::Light li3{ .Intensity{1.f}, .LightType{cmp::nxtLightType_Spot}, .Radius{std::cos(glm::radians(25.f))}};
 		mWorld.Attach<cmp::Light>(l3, li3);
 		
-		necs::Entity l4{ mWorld.CreateEntity() };
+		//necs::Entity l4{ mWorld.CreateEntity() };
 		cmp::Light li4{ .Intensity{1.f}, .Direction{5.f, 2.f, 0.f}, .LightType{cmp::nxtLightType_Directional} };
-		mWorld.Attach<cmp::Light>(l4, li4);
+		//mWorld.Attach<cmp::Light>(l4, li4);
 
 		// World Model
 		modelInstance = NewShared<Model2Instance>(NewShared<Model2>("assets/models/Avocado.gltf"));

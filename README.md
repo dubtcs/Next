@@ -26,7 +26,7 @@ Sample models supplied by [KhronosGroup GLTF sample repo.](https://github.com/Kh
 
 NxtEngine is built with Win32 and OpenGL to get a better understanding of the computer graphics pipeline, graphics programming, and game engine development.
 
-### Current Features 
+### Current Features
    - [Custom ECS](https://github.com/dubtcs/nECS)
    - SSAO
    - Deferred rendering
@@ -35,6 +35,17 @@ NxtEngine is built with Win32 and OpenGL to get a better understanding of the co
    - Normal and Parallax mapping
    - Shadow support
    - Skyboxes
+   - GLTF Feature Support
+      - [x] Animations
+      - [x] Heirarchy
+      - [x] Materials
+      - [x] Meshes
+      - [ ] Morph targets
+      - [x] Multiple scenes
+      - [ ] Skins
+      - [x] Sparse Accessors
+      - [x] Textures and Images
+      - [x] Vertex Colors
 
 ## How To Use
 
@@ -45,11 +56,13 @@ NxtEngine comes with a built in viewer, but if you want to use the raw render ap
 **Model Scale:**
     Use +, - to scale up and down the model
 
-**MSAA Sampling:**
-    Use the right/left arrow keys to increase/decrease MSAA sampling.
-
 **SSAO:**
     Press *B* to toggle SSAO.
+
+**Animation:**
+    Use the number keys [0, 9] to play animations.
+    Press G to stop animation.
+    Press P to pause.
 
 ### App Interface
 

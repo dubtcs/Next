@@ -135,78 +135,6 @@ namespace nxt
 		render::command::SetClearColor(0.f, 0.f, 0.f, 1.f);
 	}
 
-	static void DrawMesh(const SModel& model, const Mesh& mesh, buffers::SDataBuffer& objectInfo, glm::mat4& parentTransform)
-	{
-		using namespace buffers;
-
-		glm::mat4 localTransform{ parentTransform * mesh.matrix };
-
-		for (const Primitive& p : mesh.primitives)
-		{
-			p.arrayObject->Bind();
-			SDataBuffer buffer{ p.buffer };
-			bool hasMats{ (p.material >= 0) };
-
-			objectInfo->SetSubData(sizeof(glm::mat4), 0, (void*)&localTransform);
-
-			objectInfo->SetSubData(sizeof(bool), 104, (void*)&p.hasTangents);
-			objectInfo->SetSubData(sizeof(bool), 108, &hasMats);
-
-			if (hasMats)
-			{
-				const SMaterial& mat{ model->GetMaterials()[p.material] };
-				objectInfo->SetSubData(sizeof(glm::vec4), 64, glm::value_ptr(mat->Properties.Color.BaseColor));
-				objectInfo->SetSubData(sizeof(int32_t), 80, &mat->Properties.Color.Texture);
-
-				objectInfo->SetSubData(sizeof(int32_t), 92, &mat->Textures.Normal);
-				objectInfo->SetSubData(sizeof(int32_t), 96, &mat->Textures.Emissive);
-				objectInfo->SetSubData(sizeof(int32_t), 100, &mat->Textures.Occlusion);
-			}
-
-			// sparse accessors
-			for (const BufferDataModifier& mod : p.modifiers)
-			{
-				for (int32_t i{ 0 }; i < mod.indices.size(); i++)
-				{
-					uint16_t currentIndex{ mod.indices[i] };		// element size
-					
-					size_t readOffset{ mod.info.byteOffset + (mod.info.elementByteSize * i) };
-					size_t writeOffset{ mod.info.targetByteOffset + (mod.info.targetByteStride * currentIndex) };
-
-					mod.target->CopyBufferData(mod.info.dataBuffer, readOffset, writeOffset, mod.info.elementByteSize);
-				}
-			}
-
-			buffer->Bind();
-			if (p.hasIndices)
-			{
-				render::command::DrawElements(p.mode, p.count, p.componentType, (void*)(p.byteOffset));
-			}
-			else
-			{
-				render::command::DrawArrays(p.mode, p.count, 0);
-			}
-		}
-		for (const Mesh& otherMesh : mesh.children)
-		{
-			DrawMesh(model, otherMesh, objectInfo, localTransform);
-		}
-	}
-
-	static void DrawModel(const SModel& model, buffers::SDataBuffer& objectInfo)
-	{
-		int32_t i{ 0 };
-		glm::mat4 ones{ 1.f };
-		for (const STexture& tex : model->GetTextures())
-		{
-			tex->Bind(i++);
-		}
-		for (const Mesh& m : model->GetMeshes())
-		{
-			DrawMesh(model, m, objectInfo, ones);
-		}
-	}
-
 	static void DrawMesh2(const Shared<Model2>& model, int32_t meshIndex, glm::mat4& parentTransform, const Shared<buffers::DataBuffer>& primitiveInfo, float dt)
 	{
 		Mesh2& mesh{ model->GetMeshes().at(meshIndex) };
@@ -245,7 +173,7 @@ namespace nxt
 				}
 
 				float keyframeDelta{ 1 - ((nextKeytime - model->mAnimation.runtime) / (nextKeytime - currentKeytime)) };
-				NXT_LOG_TRACE("Progress: {0}", keyframeDelta);
+				//NXT_LOG_TRACE("Progress: {0}", keyframeDelta);
 
 				switch (track.animationTarget)
 				{
@@ -267,70 +195,6 @@ namespace nxt
 		{
 			mesh.animationInfo.currentKeyframe = 0;
 		}
-
-		/*
-		if (mesh.animationInfo.inProgress && mesh.animationInfo.currentAnimation >= 0)
-		{
-			const Animation& animation{ model->GetAnimations().at(mesh.animationInfo.currentAnimation) };
-			const AnimationTrack& track{ animation.tracks.at(mesh.animations.at(mesh.animationInfo.currentAnimation).at(0)) };
-
-			// enforcing looping animations for now
-			if (mesh.animationInfo.currentKeyframe == (track.timing.size() - 1))
-			{
-				mesh.animationInfo.runtime = 0.f;
-				mesh.animationInfo.currentKeyframe = 0;
-				mesh.animationInfo.timeStart = clock::GetTime();
-			}
-
-			int32_t nextKeyframe{ mesh.animationInfo.currentKeyframe + 1 };
-			if (mesh.animationInfo.runtime >= track.timing.at(nextKeyframe))
-			{
-				mesh.animationInfo.currentKeyframe++;
-				NXT_LOG_DEBUG("Current keyframe: {0}", mesh.animationInfo.currentKeyframe);
-			}
-
-			float timingDelta{ track.timing.at(nextKeyframe) - mesh.animationInfo.runtime };
-
-			float currentFrameTime{ track.timing.at(mesh.animationInfo.currentKeyframe) };
-			float adjustedFinalTime{ track.timing.at(nextKeyframe) - currentFrameTime };
-			float percentProgress{ std::abs((mesh.animationInfo.runtime - currentFrameTime) / adjustedFinalTime) };
-
-			switch (track.animationTarget)
-			{
-				case(nxtAnimationTarget_Scale):
-				{
-					glm::vec3 data{ glm::make_vec3(&track.data.at(nextKeyframe * track.indicesPerElement)) };
-					glm::vec3 curData{ glm::make_vec3(&track.data.at(mesh.animationInfo.currentKeyframe * track.indicesPerElement)) };
-					data = glm::mix(curData, data, percentProgress);
-					scale = data;
-					break;
-				}
-				case(nxtAnimationTarget_Rotation):
-				{
-					glm::vec4 data{ glm::make_vec4(&track.data.at(nextKeyframe * track.indicesPerElement)) };
-					glm::vec4 curData{ glm::make_vec4(&track.data.at(mesh.animationInfo.currentKeyframe * track.indicesPerElement)) };
-					data = glm::mix(curData, data, percentProgress); // only linear for now
-					rotation = data;
-					break;
-				}
-				case(nxtAnimationTarget_Position):
-				{
-					glm::vec3 data{ glm::make_vec3(&track.data.at(nextKeyframe + track.indicesPerElement)) };
-					glm::vec3 currentData{ glm::make_vec3(&track.data.at(mesh.animationInfo.currentKeyframe * track.indicesPerElement)) };
-					data = glm::mix(currentData, data, percentProgress); // only linear for now
-					translation = data;
-					break;
-				}
-				case(nxtAnimationTarget_Weights):
-				{
-					NXT_LOG_WARN("Weights animation key detected, but not supported.");
-					break;
-				}
-			}
-
-			mesh.animationInfo.runtime += dt;
-		}
-		*/
 
 		glm::mat4 ones{ 1.f };
 		
@@ -424,7 +288,7 @@ namespace nxt
 				}
 			}
 			// dt added at the end to avoid hanging on last keyframe
-			model->mAnimation.runtime += dt;
+			model->mAnimation.runtime += dt * (!model->mAnimation.isPaused); // isPaused is either 0 or 1 so we dont need a branch
 		}
 		
 	}
@@ -441,6 +305,7 @@ namespace nxt
 		if(isFocused)
 			mCamera.OnUpdate(dt);
 
+		NXT_LOG_TRACE(glm::to_string(mCamera.GetLookVector()));
 		if (input::IsKeyDown(nxtKeycode_Plus))
 		{
 			gSizeScalar += dt * gSizeScalarMultiplier * gSizeScalar;
@@ -476,9 +341,9 @@ namespace nxt
 		necs::SceneView<cmp::Light> lightView{ world.GetScene() };
 
 		int32_t i{ 0 };
-		cmp::Light& lc{ world.GetComponent<cmp::Light>(*lightView.begin()) };
-		float circleMagnitude{ 10.f };
-		lc.Position = glm::vec3{ -std::sin(clock::GetRunTime()) * circleMagnitude, 0.f, std::cos(clock::GetRunTime()) * circleMagnitude };
+		//cmp::Light& lc{ world.GetComponent<cmp::Light>(*lightView.begin()) };
+		//float circleMagnitude{ 10.f };
+		//lc.Position = glm::vec3{ -std::sin(clock::GetRunTime()) * circleMagnitude, 0.f, std::cos(clock::GetRunTime()) * circleMagnitude };
 		for (const necs::Entity& e : lightView)
 		{
 			cmp::Light& l{ world.GetComponent<cmp::Light>(e) };
@@ -645,6 +510,11 @@ namespace nxt
 			//NXT_LOG_TRACE("Gamma correction: {0}", jj);
 			//render::command::SetRenderFeature(nxtRenderFeature_FrameBuffer_sRGB, jj);
 			worldModel.Instance->Model->StopAnimation();
+		}
+
+		if (ev.Keycode == nxtKeycode_P)
+		{
+			worldModel.Instance->Model->PauseAnimation();
 		}
 
 		// number keys

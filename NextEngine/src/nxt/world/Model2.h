@@ -20,7 +20,13 @@ namespace nxt
 	public:
 		Model2(const std::filesystem::path& filepath);
 		~Model2();
+
+		/*
+		PlayAnimation(), PauseAnimation(), StopAnimation() can all be replaced with state flags and a single setter function?
+		*/
+
 		bool PlayAnimation(int32_t animationIndex, bool repeat = true);
+		bool PauseAnimation();
 		bool StopAnimation();
 		std::vector<Mesh2>& GetMeshes();
 		std::vector<Scene>& GetScenes();
@@ -34,7 +40,9 @@ namespace nxt
 			int32_t currentAnimation{ -1 };
 			bool isLooping{ false };
 			bool isComplete{ true };
+			bool isPaused{ false };
 			float runtime{ 0.f };
+			//nxt_enum stateFlags{ 0 };
 		};
 		AnimationInfo mAnimation;
 	protected:

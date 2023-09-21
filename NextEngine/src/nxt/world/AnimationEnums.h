@@ -5,6 +5,13 @@
 namespace nxt
 {
 
+	enum nxtAnimationFlag : nxt_enum
+	{
+		nxtAnimationFlag_Loop = BIT(0),
+		nxtAnimationFlag_Complete = BIT(1),
+		nxtAnimationFlag_Paused = BIT(2)
+	};
+
 	enum nxtAnimationTarget : nxt_enum
 	{
 		nxtAnimationTarget_Position = 0,

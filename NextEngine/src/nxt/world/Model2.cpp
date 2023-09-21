@@ -165,8 +165,11 @@ namespace nxt
 					gltf::BufferView& inputView{ model.bufferViews[inputAccessor.bufferView] };
 					gltf::Buffer& inputBuffer{ model.buffers[inputView.buffer] };
 
-					NXT_LOG_INFO("Timing");
-					NXT_LOG_TRACE("Stride: {0}", inputAccessor.ByteStride(inputView));
+					int32_t inStride{ inputAccessor.ByteStride(inputView) };
+					if (inStride > 4) // 4 is size of float
+					{
+						NXT_LOG_WARN("Non packed timing buffer.");
+					}
 
 					track.timing.resize(count);
 					size_t dataSize{ count * sizeof(float) };
@@ -184,6 +187,12 @@ namespace nxt
 
 					NXT_LOG_INFO("Data");
 					NXT_LOG_TRACE("Stride: {0}", outAccessor.ByteStride(outView));
+
+					int32_t outStride{ outAccessor.ByteStride(outView) };
+					if (outStride > (sizeof(float) * amountPerElement))
+					{
+						NXT_LOG_WARN("Non packed data buffer.");
+					}
 
 					track.indicesPerElement = amountPerElement;
 					count *= amountPerElement;
@@ -324,7 +333,6 @@ namespace nxt
 
 			if (!node.matrix.empty())
 			{
-				NXT_LOG_WARN("Has matrix");
 				glm::mat4 matrix{ glm::make_mat4(&node.matrix.at(0)) };
 
 				// extract translation
@@ -400,7 +408,7 @@ namespace nxt
 			NXT_LOG_CRIT("Invalid file extension: {0}", filepath.extension().string());
 			return;
 		}
-		NXT_LOG_DEBUG("MODEL: {0}", filepath.string());
+		NXT_LOG_INFO("MODEL: {0}", filepath.string());
 
 		// Load Scene Info
 		for (gltf::Scene& s : model.scenes)
@@ -410,6 +418,7 @@ namespace nxt
 		mRootScene = model.defaultScene;
 
 		mMeshes = RegisterModel2(mTextures, mMaterials, mAnimations, model);
+		NXT_LOG_INFO("INFO:\n\tMeshes: {0}\n\tTextures: {1}\n\tMaterials: {2}\n\tAnimations: {3}", mMeshes.size(), mTextures.size(), mMaterials.size(), mAnimations.size());
 	}
 
 	Model2::~Model2()
@@ -426,6 +435,12 @@ namespace nxt
 			return true;
 		}
 		return false;
+	}
+
+	bool Model2::PauseAnimation()
+	{
+		mAnimation.isPaused = !mAnimation.isPaused;
+		return true;
 	}
 
 	bool Model2::StopAnimation()

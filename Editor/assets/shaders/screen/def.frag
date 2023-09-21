@@ -104,9 +104,9 @@ vec3 SpotLight(uint i)
         float falloffStart = lights[i].Radius - (lights[i].Radius * 0.1); // 10% feather
         float edge = (lights[i].Radius - falloffStart);
         float feather = clamp((angle - lights[i].Radius) / edge, 0.0, 1.0);
-
+        
         float angleDifference = max(dot(normal, directionToLight), 0.0);
-        diffuse = angleDifference * lights[i].Color * feather;
+        diffuse = lights[i].Color * feather;
 
         vec3 lightDirection = normalize(-lights[i].Direction);
         vec3 reflectionDirection = reflect(-lightDirection, normal);
@@ -115,6 +115,28 @@ vec3 SpotLight(uint i)
     }
 
     return diffuse + specular;
+}
+vec3 SpotLight2(uint i)
+{
+    vec3 diffuse = vec3(0.0);
+    vec3 specular = vec3(0.0);
+
+    vec3 directionToLight = normalize(lights[i].Position - worldPosition);
+    float angle = dot(directionToLight, normalize(-lights[i].Direction));
+    
+    if(angle > lights[i].Radius)
+    {
+        float falloffStart = lights[i].Radius - (lights[i].Radius * 0.1); // 10% feather
+        float edge = (lights[i].Radius - falloffStart);
+        float feather = clamp((angle - lights[i].Radius) / edge, 0.0, 1.0);
+
+        //float normalOffsetAngle = max(dot(vec3(normal.x, -normal.y, normal.z), lights[i].Direction), 0.0);
+        //float normalOffsetAngle = max(dot(normal,))
+
+        diffuse = lights[i].Color;// * normalOffsetAngle;
+        diffuse *= feather;
+    }
+    return diffuse;
 }
 vec3 AmbientLight(uint i)
 {
@@ -177,7 +199,7 @@ void main()
             }
             case(2): // Spot
             {
-                currentLightEffect = SpotLight(i);
+                currentLightEffect = SpotLight2(i);
                 break;
             }
             case(3): // Ambient
@@ -191,4 +213,5 @@ void main()
     }
 
     outColor = vec4(lightingEffect * color, 1.0);
+
 }
