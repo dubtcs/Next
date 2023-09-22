@@ -305,7 +305,6 @@ namespace nxt
 		if(isFocused)
 			mCamera.OnUpdate(dt);
 
-		NXT_LOG_TRACE(glm::to_string(mCamera.GetLookVector()));
 		if (input::IsKeyDown(nxtKeycode_Plus))
 		{
 			gSizeScalar += dt * gSizeScalarMultiplier * gSizeScalar;

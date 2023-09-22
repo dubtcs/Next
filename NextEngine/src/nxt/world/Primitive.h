@@ -2,6 +2,8 @@
 
 #include <nxt/EngineCore.h>
 
+#include "PrimitiveEnums.h"
+
 #include <nxt/render/buffers/ArrayObject.h>
 #include <nxt/render/buffers/DataBuffer.h>
 #include <nxt/core/clock/Clock.h>
@@ -34,6 +36,7 @@ namespace nxt
 		size_t byteOffset;
 		nxtDrawMode mode;
 		nxtDataType componentType;
+		nxt_enum features{ 0 };
 		bool hasTangents{ false };
 		bool hasIndices{ false };
 		std::vector<BufferDataModifier> modifiers{};

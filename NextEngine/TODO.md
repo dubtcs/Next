@@ -1,6 +1,6 @@
 
 ## TODO
-- [ ] Fix spot light
+- [ ] Primitive render flags for hasNormals, hasTangents, acceptsLighting, etc...
 - [ ] Fix negative scaling in matrix decomposition
 - [ ] Make ScreenQuad support multisampled textures with texelFetch
 - [ ] Multiple windows
@@ -19,6 +19,8 @@
     - [x] Primitives
  
  ## COMPLETE
+- [x] Fix spot light
+    - Normals are inverted. Some models don't have normals/tangents, so ligthing doesn't work properly in it's current state.
 - [x] Animation rework
     - See <src/nxt/world/Animation.h> for details
 - [x] Add multiple animation tracks

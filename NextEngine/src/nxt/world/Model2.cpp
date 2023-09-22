@@ -290,11 +290,13 @@ namespace nxt
 				else if (attribute.first == "NORMAL")
 				{
 					layoutPosition = 1;
+					add.features |= nxtPrimitiveFeature_Normals;
 				}
 				else if (attribute.first == "TANGENT")
 				{
 					layoutPosition = 2;
 					add.hasTangents = true;
+					add.features |= nxtPrimitiveFeature_Tangents;
 				}
 				else if (attribute.first == "COLOR_0")
 				{
