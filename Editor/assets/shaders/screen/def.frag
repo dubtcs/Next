@@ -91,31 +91,6 @@ vec3 DirectionalLight(uint i)
 
     return (diffuse + specular);// * (1.0 - GetShadow(index));
 }
-vec3 SpotLight(uint i)
-{
-    vec3 diffuse = vec3(0.0);
-    vec3 specular = vec3(0.0);
-
-    vec3 directionToLight = normalize(lights[i].Position - worldPosition);
-    float angle = dot(directionToLight, normalize(-lights[i].Direction));
-
-    if(angle > lights[i].Radius)
-    {
-        float falloffStart = lights[i].Radius - (lights[i].Radius * 0.1); // 10% feather
-        float edge = (lights[i].Radius - falloffStart);
-        float feather = clamp((angle - lights[i].Radius) / edge, 0.0, 1.0);
-        
-        float angleDifference = max(dot(normal, directionToLight), 0.0);
-        diffuse = lights[i].Color * feather;
-
-        vec3 lightDirection = normalize(-lights[i].Direction);
-        vec3 reflectionDirection = reflect(-lightDirection, normal);
-        float specularHighlight = pow(max(dot(directionToLight, reflectionDirection), 0.0), specularIntensity);
-        specular = specularHighlight * lights[i].Color * feather * specularDampening;
-    }
-
-    return diffuse + specular;
-}
 vec3 SpotLight2(uint i)
 {
     vec3 diffuse = vec3(0.0);
@@ -130,14 +105,22 @@ vec3 SpotLight2(uint i)
         float edge = (lights[i].Radius - falloffStart);
         float feather = clamp((angle - lights[i].Radius) / edge, 0.0, 1.0);
 
-        float normalLightDif = dot(vec3(normal.x, -normal.y, normal.z), -directionToLight);
+        if(normal != vec3(0.0))
+        {
+            float normalLightDif = dot(normal, directionToLight);
 
-        diffuse = lights[i].Color * normalLightDif * feather;
+            diffuse = lights[i].Color * normalLightDif * feather;
 
-        vec3 lightDirection = normalize(-lights[i].Direction);
-        vec3 reflectionDirection = reflect(-lightDirection, vec3(normal.x, -normal.y, normal.z));
-        float specularHighlight = pow(max(dot(directionToLight, reflectionDirection), 0.0), specularIntensity);
-        specular = specularHighlight * lights[i].Color * feather * specularDampening;
+            vec3 lightDirection = normalize(-lights[i].Direction);
+            vec3 reflectionDirection = reflect(-lightDirection, normal);
+            float specularHighlight = pow(max(dot(directionToLight, reflectionDirection), 0.0), specularIntensity);
+            specular = specularHighlight * lights[i].Color * feather * specularDampening;
+        }
+        else
+        {
+            diffuse = lights[i].Color * feather;
+        }
+
     }
     return diffuse + specular;
 }
@@ -177,10 +160,15 @@ vec3 GetWorldPosition(vec2 texpos, float depth)
 
 void main()
 {
-    worldPosition = GetWorldPosition(texturePosition, ExtractDepth(texturePosition));
+
+    float depth = ExtractDepth(texturePosition);
+    if(depth == 1.0) // this is irrelevant data.. for now
+        return;
+
+    worldPosition = GetWorldPosition(texturePosition, depth);
     normal = texture(gTextures[1], texturePosition).rgb;
     vec3 color = texture(gTextures[2], texturePosition).rgb;
-
+    
     vec3 lightingEffect = vec3(0.0);
     for(uint i = 0; i < lightsUsed; i++)
     {
@@ -216,5 +204,5 @@ void main()
     }
 
     outColor = vec4(lightingEffect * color, 1.0);
-    
+    //outColor = vec4(normal, 1.0);
 }

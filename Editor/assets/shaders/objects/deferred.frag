@@ -2,6 +2,8 @@
 #define MAX_LIGHTS 10
 
 #define CHECKBIT(var, index) ((var >> index) & 1U) == 1
+#define PRIM_BIT_NORMALS 0
+#define PRIM_BIT_TANGENTS 1
 
 layout (location = 0) out vec3 gPosition;
 layout (location = 1) out vec3 gNormal;
@@ -52,23 +54,29 @@ layout (std140, binding = 2) uniform ObjectInfo
 };
 layout (std140, binding = 3) uniform PrimitiveInfo
 {
-    mat4 primitiveMatrix;   // 0    Offset
-    vec4 baseColor;         // 64   Offset
-    int colorTextureIndex;  // 80   Offset
-    float roughness;        // 84   Offset
-    float metallic;         // 88   Offset
-    int normalTexture;      // 92   Offset
-    int emissionTexture;    // 96   Offset
-    int occlusionTexture;   // 100  Offset
-    bool hasTangents;       // 104  Offset
-    bool hasMaterial;       // 108  Offset
+    mat4 primitiveMatrix;       // 0    Offset
+    mat4 primitiveNormalMatrix; // 64   Offset
+    vec4 baseColor;             // 128  Offset
+    int colorTextureIndex;      // 144  Offset
+    float roughness;            // 148  Offset
+    float metallic;             // 152  Offset
+    int normalTexture;          // 156   Offset
+    int emissionTexture;        // 160   Offset
+    int occlusionTexture;       // 164  Offset
+    int primitiveMask;          // 168  Offset
 };
+
+/*
+Primitive Mask Bits:
+0 - Has Normals
+1 - Has Tangents
+*/
 
 void main()
 {
     gPosition = pWorldPosition;
 
-    if(hasTangents)
+    if(CHECKBIT(primitiveMask, PRIM_BIT_TANGENTS))
     {
         vec3 normal = texture(textures[normalTexture], pTexPos).rgb;
         normal = normalize((normal * 2.0) - 1.0);
@@ -76,7 +84,14 @@ void main()
     }
     else
     {
-        gNormal = normalize(pNormal);
+        if(CHECKBIT(primitiveMask, PRIM_BIT_NORMALS))
+        {
+            gNormal = normalize(pNormal);
+        } 
+        else
+        {
+            gNormal = vec3(0.0);
+        }
     }
 
     //vec4 targetColor = vec4(0.5, 0.07, 1.0, 1.0); // purple

@@ -56,6 +56,7 @@ struct ObjectBufferInfo
 struct PrimitiveBufferInfo
 {
 	glm::mat4 primitiveMatrix; // should probably put this in promitive info??
+	glm::mat4 primitiveNormalMatrix;
 	glm::vec4 baseColor;
 	int32_t colorTextureIndex;
 	float roughness;
@@ -63,8 +64,7 @@ struct PrimitiveBufferInfo
 	int32_t normalTexture;
 	int32_t emissionTexture;
 	int32_t occlusionTexture;
-	int32_t hasTan;
-	int32_t hasMat;
+	nxt::shader_mask primitiveMask;
 };
 
 namespace nxt
@@ -209,20 +209,21 @@ namespace nxt
 			primitive.arrayObject->Bind();
 			bool hasMaterials{ (primitive.material >= 0) };
 
+			glm::mat4 primNormalMatrix{ glm::transpose(glm::inverse(localTransform)) };
 			primitiveInfo->SetSubData(sizeof(glm::mat4), 0, &localTransform);
-			primitiveInfo->SetSubData(sizeof(bool), 104, (void*)&primitive.hasTangents);
-			primitiveInfo->SetSubData(sizeof(bool), 108, &hasMaterials);
+			primitiveInfo->SetSubData(sizeof(glm::mat4), 64, &primNormalMatrix);
+			primitiveInfo->SetSubData(sizeof(int32_t), 168, (void*)&primitive.features);
 
 			// Push Material Information Into Buffer
 			if (hasMaterials)
 			{
 				const SMaterial& mat{ model->GetMaterials()[primitive.material] };
-				primitiveInfo->SetSubData(sizeof(glm::vec4), 64, glm::value_ptr(mat->Properties.Color.BaseColor));
-				primitiveInfo->SetSubData(sizeof(int32_t), 80, &mat->Properties.Color.Texture);
+				primitiveInfo->SetSubData(sizeof(glm::vec4), 128, glm::value_ptr(mat->Properties.Color.BaseColor));
+				primitiveInfo->SetSubData(sizeof(int32_t), 144, &mat->Properties.Color.Texture);
 
-				primitiveInfo->SetSubData(sizeof(int32_t), 92, &mat->Textures.Normal);
-				primitiveInfo->SetSubData(sizeof(int32_t), 96, &mat->Textures.Emissive);
-				primitiveInfo->SetSubData(sizeof(int32_t), 100, &mat->Textures.Occlusion);
+				primitiveInfo->SetSubData(sizeof(int32_t), 156, &mat->Textures.Normal);
+				primitiveInfo->SetSubData(sizeof(int32_t), 160, &mat->Textures.Emissive);
+				primitiveInfo->SetSubData(sizeof(int32_t), 164, &mat->Textures.Occlusion);
 			}
 
 			// Adjust buffer data for sparse accessors
@@ -257,9 +258,9 @@ namespace nxt
 		}
 	}
 
-	static void DrawModel2(const Shared<Model2>& model, Shared<buffers::DataBuffer>& primitiveInfo, float dt)
+	static void DrawModel2(const Shared<Model2>& model, Shared<buffers::DataBuffer>& primitiveInfo, glm::mat4& worldTransform, float dt)
 	{
-		glm::mat4 ones{ 1.f };
+		glm::mat4 ones{ worldTransform };
 		const Model2::Scene& scene{ model->GetScenes().at(model->mRootScene) };
 		int32_t i{ 0 };
 		for (const Shared<FrameTexture>& tex : model->GetTextures())
@@ -315,9 +316,6 @@ namespace nxt
 			gSizeScalar = std::max(0.01f, temp);
 		}
 
-		//glm::mat4 normalViewMatrix{ glm::transpose(glm::inverse(mCamera.GetViewMatrix())) }; // view space normal matrix
-		//StripMatrixTranslation(&normalViewMatrix);
-
 		glm::mat4 normalViewMatrix{ mCamera.GetViewMatrix() };
 		normalViewMatrix = glm::transpose(glm::inverse(normalViewMatrix));
 
@@ -340,9 +338,6 @@ namespace nxt
 		necs::SceneView<cmp::Light> lightView{ world.GetScene() };
 
 		int32_t i{ 0 };
-		//cmp::Light& lc{ world.GetComponent<cmp::Light>(*lightView.begin()) };
-		//float circleMagnitude{ 10.f };
-		//lc.Position = glm::vec3{ -std::sin(clock::GetRunTime()) * circleMagnitude, 0.f, std::cos(clock::GetRunTime()) * circleMagnitude };
 		for (const necs::Entity& e : lightView)
 		{
 			cmp::Light& l{ world.GetComponent<cmp::Light>(e) };
@@ -370,17 +365,14 @@ namespace nxt
 				* glm::scale(ones, t.Scale * gSizeScalar)
 			};
 			glm::mat4 normalMatrix{ glm::transpose(glm::inverse(worldMatrix)) };
-			//glm::mat4 normalViewMatrix{ glm::transpose(glm::inverse(mCamera.GetViewMatrix())) }; // view space normal matrix
 
 			cmp::WorldModel& m{ world.GetComponent<cmp::WorldModel>(e) };
 			shader_mask mask{ 0 };
 			mask |= SETBIT((m.Instance->Model->GetTextures().size() > 0), 0);
 			mask |= SETBIT((!world.HasComponent<cmp::Light>(e)), 1);
-			mObjectInfoBuffer->SetSubData(64, 0, glm::value_ptr(normalMatrix));
-			mObjectInfoBuffer->SetSubData(64, 64, glm::value_ptr(worldMatrix));
 			mObjectInfoBuffer->SetSubData(4, 128, &mask);
 
-			DrawModel2(m.Instance->Model, mMaterialInfoBuffer, dt);
+			DrawModel2(m.Instance->Model, mMaterialInfoBuffer, worldMatrix, dt);
 		}
 
 		mDeferredBuffer->Unbind();

@@ -1,6 +1,10 @@
 #version 460
 #define MAX_LIGHTS 10
 
+#define CHECKBIT(var, index) ((var >> index) & 1U) == 1
+#define PRIM_BIT_NORMALS 0
+#define PRIM_BIT_TANGENTS 1
+
 layout (location = 0) in vec3 vPosition;
 layout (location = 1) in vec3 vNormal;
 layout (location = 2) in vec4 vTangent;
@@ -43,41 +47,47 @@ layout (std140, binding = 1) uniform LightInfo // Maybe switch to Shader Storage
 };
 layout (std140, binding = 2) uniform ObjectInfo
 {
-    mat4 normalMatrix;  // 0    Offset
-    mat4 worldMatrix;   // 64   Offset
-    int shaderMask;   // 128  Offset, bit 1: useTextures, bit 2: useLighting
+    mat4 normalMatrix;  // 0    Offset // DEPRECATED BY PRIMITIVE INFO, USE primitiveMatrix
+    mat4 worldMatrix;   // 64   Offset // DEPRECATED BY PRIMITIVE INFO, USE primitiveNormalMatrix
+    int shaderMask;     // 128  Offset, bit 1: useTextures, bit 2: useLighting
 };
 layout (std140, binding = 3) uniform PrimitiveInfo
 {
-    mat4 primitiveMatrix;   // 0    Offset
-    vec4 baseColor;         // 64   Offset
-    int colorTextureIndex;  // 80   Offset
-    float roughness;        // 84   Offset
-    float metallic;         // 88   Offset
-    int normalTexture;      // 92   Offset
-    int emissionTexture;    // 96   Offset
-    int occlusionTexture;   // 100  Offset
-    bool hasTangents;       // 104  Offset
-    bool hasMaterial;       // 108  Offset
+    mat4 primitiveMatrix;       // 0    Offset
+    mat4 primitiveNormalMatrix; // 64   Offset
+    vec4 baseColor;             // 128  Offset
+    int colorTextureIndex;      // 144  Offset
+    float roughness;            // 148  Offset
+    float metallic;             // 152  Offset
+    int normalTexture;          // 156   Offset
+    int emissionTexture;        // 160   Offset
+    int occlusionTexture;       // 164  Offset
+    int primitiveMask;          // 168  Offset
 };
+
+/*
+Primitive Mask Bits:
+0 - Has Normals
+1 - Has Tangents
+*/
 
 void main()
 {
     //pWorldPosition = vec3(worldMatrix * vec4(vPosition, 1.0));
-    pWorldPosition = vec3(viewMatrix * worldMatrix * primitiveMatrix * vec4(vPosition, 1.0));
+    pWorldPosition = vec3(viewMatrix * primitiveMatrix * vec4(vPosition, 1.0));
     
-    pNormal = mat3(normalMatrix) * vNormal;
+    pNormal = mat3(primitiveNormalMatrix) * vNormal;
     pTexPos = vTexturePosition;
     pColor = vColor;
     
     gl_Position = projectionMatrix * vec4(pWorldPosition, 1.0);
 
-    if(hasTangents)
+    if(CHECKBIT(primitiveMask, PRIM_BIT_TANGENTS))
     {
-        vec3 t = normalize(vec3(worldMatrix * vec4(vTangent.xyz, 0.0)));
+        vec3 t = normalize(vec3(primitiveMatrix * vec4(vTangent.xyz, 0.0)));
         vec3 b = cross(vNormal, vTangent.xyz) * vTangent.w;
-        b = normalize(vec3(worldMatrix * vec4(b, 0.0)));
-        vec3 n = normalize(vec3(normalMatrix * vec4(vNormal, 0.0)));
+        b = normalize(vec3(primitiveMatrix * vec4(b, 0.0)));
+        vec3 n = normalize(vec3(primitiveNormalMatrix * vec4(vNormal, 0.0)));
         pTBN = mat3(t,b,n);
     }
     

@@ -7,14 +7,14 @@ namespace nxt::cmp
 {
 	struct Transform
 	{
-		glm::vec3 Position;
-		glm::vec3 Rotation;
+		glm::vec3 Position{ 0.f };
+		glm::vec4 Rotation{ 0.f };
 		glm::vec3 Scale{ 1.f };
 
 		glm::mat4 ToMatrix()
 		{
 			glm::mat4 ones{ 1.f };
-			return glm::translate(ones, Position) * glm::toMat4(glm::quat{ Rotation }) * glm::scale(ones, Scale);
+			return glm::translate(ones, Position) * glm::toMat4(glm::quat{ Rotation.w, Rotation.x, Rotation.y, Rotation.z }) * glm::scale(ones, Scale);
 		}
 	};
 }
