@@ -12,7 +12,7 @@
 		#ifdef NXT_AS_DLL
 			#ifdef NXT_DLL_EXPORT
 				#define NXT_API __declspec(dllexport)
-			#elif
+			#elif defined(NXT_DLL_IMPORT)
 				#define NXT_API __declspec(dllimport)
 			#else
 				#error "Flagged as DLL but no DLL import/export flags found"

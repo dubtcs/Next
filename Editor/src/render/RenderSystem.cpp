@@ -253,6 +253,19 @@ namespace nxt
 				}
 			}
 
+			// How do I push this data to the buffer for the vertex shader?
+			// 1D Texture? Variable size UBO array?
+			//if (mesh.morphWeights.size() > 0)
+			//{
+			//	glm::vec3 positionMorph{ 0.f };
+			//	glm::vec3 normalMorph{ 0.f };
+			//	glm::vec3 tangentMorph{ 0.f };
+			//	for (int32_t morphIndex{ 0 }; morphIndex < mesh.morphWeights.size(); morphIndex++)
+			//	{
+			//
+			//	}
+			//}
+
 			primitive.buffer->Bind();
 			if (primitive.hasIndices)
 			{

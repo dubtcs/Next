@@ -83,7 +83,7 @@ void main()
 {
     //pWorldPosition = vec3(worldMatrix * vec4(vPosition, 1.0));
     vec3 morphPosition = vPosition;
-    if(CHEKBIT(morphMask, 0))
+    if(CHECKBIT(morphMask, 0))
     {
         morphPosition += positionMorph;
     }

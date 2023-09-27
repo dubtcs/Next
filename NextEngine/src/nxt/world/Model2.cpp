@@ -244,21 +244,43 @@ namespace nxt
 			for (int32_t i{ 0 }; i < prim.targets.size(); i++)
 			{
 				morphmap& target{ prim.targets[i] };
-				int32_t mask{ 0 };
+				Morph morph{  };
+
 				if (target.contains("POSITION"))
 				{
-					mask |= nxtMorphTarget_Position;
+					gltf::Accessor& accessor{ model.accessors[target.at("POSITION")] };
+					gltf::BufferView& view{ model.bufferViews[accessor.bufferView] };
+					gltf::Buffer& buffer{ model.buffers[view.buffer] };
+
+					std::vector<glm::vec3> temp{};
+					temp.reserve(accessor.count);
+
+					int32_t stride{ accessor.ByteStride(view) };
+					for (int32_t b{ 0 }; b < accessor.count; b++)
+					{
+						float* bruh{ (float*)(&buffer.data.at(0) + view.byteOffset + accessor.byteOffset + (stride * b)) };
+						glm::vec3 huh{ glm::make_vec3(bruh) };
+						temp.push_back(huh);
+					}
+
+					morph.targets.emplace(nxtMorphTarget_Position, temp);
 				}
 				if (target.contains("NORMAL"))
 				{
-					mask |= nxtMorphTarget_Normal;
+					gltf::Accessor& accessor{ model.accessors[target.at("NORMAL")] };
+					gltf::BufferView& view{ model.bufferViews[accessor.bufferView] };
+					gltf::Buffer& buffer{ model.buffers[view.buffer] };
+
 				}
 				if (target.contains("TANGENT"))
 				{
-					mask |= nxtMorphTarget_Tangent;
+					gltf::Accessor& accessor{ model.accessors[target.at("TANGENT")] };
+					gltf::BufferView& view{ model.bufferViews[accessor.bufferView] };
+					gltf::Buffer& buffer{ model.buffers[view.buffer] };
+
 				}
 
-				Morph morph{ static_cast<float>(node.weights[i]), mask };
+				add.morphTargets.push_back(morph);
 			}
 
 			for (auto& attribute : prim.attributes)
@@ -394,6 +416,13 @@ namespace nxt
 					mesh.matrix.position = pos;
 				}
 
+			}
+
+			if (node.weights.size() > 0)
+			{
+				mesh.morphWeights.reserve(node.weights.size());
+				for (double& d : node.weights) // tinygltf uses a double here to can't directly = or memcopy :')
+					mesh.morphWeights.push_back(static_cast<float>(d));
 			}
 
 			mesh.children = node.children;

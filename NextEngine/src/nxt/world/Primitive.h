@@ -31,9 +31,8 @@ namespace nxt
 
 	struct NXT_API Morph
 	{
-		float weight;
-		int32_t mask;
-		std::vector<float> data;
+		using target_map = std::unordered_map<nxtMorphTarget, std::vector<glm::vec3>>;
+		target_map targets;
 	};
 
 	struct NXT_API Primitive
@@ -47,7 +46,7 @@ namespace nxt
 		bool hasTangents{ false };
 		bool hasIndices{ false };
 		std::vector<BufferDataModifier> modifiers{};
-		std::vector<Morph> morphs{};
+		std::vector<Morph> morphTargets{};
 		buffers::SDataBuffer buffer;
 		buffers::SArrayObject arrayObject{ NewShared<buffers::ArrayObject>() };
 	};
@@ -75,9 +74,10 @@ namespace nxt
 			int32_t currentKeyframe{ 0 };
 		};
 		MatrixComposition matrix;
+		AnimationInfo animationInfo;
 		std::vector<Primitive> primitives;
 		std::vector<int32_t> children;
-		AnimationInfo animationInfo;
+		std::vector<float> morphWeights;
 		AnimationTrackMap animations;
 	};
 
