@@ -66,6 +66,17 @@ struct PrimitiveBufferInfo
 	int32_t occlusionTexture;
 	nxt::shader_mask primitiveMask;
 };
+struct MorphBufferInfo
+{
+	glm::vec3 Position;				// Offset 0
+	// 4 byte padding
+	glm::vec3 Normal;				// Offset 16
+	// 4 byte padding	
+	glm::vec3 Tangent;				// Offset 32
+	// 4 byte padding
+	glm::vec2 TextureCoordniate;	// Offset 48
+	int32_t EnabledFeatures;		// Offset 52 :: bits 0 - 3
+};
 
 namespace nxt
 {
@@ -77,6 +88,7 @@ namespace nxt
 		mLightInfoBuffer{ buffers::DataBuffer::Create(sizeof(SceneLightData), nullptr, nxtBufferTarget_UniformBuffer)},
 		mObjectInfoBuffer{ buffers::DataBuffer::Create(sizeof(ObjectBufferInfo), nullptr, nxtBufferTarget_UniformBuffer) },
 		mMaterialInfoBuffer{ buffers::DataBuffer::Create(sizeof(PrimitiveBufferInfo), nullptr, nxtBufferTarget_UniformBuffer) },
+		mMorphInfoBuffer{ NewShared<buffers::DataBuffer>(sizeof(MorphBufferInfo), nullptr, nxtBufferTarget_UniformBuffer) },
 		mShadowmap{ 1024 },
 		//mShadowShader{ "assets/shaders/shadows/shadowCube.vert", "assets/shaders/shadows/shadowCube.geom", "assets/shaders/shadows/shadowCube.frag" },
 		mCamera{ {-2.f, 1.f, 2.f} },
@@ -101,6 +113,7 @@ namespace nxt
 		mLightInfoBuffer->BindIndexed(1);
 		mObjectInfoBuffer->BindIndexed(2);
 		mMaterialInfoBuffer->BindIndexed(3);
+		mMorphInfoBuffer->BindIndexed(4);
 
 		gHDR = Texture::Create(mWidth, mHeight, nxtTextureFormat_RGBAF, nxtTextureTarget_2D);
 

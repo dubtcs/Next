@@ -64,6 +64,14 @@ layout (std140, binding = 3) uniform PrimitiveInfo
     int occlusionTexture;       // 164  Offset
     int primitiveMask;          // 168  Offset
 };
+layout (std140, binding = 4) uniform MorphInfo
+{
+    vec3 positionMorph;
+    vec3 normalMorph;
+    vec3 tangentMorph;
+    vec2 texturePositionMorph;
+    int morphMask; // bits [0, 3] 
+};
 
 /*
 Primitive Mask Bits:
@@ -74,7 +82,12 @@ Primitive Mask Bits:
 void main()
 {
     //pWorldPosition = vec3(worldMatrix * vec4(vPosition, 1.0));
-    pWorldPosition = vec3(viewMatrix * primitiveMatrix * vec4(vPosition, 1.0));
+    vec3 morphPosition = vPosition;
+    if(CHEKBIT(morphMask, 0))
+    {
+        morphPosition += positionMorph;
+    }
+    pWorldPosition = vec3(viewMatrix * primitiveMatrix * vec4(morphPosition, 1.0));
     
     pNormal = mat3(primitiveNormalMatrix) * vNormal;
     pTexPos = vTexturePosition;

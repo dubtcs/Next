@@ -12,4 +12,12 @@ namespace nxt
 		nxtPrimitiveFeature_Tangents = BIT(1)
 	};
 
+	enum nxtMorphTarget : nxt_enum
+	{
+		nxtMorphTarget_Position = BIT(0),
+		nxtMorphTarget_Normal = BIT(1),
+		nxtMorphTarget_Tangent = BIT(2),
+		nxtMorphTarget_TexturePosition = BIT(3)
+	};
+
 }

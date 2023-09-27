@@ -1,5 +1,6 @@
 
 ## TODO
+- [ ] Deprecate ::Create(..) functions
 - [ ] Primitive render flags for hasNormals, hasTangents, acceptsLighting, etc...
 - [ ] Fix negative scaling in matrix decomposition
 - [ ] Make ScreenQuad support multisampled textures with texelFetch

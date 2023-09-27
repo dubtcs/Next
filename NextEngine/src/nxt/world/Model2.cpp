@@ -240,6 +240,27 @@ namespace nxt
 			add.mode = static_cast<nxtDrawMode>(prim.mode);
 			add.material = prim.material;
 
+			using morphmap = std::map<std::string, int32_t>;
+			for (int32_t i{ 0 }; i < prim.targets.size(); i++)
+			{
+				morphmap& target{ prim.targets[i] };
+				int32_t mask{ 0 };
+				if (target.contains("POSITION"))
+				{
+					mask |= nxtMorphTarget_Position;
+				}
+				if (target.contains("NORMAL"))
+				{
+					mask |= nxtMorphTarget_Normal;
+				}
+				if (target.contains("TANGENT"))
+				{
+					mask |= nxtMorphTarget_Tangent;
+				}
+
+				Morph morph{ static_cast<float>(node.weights[i]), mask };
+			}
+
 			for (auto& attribute : prim.attributes)
 			{
 				gltf::Accessor& ac{ model.accessors[attribute.second] };

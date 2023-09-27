@@ -29,6 +29,13 @@ namespace nxt
 		std::vector<uint16_t> indices{};
 	};
 
+	struct NXT_API Morph
+	{
+		float weight;
+		int32_t mask;
+		std::vector<float> data;
+	};
+
 	struct NXT_API Primitive
 	{
 		uint32_t count;
@@ -40,6 +47,7 @@ namespace nxt
 		bool hasTangents{ false };
 		bool hasIndices{ false };
 		std::vector<BufferDataModifier> modifiers{};
+		std::vector<Morph> morphs{};
 		buffers::SDataBuffer buffer;
 		buffers::SArrayObject arrayObject{ NewShared<buffers::ArrayObject>() };
 	};

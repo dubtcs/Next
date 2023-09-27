@@ -31,7 +31,8 @@ namespace nxt
 		nxtBufferTarget_ElementArray = 0x8893,
 		nxtBufferTarget_UniformBuffer = 0x8A11,
 		nxtBufferTarget_CopyRead = 0x8F36,
-		nxtBufferTarget_CopyWrite = 0x8F37
+		nxtBufferTarget_CopyWrite = 0x8F37,
+		nxtBufferTarget_ShaderStorage = 0x90D2
 	};
 
 	enum nxtBufferAccess : nxt_enum

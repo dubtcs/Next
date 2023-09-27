@@ -47,6 +47,7 @@ namespace nxt
 		buffers::SDataBuffer mLightInfoBuffer;
 		buffers::SDataBuffer mObjectInfoBuffer;
 		buffers::SDataBuffer mMaterialInfoBuffer;
+		buffers::SDataBuffer mMorphInfoBuffer;
 
 		Shadowmap2 mShadowmap;
 		Shader mShadowShader;

@@ -204,5 +204,5 @@ void main()
     }
 
     outColor = vec4(lightingEffect * color, 1.0);
-    //outColor = vec4(normal, 1.0);
+    
 }
