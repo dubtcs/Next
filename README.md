@@ -5,23 +5,6 @@ In development rendering platform / model viewer for Windows.
 
 Sample models supplied by [KhronosGroup GLTF sample repo.](https://github.com/KhronosGroup/glTF-Sample-Models/tree/master/2.0)
 
-![avocado c:](media/072723.png "Avocado :)")
-
-## Download + Build
-
-### Requirements 
-
- - Windows OS
- - C++20
- - (Suggested) Visual Studio 2022
-
-### Downloading 
-
-1. Download the repository with `git clone --recursive https://github.com/dubtcs/Next.git`
-
-2. Run `_GenerateSolutions.bat` to create VS2022 solution and project files.
-    - You can use this any time you make changes to the premake5.lua file or just want new solutions.
-
 ## Goals
 
 NxtEngine is built with Win32 and OpenGL to get a better understanding of the computer graphics pipeline, graphics programming, and game engine development.
@@ -46,6 +29,25 @@ NxtEngine is built with Win32 and OpenGL to get a better understanding of the co
       - [x] Sparse Accessors
       - [x] Textures and Images
       - [x] Vertex Colors
+
+## Media
+
+![lantern c:](media/092823.png "Lantern :)")
+
+## Download + Build
+
+### Requirements 
+
+ - Windows OS
+ - C++20
+ - (Suggested) Visual Studio 2022
+
+### Downloading 
+
+1. Download the repository with `git clone --recursive https://github.com/dubtcs/Next.git`
+
+2. Run `_GenerateSolutions.bat` to create VS2022 solution and project files.
+    - You can use this any time you make changes to the premake5.lua file or just want new solutions.
 
 ## How To Use
 
