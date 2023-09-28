@@ -17,6 +17,9 @@ All functionaility is in namespace nxt
 #include <nxt/core/events/Event.h>
 #include <nxt/core/clock/Clock.h>
 #include <nxt/core/utility/random.h>
+#include <nxt/core/utility/lerp.h>
+#include <nxt/core/utility/TypeConversions.h>
+#include <nxt/core/utility/TypeToSize.h>
 
 #include <nxt/render/RenderAPI.h>
 #include <nxt/render/buffers/VertexBuffer.h>
@@ -31,5 +34,8 @@ All functionaility is in namespace nxt
 #include <nxt/render/shader/Shader.h>
 
 #include <nxt/world/World.h>
-#include <nxt/world/Model2.h>
+#include <nxt/world/env/Skybox.h>
+#include <nxt/world/model/Model2.h>
+#include <nxt/world/model/Animation.h>
+#include <nxt/world/model/Primitive.h>
 #include <nxt/world/components/all.h>

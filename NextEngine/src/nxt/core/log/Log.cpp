@@ -6,29 +6,33 @@
 static constexpr auto GEngineLogName{ "Engine" };
 static constexpr auto GAppLogName{ "App" };
 
-static std::shared_ptr<spdlog::logger> engineLog;
-static std::shared_ptr<spdlog::logger> appLog;
+#ifdef NXT_LOGGING_ENABLED
+static std::shared_ptr<spdlog::logger> engineLog{ spdlog::stdout_color_mt(GEngineLogName) };
+static std::shared_ptr<spdlog::logger> appLog{ spdlog::stdout_color_mt(GAppLogName) };
+#endif
 
 namespace nxt::log
 {
-
+#ifdef NXT_LOGGING_ENABLED
 	void Init()
 	{
 		spdlog::set_pattern("[%T] [%n] [%!] [Thread %t]: %v%$");
-		engineLog = spdlog::stdout_color_mt(GEngineLogName);
 		engineLog->set_level(spdlog::level::trace);
-		appLog = spdlog::stdout_color_mt(GAppLogName);
 		appLog->set_level(spdlog::level::trace);
 	}
 
 	std::shared_ptr<spdlog::logger> GetEngineLog()
 	{
-		return engineLog;//spdlog::get(GEngineLogName);
+		return engineLog;
 	}
 
 	std::shared_ptr<spdlog::logger> GetAppLog()
 	{
-		return appLog;//spdlog::get(GAppLogName);
+		return appLog;
 	}
-
+#else
+	void Init() {}
+	std::shared_ptr<spdlog::logger> GetEngineLog() { return nullptr; }
+	std::shared_ptr<spdlog::logger> GetAppLog() { return nullptr; }
+#endif
 }

@@ -20,6 +20,7 @@
     - [x] Primitives
  
  ## COMPLETE
+- [x] Logging works in destructors on program close
 - [x] Fix spot light
     - Normals are inverted. Some models don't have normals/tangents, so ligthing doesn't work properly in it's current state.
 - [x] Animation rework

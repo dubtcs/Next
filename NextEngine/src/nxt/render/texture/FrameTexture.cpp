@@ -30,7 +30,7 @@ namespace nxt
 		glTextureParameteri(mID, GL_TEXTURE_WRAP_T, params.WrapFilterY);
 	}
 
-	FrameTexture::FrameTexture(const std::filesystem::path& filepath, nxtTextureTarget target) :
+	FrameTexture::FrameTexture(const std::filesystem::path& filepath, nxt_enum target) :
 		mTarget{ target },
 		mSamples{ 0 }
 	{

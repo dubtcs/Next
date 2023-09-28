@@ -11,11 +11,6 @@ namespace nxt
 
 	// Can probably use a STexture for the parent of all sub textures?
 
-	SCubemap Cubemap::Create(const std::initializer_list<std::filesystem::path>& filepath)
-	{
-		return NewShared<Cubemap>(filepath);
-	}
-
 	Cubemap::Cubemap(const std::initializer_list<std::filesystem::path>& textureLocations)
 	{
 		if (textureLocations.size() > 0)

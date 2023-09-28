@@ -2,7 +2,7 @@
 
 #include <nxt/EngineCore.h>
 
-#include "materials/Material.h"
+#include "../materials/Material.h"
 #include "Primitive.h"
 #include "Animation.h"
 

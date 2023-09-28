@@ -43,9 +43,10 @@ struct FrameInfoBuffer
 	glm::mat4 view;			// 192
 	glm::mat4 viewInv;		// 256
 	glm::mat4 normView;		// 320
-	glm::vec3 position;		// 384
-	int32_t xResolution;		// 396
-	int32_t yResolution;		// 400
+	glm::mat4 projViewNoT;	// 384
+	glm::vec3 position;		// 448
+	int32_t xResolution;		// 464
+	int32_t yResolution;		// 468
 };
 struct ObjectBufferInfo
 {
@@ -96,6 +97,8 @@ namespace nxt
 		mBlurShader{ "assets/shaders/hdr/blur.vert", "assets/shaders/hdr/blur.frag" },
 		mAOShader{ "assets/shaders/screen/quad.vert", "assets/shaders/screen/ssao.frag" },
 		mAOBlurShader{ "assets/shaders/screen/quad.vert", "assets/shaders/screen/aoblur.frag" },
+		mSkyboxShader{ "assets/shaders/skybox/skybox.vert", "assets/shaders/skybox/skybox.frag" },
+		mSkybox{ "assets/textures/skybox/right.jpg", "assets/textures/skybox/left.jpg", "assets/textures/skybox/top.jpg", "assets/textures/skybox/bottom.jpg", "assets/textures/skybox/front.jpg", "assets/textures/skybox/back.jpg", },
 		mScreenQuad{  }
 	{
 		mShader.Bind();
@@ -143,6 +146,9 @@ namespace nxt
 		mAOBlurShader.SetValue("aoTexture", 3); // 3 is the texture unit set in update()
 
 		mScreenQuad.toggleao(useBlinn);
+
+		//mSkyboxShader.Bind();
+		//mSkyboxShader.SetValue("skybox", gSkyboxTextureUnit);
 
 		render::command::SetRenderFeature(nxtRenderFeature_Multisample, true);
 		render::command::SetClearColor(0.f, 0.f, 0.f, 1.f);
@@ -354,7 +360,12 @@ namespace nxt
 		mFrameInfoBuffer->SetSubData(64, 192, glm::value_ptr(mCamera.GetViewMatrix()));
 		mFrameInfoBuffer->SetSubData(64, 256, glm::value_ptr(viewInv));
 		mFrameInfoBuffer->SetSubData(64, 320, glm::value_ptr(normalViewMatrix));
-		mFrameInfoBuffer->SetSubData(12, 384, (void*)glm::value_ptr(mCamera.GetPosition()));
+
+		glm::mat4 skyboxMatrix{ mCamera.GetViewMatrix() };
+		skyboxMatrix = mCamera.GetProjectionMatrix() * glm::mat4{ glm::mat3{skyboxMatrix} };
+		mFrameInfoBuffer->SetSubData(64, 384, glm::value_ptr(skyboxMatrix));
+
+		mFrameInfoBuffer->SetSubData(12, 448, (void*)glm::value_ptr(mCamera.GetPosition()));
 
 		//NXT_LOG_TRACE(glm::to_string(mCamera.GetViewMatrix()));
 
@@ -400,6 +411,16 @@ namespace nxt
 
 			DrawModel2(m.Instance->Model, mMaterialInfoBuffer, worldMatrix, dt);
 		}
+
+		// Skybox
+		mSkyboxShader.Bind();
+		mSkybox.mTexture->Bind();
+
+		glm::mat4 h{ 1.f };
+		render::command::SetFaceCullingMode(nxtCullingMode_Front);
+		DrawModel2(mSkybox.GetModel(), mMaterialInfoBuffer, h, dt);
+		render::command::SetFaceCullingMode(nxtCullingMode_Back);
+		mShader.Bind();
 
 		mDeferredBuffer->Unbind();
 

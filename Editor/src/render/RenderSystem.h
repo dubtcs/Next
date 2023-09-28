@@ -4,7 +4,6 @@
 
 #include "Camera.h"
 
-#include <nxt/world/Model.h>
 #include <nxt/render/texture/Shadowmap2.h>
 #include <nxt/render/ScreenQuad.h>
 
@@ -40,6 +39,9 @@ namespace nxt
 		Shader mBlurShader;
 		Shader mAOShader;
 		Shader mAOBlurShader;
+		Shader mSkyboxShader;
+
+		Skybox mSkybox;
 
 		STexture mWood;
 

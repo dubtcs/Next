@@ -162,8 +162,13 @@ void main()
 {
 
     float depth = ExtractDepth(texturePosition);
-    if(depth == 1.0) // this is irrelevant data.. for now
+    // instead of doing this hack, you might be able to use the alpha channel. Have set ranges for certain ttypes of rendering
+    // deferred can't do transparency anyway, so it'd actually be making use of it
+    if(depth >= 0.99999)
+    {
+        outColor = texture(gTextures[2], texturePosition);
         return;
+    }
 
     worldPosition = GetWorldPosition(texturePosition, depth);
     normal = texture(gTextures[1], texturePosition).rgb;
@@ -204,5 +209,6 @@ void main()
     }
 
     outColor = vec4(lightingEffect * color, 1.0);
+    //outColor = texture(gTextures[2], texturePosition);
     
 }

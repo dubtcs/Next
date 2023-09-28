@@ -37,6 +37,7 @@ layout (std140, binding = 0) uniform FrameInfo
     mat4 viewMatrix;
     mat4 viewMatrixInverse;
     mat4 normalViewMatrix; // transpose(inverse(viewMatrix))
+    mat4 projectionViewMatrixNoTranslation;
     vec3 cameraPosition;
     int xResolution;
     int yResolution;

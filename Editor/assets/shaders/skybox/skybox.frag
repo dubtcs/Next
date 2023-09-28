@@ -1,6 +1,6 @@
 #version 460 core
 
-out vec4 outColor;
+layout (location = 2) out vec4 gColor;
 
 in vec3 pTexPos;
 
@@ -9,6 +9,6 @@ uniform samplerCube skybox;
 void main()
 {
     
-    outColor = texture(skybox, pTexPos);
+    gColor = texture(skybox, pTexPos);
 
 }

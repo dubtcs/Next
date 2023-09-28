@@ -9,11 +9,6 @@
 #include <nxt/core/events/ScriptEvents.h>
 #include <glm/glm.hpp>
 
-#include <nxt/core/utility/lerp.h>
-
-
-#include <nxt/world/Model2.h>
-
 static nxt::Shared<nxt::Model2Instance> modelInstance{ nullptr };
 static necs::Entity viewModel{};
 
@@ -40,9 +35,9 @@ namespace nxt
 		cmp::Light li3{ .Intensity{1.f}, .LightType{cmp::nxtLightType_Spot}, .Radius{std::cos(glm::radians(25.f))}};
 		mWorld.Attach<cmp::Light>(l3, li3);
 		
-		//necs::Entity l4{ mWorld.CreateEntity() };
-		cmp::Light li4{ .Intensity{1.f}, .Direction{5.f, 2.f, 0.f}, .LightType{cmp::nxtLightType_Directional} };
-		//mWorld.Attach<cmp::Light>(l4, li4);
+		necs::Entity l4{ mWorld.CreateEntity() };
+		cmp::Light li4{ .Intensity{1.f}, .Direction{2.f, -2.f, 0.f}, .LightType{cmp::nxtLightType_Directional} };
+		mWorld.Attach<cmp::Light>(l4, li4);
 
 		// World Model
 		modelInstance = NewShared<Model2Instance>(NewShared<Model2>("assets/models/Avocado.gltf"));

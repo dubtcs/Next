@@ -28,7 +28,7 @@ namespace nxt
 		void SetParameter(nxtTextureParamName name, nxtTextureParam value);
 		void SetData(nxtTextureFormat format, nxtDataType dataType, void* dataPointer);
 
-		FrameTexture(const std::filesystem::path& filepath, nxtTextureTarget target = nxtTextureTarget_2D);
+		FrameTexture(const std::filesystem::path& filepath, nxt_enum target = nxtTextureTarget_2D);
 	protected:
 		uint32_t mID;
 		int32_t mWidth;
