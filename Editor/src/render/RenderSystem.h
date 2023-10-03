@@ -4,7 +4,7 @@
 
 #include "Camera.h"
 
-#include <nxt/render/texture/Shadowmap2.h>
+//#include <nxt/render/texture/Shadowmap2.h>
 #include <nxt/render/ScreenQuad.h>
 
 namespace nxt
@@ -51,7 +51,7 @@ namespace nxt
 		buffers::SDataBuffer mMaterialInfoBuffer;
 		buffers::SDataBuffer mMorphInfoBuffer;
 
-		Shadowmap2 mShadowmap;
+		//Shadowmap2 mShadowmap;
 		Shader mShadowShader;
 
 		ScreenQuad mScreenQuad;

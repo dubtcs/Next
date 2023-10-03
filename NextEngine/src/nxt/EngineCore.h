@@ -44,6 +44,18 @@ No bits?
 	#define CHECKBIT(value, bit) ((value >> bit) & 1U) == 1
 //#endif
 
+using nxt_word = uint16_t; // 16 bit unsigned
+using nxt_dword = uint32_t; // 32 bit unsigned
+
+#define NXT_WORD_MASK (0xffff)
+
+// Grab the first 16 bits of the variable
+#define NXT_LO(x) (((nxt_word)x) & NXT_WORD_MASK)
+#define NXT_HI(x) ((nxt_word)((x >> 16) & NXT_WORD_MASK))
+
+// Create a dword from two raw values
+#define NXT_MAKE_DWORD(lo, hi) ((NXT_LO(lo)) | (NXT_LO(hi) << 16))
+
 // Use for binding event callbacks
 #define NXT_CALLBACK(function_name) [this](auto&&... arg) { return this->function_name(std::forward<decltype(arg)>(arg)...); }
 #define NXT_CALLBACK_STATIC(function_name) [](auto&&... arg) { return function_name(std::forward<decltype(arg)>(arg)...); }

@@ -32,6 +32,8 @@ NxtEngine is built with Win32 and OpenGL to get a better understanding of the co
 
 ## Media
 
+Screenshots can be found in the [media](media) folder.
+
 ![lantern c:](media/092823.png "Lantern :)")
 
 ## Download + Build
@@ -56,15 +58,22 @@ NxtEngine comes with a built in viewer, but if you want to use the raw render ap
 ### Viewer Controls
 
 **Model Scale:**
-    Use +, - to scale up and down the model
+
+[+] Scale model up
+
+[-] Scale model down
 
 **SSAO:**
-    Press *B* to toggle SSAO.
+
+[B] Toggle SSAO
 
 **Animation:**
-    Use the number keys [0, 9] to play animations.
-    Press G to stop animation.
-    Press P to pause.
+
+[0 - 9] Play animations.
+
+[P] Pause animation
+
+[G] Stop animation
 
 ### App Interface
 

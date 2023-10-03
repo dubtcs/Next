@@ -90,7 +90,7 @@ namespace nxt
 		mObjectInfoBuffer{ buffers::DataBuffer::Create(sizeof(ObjectBufferInfo), nullptr, nxtBufferTarget_UniformBuffer) },
 		mMaterialInfoBuffer{ buffers::DataBuffer::Create(sizeof(PrimitiveBufferInfo), nullptr, nxtBufferTarget_UniformBuffer) },
 		mMorphInfoBuffer{ NewShared<buffers::DataBuffer>(sizeof(MorphBufferInfo), nullptr, nxtBufferTarget_UniformBuffer) },
-		mShadowmap{ 1024 },
+		//mShadowmap{ 1024 },
 		//mShadowShader{ "assets/shaders/shadows/shadowCube.vert", "assets/shaders/shadows/shadowCube.geom", "assets/shaders/shadows/shadowCube.frag" },
 		mCamera{ {-2.f, 1.f, 2.f} },
 
@@ -326,17 +326,38 @@ namespace nxt
 		
 	}
 
-	static void StripMatrixTranslation(glm::mat4* m)
+	static void CreateCSMMatrix(const glm::mat4& projection, const glm::mat4 view)
 	{
-		(*m)[0].w = 0.f;
-		(*m)[1].w = 0.f;
-		(*m)[2].w = 0.f;
-	}
+		glm::mat4 inverseProjectionViewMatrix{ glm::inverse(projection * view) };
+		std::vector<glm::vec4> frustumCorners{};
+		glm::vec3 frustumCenter{ 0.f };
 
+		for (int32_t x{ 0 }; x < 2; x++)
+		{
+			for (int32_t y{ 0 }; y < 2; y++)
+			{
+				for (int32_t z{ 0 }; z < 2; z++)
+				{
+					glm::vec4 frustumWorldPosition{ (2.f * x) - 1.f, (2.f * y) - 1.f, (1.f * z) - 1.f, 1.f };
+					frustumWorldPosition = inverseProjectionViewMatrix * frustumWorldPosition;
+
+					frustumCenter += glm::vec3{ frustumWorldPosition };
+
+					frustumCorners.push_back(frustumWorldPosition);
+				}
+			}
+		}
+
+		frustumCenter /= frustumCorners.size();
+
+	}
+	
 	void RenderSystem::OnUpdate(float& dt, World& world, bool isFocused)
 	{
 		if(isFocused)
 			mCamera.OnUpdate(dt);
+
+		CreateCSMMatrix(mCamera.GetProjectionMatrix(), mCamera.GetViewMatrix());
 
 		if (input::IsKeyDown(nxtKeycode_Plus))
 		{

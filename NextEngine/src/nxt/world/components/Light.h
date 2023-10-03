@@ -4,6 +4,7 @@
 #include <memory>
 
 #include <nxt/core/GenericEnums.h>
+#include <nxt/render/texture/Shadowmap.h>
 
 namespace nxt::cmp
 {
@@ -21,7 +22,7 @@ namespace nxt::cmp
 		glm::vec3 Position{ 0.f };							// 0 Offset, 16 byte alignement
 		float Intensity{ 1.f };								// 12 Offset, 4 Byte alignment
 		glm::vec3 Direction{ 0.f };							// 16 Offset, 16 byte alignment
-		nxtLightType LightType{ nxtLightType_Ambient };		// 28 Offset, 4 byte alignment
+		nxt_dword LightType{ NXT_MAKE_DWORD(nxtLightType_Ambient, true) };		// lo_word = light type : hi_word = cast shadows     28 Offset, 4 byte alignment
 		glm::vec3 Color{ 1.f };								// 32 Offset, 16 byte alignment
 		float Radius{ 25.f };								// 44 Offset, 4 byte alignment
 	}; // Total 48 bytes, 16 byte alignment
