@@ -1,9 +1,13 @@
 
 # Nxt Engine
 
-In development rendering platform / model viewer for Windows.
+In development rendering platform / model viewer for Windows. Thanks for taking the time to check out my project.
 
 Sample models supplied by [KhronosGroup GLTF sample repo.](https://github.com/KhronosGroup/glTF-Sample-Models/tree/master/2.0)
+
+## DEMO
+
+[Here is a quick demo of the project in action.](https://youtu.be/an-wusOrnu4?si=REJLAXa0pZ-kGOu8)
 
 ## Goals
 
