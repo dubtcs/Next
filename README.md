@@ -7,7 +7,7 @@ Sample models supplied by [KhronosGroup GLTF sample repo.](https://github.com/Kh
 
 ## DEMO
 
-[Here is a quick demo of the project in action.](https://youtu.be/an-wusOrnu4?si=REJLAXa0pZ-kGOu8)
+[Here is a quick demo of the project in action.](https://youtu.be/H261Z77qU8I)
 
 ## Goals
 
